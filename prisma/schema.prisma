@@ -1,0 +1,136 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Teacher {
+  id               String       @id @default(cuid())
+  name             String
+  email            String       @unique
+  phone            String
+  employeeId       String       @unique
+  subjects         String[]
+  qualifications   String[]
+  status           String       @default("active")
+  avatar           String?
+  joinedAt         DateTime     @default(now())
+  coursesCount     Int          @default(0)
+  studentsCount    Int          @default(0)
+  assignedClass    String?
+  employeePassword String?
+  courses          Course[]
+  assignments      Assignment[]
+}
+
+model Student {
+  id              String       @id @default(cuid())
+  name            String
+  email           String       @unique
+  phone           String
+  enrolledCourses String[]
+  status          String       @default("active")
+  avatar          String?
+  guardianName    String?
+  studentId       String?      @unique
+  enrolledAt      DateTime     @default(now())
+  progress        Float        @default(0)
+  grade           String?
+  classTiming     String?
+  submissions     Submission[]
+}
+
+model Course {
+  id          String       @id @default(cuid())
+  title       String
+  description String
+  level       String
+  teacherId   String
+  teacherName String
+  teacher     Teacher      @relation(fields: [teacherId], references: [id])
+  capacity    Int
+  enrolled    Int          @default(0)
+  status      String       @default("active")
+  schedule    String
+  duration    String
+  startDate   DateTime
+  endDate     DateTime
+  roomNumber  String?
+  thumbnail   String?
+  assignments Assignment[]
+}
+
+model Assignment {
+  id               String       @id @default(cuid())
+  title            String
+  description      String
+  courseId         String
+  courseName       String
+  course           Course       @relation(fields: [courseId], references: [id])
+  teacherId        String
+  teacher          Teacher      @relation(fields: [teacherId], references: [id])
+  dueDate          DateTime
+  status           String       @default("active")
+  submissionsCount Int          @default(0)
+  totalStudents    Int          @default(0)
+  createdAt        DateTime     @default(now())
+  submissions      Submission[]
+}
+
+model Submission {
+  id               String     @id @default(cuid())
+  assignmentId     String
+  assignmentTitle  String
+  assignment       Assignment @relation(fields: [assignmentId], references: [id])
+  studentId        String
+  studentName      String
+  student          Student    @relation(fields: [studentId], references: [id])
+  submittedAt      DateTime   @default(now())
+  status           String     @default("pending")
+  grade            Float?
+  feedback         String?
+  fileUrl          String?
+  randomizedQuestions Json?
+  answers          Json?
+  aiFeedback       String?
+  aiJustification  String?
+}
+
+model Question {
+  id            String   @id @default(cuid())
+  category      String
+  type          String
+  content       String
+  options       String[]
+  correctAnswer String?
+  phase         String // "First Test" | "Last Test" | "Both"
+}
+
+model AssessmentTemplate {
+  id              String   @id @default(cuid())
+  title           String
+  phase           String // "First Test" | "Last Test"
+  classLevels     String[]
+  nature          String // "MCQ" | "Subjective" | "Mixed"
+  totalMarks      Int
+  durationMinutes Int
+  createdAt       DateTime @default(now())
+  status          String   @default("active")
+  accessCode      String
+}
+
+model Schedule {
+  id         String   @id @default(cuid())
+  classTitle String
+  teacherName String
+  timing     String
+  roomNumber String
+  days       String[]
+  slotId     String?
+}
