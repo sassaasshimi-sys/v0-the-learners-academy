@@ -56,13 +56,13 @@ export default function TeacherStudentsPage() {
 
   const getPerformanceBadge = (progress: number) => {
     if (progress >= 80) {
-      return <Badge className="bg-green-500/10 text-green-600 hover:bg-green-500/20">Excellent</Badge>
+      return <Badge className="bg-success/10 text-success border-success/20">Excellent</Badge>
     } else if (progress >= 60) {
-      return <Badge className="bg-primary/10 text-primary hover:bg-primary/20">Good</Badge>
+      return <Badge className="bg-primary/10 text-primary border-primary/20">Good</Badge>
     } else if (progress >= 40) {
-      return <Badge className="bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500/20">Average</Badge>
+      return <Badge className="bg-warning/10 text-warning border-warning/20">Average</Badge>
     } else {
-      return <Badge className="bg-red-500/10 text-red-600 hover:bg-red-500/20">Needs Attention</Badge>
+      return <Badge className="bg-destructive/10 text-destructive border-destructive/20">Needs Attention</Badge>
     }
   }
 
@@ -113,8 +113,8 @@ export default function TeacherStudentsPage() {
         </Card>
         <Card>
           <CardContent className="flex items-center gap-4 pt-6">
-            <div className="rounded-full bg-green-500/10 p-3">
-              <TrendingUp className="h-5 w-5 text-green-500" />
+            <div className="rounded-full bg-success/10 p-3">
+              <TrendingUp className="h-5 w-5 text-success" />
             </div>
             <div>
               <p className="text-2xl font-semibold">
@@ -126,8 +126,8 @@ export default function TeacherStudentsPage() {
         </Card>
         <Card>
           <CardContent className="flex items-center gap-4 pt-6">
-            <div className="rounded-full bg-yellow-500/10 p-3">
-              <Award className="h-5 w-5 text-yellow-500" />
+            <div className="rounded-full bg-warning/10 p-3">
+              <Award className="h-5 w-5 text-warning" />
             </div>
             <div>
               <p className="text-2xl font-semibold">

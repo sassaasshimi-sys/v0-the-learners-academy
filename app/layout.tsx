@@ -66,7 +66,7 @@ export default function RootLayout({
               errorDiv.style.position = 'fixed';
               errorDiv.style.bottom = '10px';
               errorDiv.style.left = '10px';
-              errorDiv.style.background = 'rgba(255,0,0,0.9)';
+              errorDiv.style.background = 'oklch(0.577 0.245 27.325)';
               errorDiv.style.color = 'white';
               errorDiv.style.padding = '10px';
               errorDiv.style.borderRadius = '5px';
