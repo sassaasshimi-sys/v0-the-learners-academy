@@ -5,13 +5,14 @@ import { GraduationCap, Users, ArrowRight, Shield, Lock, ClipboardList } from 'l
 import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Logo } from '@/components/logo'
 
 const PORTALS = [
   {
     title: 'Admin Portal',
     subtitle: 'System Control',
     description: 'Configure institutional settings, manage user access, and oversee system health.',
-    href: '/admin',
+    href: '/auth/login?role=admin',
     icon: Shield,
     color: '#f59e0b', // amber-500
     bg: 'bg-amber-500/10',
@@ -23,7 +24,7 @@ const PORTALS = [
     title: 'Teacher Portal',
     subtitle: 'Instructional Command',
     description: 'Manage classes, design assessments, and monitor student performance metrics.',
-    href: '/teacher',
+    href: '/auth/login?role=teacher',
     icon: Users,
     color: '#10b981', // emerald-500
     bg: 'bg-emerald-500/10',
@@ -35,7 +36,7 @@ const PORTALS = [
     title: 'Assessment Portal',
     subtitle: 'Academic Vault',
     description: 'Enter your secure credentials to initiate proctored academic assessments.',
-    href: '/student',
+    href: '/auth/login?role=student',
     icon: ClipboardList,
     color: '#3b82f6', // blue-500
     bg: 'bg-blue-500/10',
@@ -59,23 +60,21 @@ export default function HomePage() {
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-16"
+          className="flex flex-col items-center mb-16"
         >
           <motion.div 
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
-            className="flex items-center justify-center mb-6"
+            className="flex flex-col items-center mb-6"
           >
-            <div className="p-5 rounded-[2rem] bg-card/50 backdrop-blur-xl border border-primary/10 shadow-2xl">
-              <GraduationCap className="w-12 h-12 text-primary" />
-            </div>
+            <Logo size="3xl" orientation="vertical" className="mb-4" />
+            <h1 className="font-serif text-4xl md:text-5xl font-bold tracking-tight text-foreground mt-4">
+              The Learners Academy
+            </h1>
           </motion.div>
           
-          <h1 className="font-serif text-5xl md:text-7xl font-bold tracking-tight mb-4 text-foreground">
-            The Learners Academy
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          <p className="font-sans text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed text-center">
             A digital ecosystem architected for institutional excellence, pedagogical precision, and academic integrity.
           </p>
         </motion.div>
@@ -106,7 +105,7 @@ export default function HomePage() {
               className="group h-full"
             >
               <Link href={portal.href} className="block h-full">
-                <Card className={`h-full border-border bg-card/60 backdrop-blur-2xl overflow-hidden transition-all duration-500 shadow-xl ${portal.hoverBorder} ${portal.hoverShadow} relative flex flex-col`}>
+                <Card className={`aspect-square border-border bg-card/60 backdrop-blur-2xl overflow-hidden transition-all duration-500 shadow-xl ${portal.hoverBorder} ${portal.hoverShadow} relative flex flex-col justify-center`}>
                   
                   {/* Hover Accent Glow */}
                   <div className="absolute inset-0 bg-linear-to-br from-transparent to-transparent group-hover:from-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -125,14 +124,14 @@ export default function HomePage() {
                     <h3 className="font-serif text-2xl font-bold mb-2 group-hover:text-primary transition-colors">
                       {portal.title}
                     </h3>
-                    <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground mb-6">
+                    <p className="font-sans text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground mb-6">
                       {portal.subtitle}
                     </p>
-                    <p className="text-sm text-muted-foreground leading-relaxed mb-10 flex-grow">
+                    <p className="font-sans text-sm text-muted-foreground leading-relaxed mb-4 flex-grow">
                       {portal.description}
                     </p>
 
-                    <Button variant="outline" className="mt-auto w-full group/btn h-12 text-sm font-bold uppercase tracking-widest transition-premium border-primary/20 hover:bg-primary/5 hover:text-primary hover:border-primary/50">
+                    <Button variant="outline" className="font-sans mt-auto w-full group/btn h-12 text-sm font-bold uppercase tracking-widest transition-premium border-primary/20 hover:bg-primary/5 hover:text-primary hover:border-primary/50">
                       Enter Portal
                       <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
                     </Button>

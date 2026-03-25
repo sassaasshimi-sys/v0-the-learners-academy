@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, Suspense, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Logo } from '@/components/logo'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Mail, Lock, Loader2, UserCircle } from 'lucide-react'
@@ -12,12 +12,20 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { login } = useAuth()
   const [email, setEmail] = useState('')
-  const [role, setRole] = useState<'admin' | 'teacher' | 'student'>('student')
+  const passedRole = searchParams.get('role') as 'admin' | 'teacher' | 'student' | null
+  const [role, setRole] = useState<'admin' | 'teacher' | 'student'>(passedRole || 'student')
   const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    if (passedRole && ['admin', 'teacher', 'student'].includes(passedRole)) {
+      setRole(passedRole)
+    }
+  }, [passedRole])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -38,13 +46,6 @@ export default function LoginPage() {
 
   return (
     <div className="w-full h-full min-h-screen flex flex-col items-center justify-center px-4 py-8 bg-linear-to-b from-background to-muted/30">
-      <Link 
-        href="/" 
-        className="absolute top-8 left-8 flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Back to Home
-      </Link>
 
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
@@ -136,5 +137,17 @@ export default function LoginPage() {
         </Card>
       </motion.div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="w-full h-full min-h-screen flex items-center justify-center bg-linear-to-b from-background to-muted/30">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   )
 }
