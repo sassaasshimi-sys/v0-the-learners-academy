@@ -68,7 +68,7 @@ export default function HomePage() {
             transition={{ delay: 0.2, duration: 0.5 }}
             className="flex flex-col items-center mb-6"
           >
-            <Logo size="3xl" orientation="vertical" className="mb-4" />
+            <Logo size="2xl" orientation="vertical" className="mb-4" />
             <h1 className="font-serif text-4xl md:text-5xl font-bold tracking-tight text-foreground mt-4">
               The Learners Academy
             </h1>
