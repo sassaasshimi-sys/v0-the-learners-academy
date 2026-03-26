@@ -100,6 +100,7 @@ export default function TeachersPage() {
       email: formData.get('email') as string,
       phone: formData.get('phone') as string,
       employeeId: formData.get('employeeId') as string,
+      employeePassword: formData.get('password') as string, // Added this line
       subjects: [], 
       qualifications: [],
       status: 'active',

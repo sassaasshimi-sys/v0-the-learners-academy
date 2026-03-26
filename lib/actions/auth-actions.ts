@@ -44,7 +44,12 @@ export async function loginAction(credentials: LoginCredentials): Promise<AuthSe
       createdAt: dbUser.createdAt ? dbUser.createdAt.toISOString() : new Date().toISOString(),
     }
 
-    const token = generateSessionToken({ sub: user.id, email: user.email, role: user.role })
+    const token = generateSessionToken({ 
+      sub: user.id, 
+      email: user.email, 
+      role: user.role,
+      name: user.name 
+    })
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
 
     return { user, token, expiresAt }
@@ -95,7 +100,12 @@ export async function registerAction(data: RegisterData): Promise<AuthSession> {
       createdAt: new Date().toISOString(),
     }
 
-    const token = generateSessionToken({ sub: user.id, email: user.email, role: user.role })
+    const token = generateSessionToken({ 
+      sub: user.id, 
+      email: user.email, 
+      role: user.role,
+      name: user.name 
+    })
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
 
     revalidatePath('/')
