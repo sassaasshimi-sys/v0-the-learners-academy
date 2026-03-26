@@ -25,24 +25,24 @@ import { DashboardSkeleton } from '@/components/dashboard-skeleton'
 export default function TeacherDashboard() {
   const { user } = useAuth()
   const { 
-    courses: mockCourses, 
-    assignments: mockAssignments, 
-    submissions: mockSubmissions,
-    questions: mockQuestions,
-    enrollments: mockEnrollments,
+    courses, 
+    assignments, 
+    submissions,
+    questions,
+    enrollments,
     isInitialized
   } = useData()
   
-  const myCourses = mockCourses.filter(c => c.teacherId === user?.id)
+  const myCourses = courses.filter(c => c.teacherId === user?.id)
   const myCourseIds = myCourses.map(c => c.id)
-
-  const pendingSubmissions = mockSubmissions.filter(s => 
+ 
+  const pendingSubmissions = submissions.filter(s => 
     s.status === 'pending' && 
-    mockAssignments.find(a => a.id === s.assignmentId && myCourseIds.includes(a.courseId))
+    assignments.find(a => a.id === s.assignmentId && myCourseIds.includes(a.courseId))
   )
-
-  const activeTests = mockAssignments.filter(a => a.status === 'active' && myCourseIds.includes(a.courseId))
-
+ 
+  const activeTests = assignments.filter(a => a.status === 'active' && myCourseIds.includes(a.courseId))
+ 
   const stats = [
     {
       title: 'My Classes',
@@ -54,7 +54,7 @@ export default function TeacherDashboard() {
     },
     {
       title: 'Library Blocks',
-      value: mockQuestions.length,
+      value: questions.length,
       icon: Library,
       href: '/teacher/library',
       color: 'text-accent',
@@ -204,9 +204,9 @@ export default function TeacherDashboard() {
           <CardContent className="space-y-6">
             <div className="space-y-4">
               {myCourses.map((course) => {
-                const courseEnrollments = mockEnrollments.filter(e => e.courseId === course.id)
+                const courseEnrollments = enrollments.filter((e: any) => e.courseId === course.id)
                 const avgProgress = courseEnrollments.length > 0
-                  ? Math.round(courseEnrollments.reduce((acc, e) => acc + e.progress, 0) / courseEnrollments.length)
+                  ? Math.round(courseEnrollments.reduce((acc: number, e: any) => acc + e.progress, 0) / courseEnrollments.length)
                   : 0
 
                 return (

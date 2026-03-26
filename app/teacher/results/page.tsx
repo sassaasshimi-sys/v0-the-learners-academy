@@ -38,7 +38,7 @@ import { useAuth } from '@/contexts/auth-context'
 
 export default function ResultsPage() {
   const { user } = useAuth()
-  const { submissions: mockSubmissions, students: mockStudents, assessments: mockAssessments, courses: mockCourses, gradeSubmission } = useData()
+  const { submissions, students, assessments, courses, gradeSubmission } = useData()
   const myCourses = mockCourses.filter(c => c.teacherId === user?.id)
   const myCourseIds = myCourses.map(c => c.id)
   const [searchQuery, setSearchQuery] = useState('')
@@ -49,9 +49,9 @@ export default function ResultsPage() {
   const [gradeInput, setGradeInput] = useState('')
   const [feedbackInput, setFeedbackInput] = useState('')
 
-  const filteredResults = mockSubmissions.filter(result => {
-    const student = mockStudents.find(s => s.id === result.studentId)
-    const assessment = mockAssessments.find(a => a.id === result.assignmentId)
+  const filteredResults = submissions.filter(result => {
+    const student = students.find(s => s.id === result.studentId)
+    const assessment = assessments.find(a => a.id === result.assignmentId)
     
     // Check if student is in the filtered class
     const isMyStudent = student?.enrolledCourses.some(id => 
@@ -68,8 +68,8 @@ export default function ResultsPage() {
   })
 
   // Dynamic Statistics
-  const allTeacherResults = mockSubmissions.filter(result => {
-    const student = mockStudents.find(s => s.id === result.studentId)
+  const allTeacherResults = submissions.filter(result => {
+    const student = students.find(s => s.id === result.studentId)
     return student?.enrolledCourses.some(id => myCourseIds.includes(id))
   })
 
@@ -80,10 +80,10 @@ export default function ResultsPage() {
   const gradedResults = allTeacherResults.filter(r => r.grade !== undefined && r.grade !== null) as (typeof allTeacherResults[0] & { grade: number })[]
   const totalAvg = gradedResults.length > 0 ? Math.round(gradedResults.reduce((acc, r) => acc + r.grade, 0) / gradedResults.length) : 0
 
-  const firstTestResults = gradedResults.filter(r => mockAssessments.find(a => a.id === r.assignmentId)?.phase === 'First Test')
+  const firstTestResults = gradedResults.filter(r => assessments.find(a => a.id === r.assignmentId)?.phase === 'First Test')
   const firstTestAvg = firstTestResults.length > 0 ? Math.round(firstTestResults.reduce((acc, r) => acc + r.grade, 0) / firstTestResults.length) : 0
 
-  const lastTestResults = gradedResults.filter(r => mockAssessments.find(a => a.id === r.assignmentId)?.phase === 'Last Test')
+  const lastTestResults = gradedResults.filter(r => assessments.find(a => a.id === r.assignmentId)?.phase === 'Last Test')
   const lastTestAvg = lastTestResults.length > 0 ? Math.round(lastTestResults.reduce((acc, r) => acc + r.grade, 0) / lastTestResults.length) : 0
 
   return (
@@ -186,8 +186,8 @@ export default function ResultsPage() {
                 </thead>
                 <tbody className="divide-y divide-primary/5">
                   {filteredResults.map((result) => {
-                    const student = mockStudents.find(s => s.id === result.studentId)
-                    const assessment = mockAssessments.find(a => a.id === result.assignmentId)
+                    const student = students.find(s => s.id === result.studentId)
+                    const assessment = assessments.find(a => a.id === result.assignmentId)
                     const studentCourse = myCourses.find(c => student?.enrolledCourses.includes(c.id))
                     
                     const absoluteScore = result.grade && assessment ? Math.round((result.grade / 100) * assessment.totalMarks) : null

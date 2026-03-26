@@ -29,11 +29,21 @@ model Teacher {
   assignments      Assignment[]
 }
 
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("admin")
+  createdAt DateTime @default(now())
+}
+
 model Student {
   id              String       @id @default(cuid())
   name            String
   email           String       @unique
   phone           String
+  password        String?      // Added for DB auth
   enrolledCourses String[]
   status          String       @default("active")
   avatar          String?

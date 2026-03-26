@@ -83,24 +83,18 @@ export default function AdminDashboard() {
       title: 'Total Students',
       value: students.length,
       icon: GraduationCap,
-      change: '+12%',
-      changeType: 'positive' as const,
       href: '/admin/students',
     },
     {
       title: 'Active Teachers',
       value: teachers.length,
       icon: Users,
-      change: '+2',
-      changeType: 'positive' as const,
       href: '/admin/teachers',
     },
     {
       title: 'Total Classes',
       value: courses.length,
       icon: BookOpen,
-      change: '+3',
-      changeType: 'positive' as const,
       href: '/admin/classes',
     },
   ]
@@ -152,18 +146,7 @@ export default function AdminDashboard() {
                 <CardContent className="px-4 pb-4">
                   <div className="text-2xl font-serif font-bold tracking-tight">{stat.value}</div>
                   <div className="flex items-center gap-1.5 mt-1">
-                    <Badge 
-                      variant="secondary" 
-                      className={cn(
-                        "text-[10px] h-4 px-1.5 font-bold",
-                        stat.changeType === 'positive' 
-                          ? 'bg-success/10 text-success' 
-                          : 'bg-destructive/10 text-destructive'
-                      )}
-                    >
-                      {stat.change}
-                    </Badge>
-                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Monthly Gain</span>
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Cumulative Record</span>
                   </div>
                 </CardContent>
               </Card>

@@ -4,7 +4,32 @@ import { createContext, useContext, useEffect, useState, useCallback, type React
 import { useRouter, usePathname } from 'next/navigation'
 import { toast } from 'sonner'
 import type { User, UserRole, AuthState, LoginCredentials, RegisterData } from '@/lib/types/auth'
-import { mockLogin, mockRegister, mockLogout, validateToken, getRoleRedirectPath } from '@/lib/auth-mock'
+import { loginAction, registerAction } from '@/lib/actions/auth-actions'
+
+function validateToken(token: string): User | null {
+  try {
+    const payload = JSON.parse(atob(token))
+    if (payload.exp < Date.now()) return null
+    return {
+      id: payload.sub,
+      email: payload.email,
+      role: payload.role,
+      name: payload.name || 'User',
+      createdAt: new Date().toISOString(),
+    }
+  } catch {
+    return null
+  }
+}
+
+function getRoleRedirectPath(role: UserRole): string {
+  switch (role) {
+    case 'admin': return '/admin'
+    case 'teacher': return '/teacher'
+    case 'student': return '/student'
+    default: return '/auth/login'
+  }
+}
 
 const AUTH_STORAGE_KEY = 'learners_academy_auth'
 
@@ -110,7 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setState(prev => ({ ...prev, isLoading: true }))
     
     try {
-      const session = await mockLogin(credentials)
+      const session = await loginAction(credentials)
       
       // Store in sessionStorage
       sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({
@@ -137,7 +162,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setState(prev => ({ ...prev, isLoading: true }))
     
     try {
-      const session = await mockRegister(data)
+      const session = await registerAction(data)
       
       // Store in sessionStorage
       sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({
@@ -164,7 +189,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setState(prev => ({ ...prev, isLoading: true }))
     
     try {
-      await mockLogout()
+      // Clear persistence and simulate logout
       sessionStorage.removeItem(AUTH_STORAGE_KEY)
       
       setState({
