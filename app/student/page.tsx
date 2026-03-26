@@ -65,23 +65,14 @@ export default function StudentAccessPage() {
     const selectedClass = formData.get('class') as string
 
     try {
-      // Validate Token against registry (Cloud First)
-      let assessment = undefined
-      let isValidToken = false
-
-      if (tokenId !== "LA-DEMO") {
-        const cloudResult = await validateAccessTokenAction(tokenId)
-        if (cloudResult.success) {
-          assessment = cloudResult.data
-          isValidToken = true
-        } else {
-          // Local fallback for now while user is setting up Neon
-          assessment = assessments.find(a => a.accessCode === tokenId && a.classLevels.includes(selectedClass) && a.status === 'active')
-          isValidToken = !!assessment
-        }
-      } else {
-        isValidToken = true
-      }
+      // Validate Token against registry context strictly
+      const assessment = assessments.find(
+        a => a.accessCode === tokenId && 
+             a.classLevels.includes(selectedClass) && 
+             a.status === 'active'
+      )
+      
+      const isValidToken = !!assessment
       
       if (!isValidToken) {
         toast.error("Invalid or Inactive Token", {
@@ -102,10 +93,10 @@ export default function StudentAccessPage() {
         return
       }
 
-      // Establish authenticated session
+      // Establish authenticated session with the secure mock credentials
       await login({
-        email: 'student@learnersacademy.com',
-        password: 'demo',
+        email: 'student@yahoo.com',
+        password: 'StudentAccess!',
         role: 'student',
       })
 

@@ -5,21 +5,32 @@ const mockUsers: User[] = [
   {
     id: 'admin-1',
     email: 'admin@learnersacademy.com',
+    password: 'AdminSecure2026!',
     name: 'Academy Admin',
     role: 'admin',
     createdAt: new Date().toISOString(),
   },
   {
     id: 'teacher-1',
-    email: 'teacher@learnersacademy.com',
+    email: 'sarah.mitchell@gmail.com',
+    password: 'TeacherAccess1!',
     name: 'Sarah Mitchell',
     role: 'teacher',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop',
     createdAt: new Date().toISOString(),
   },
   {
+    id: 'teacher-2',
+    email: 'david.chen@google.com',
+    password: 'TeacherAccess2!',
+    name: 'David Chen',
+    role: 'teacher',
+    createdAt: new Date().toISOString(),
+  },
+  {
     id: 'student-1',
-    email: 'student@learnersacademy.com',
+    email: 'student@yahoo.com',
+    password: 'StudentAccess!',
     name: 'John Doe',
     role: 'student',
     createdAt: new Date().toISOString(),
@@ -43,19 +54,13 @@ export async function mockLogin(credentials: LoginCredentials): Promise<AuthSess
   // Simulate network delay
   await new Promise(resolve => setTimeout(resolve, 800))
 
-  // Find user by email and role
-  const user = mockUsers.find(
-    u => u.email === credentials.email && u.role === credentials.role
+  // Find user by exact email, role, and password
+  const matchedUser = mockUsers.find(
+    u => u.email === credentials.email && u.role === credentials.role && u.password === credentials.password
   )
 
-  // For demo purposes, also allow login with just role selection
-  // In production, this would validate actual credentials
-  const demoUser = mockUsers.find(u => u.role === credentials.role)
-
-  const matchedUser = user || demoUser
-
   if (!matchedUser) {
-    throw new Error('Invalid credentials or user not found')
+    throw new Error('Invalid credentials or role mismatch. Access denied.')
   }
 
   const token = generateMockToken(matchedUser)

@@ -34,6 +34,10 @@ function LoginContent() {
     setIsLoading(true)
     
     try {
+      if (password.length < 8) {
+        throw new Error('Institutional policy requires a password of at least 8 characters.')
+      }
+      
       await login({ email, password, role })
       toast.success('Successfully logged in')
       // Redirect is handled by AuthProvider
@@ -80,7 +84,7 @@ function LoginContent() {
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input 
                     type="email" 
-                    placeholder="name@learnersacademy.com" 
+                    placeholder="Enter associated email..." 
                     required 
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}

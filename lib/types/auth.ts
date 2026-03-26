@@ -5,8 +5,10 @@ export interface User {
   email: string
   name: string
   role: UserRole
+  password?: string
   avatar?: string
   employeeId?: string
+  enrolledCourses?: string[]
   phone?: string
   createdAt: string
 }

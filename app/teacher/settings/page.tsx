@@ -12,24 +12,9 @@ import {
   Camera
 } from 'lucide-react'
 import Image from 'next/image'
-import { toast } from 'sonner'
-import { useRef } from 'react'
 
 export default function TeacherSettingsPage() {
-  const { user, updateUser } = useAuth()
-  const fileInputRef = useRef<HTMLInputElement>(null)
-
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        updateUser({ avatar: reader.result as string })
-        toast.success('Avatar updated successfully')
-      }
-      reader.readAsDataURL(file)
-    }
-  }
+  const { user } = useAuth()
 
   const profileData = [
     {
@@ -86,9 +71,6 @@ export default function TeacherSettingsPage() {
                     {user?.name?.split(' ').map(n => n[0]).join('') || 'T'}
                   </div>
                 )}
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/avatar:opacity-100 transition-opacity flex items-center justify-center">
-                  <Camera className="w-6 h-6 text-white" />
-                </div>
               </div>
               <div>
                 <CardTitle className="font-serif text-xl leading-none">{user?.name}</CardTitle>
@@ -103,20 +85,6 @@ export default function TeacherSettingsPage() {
                 </div>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="p-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-            >
-              <Camera className="w-4 h-4" />
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleAvatarChange}
-            />
           </div>
         </CardHeader>
         <CardContent className="p-0">

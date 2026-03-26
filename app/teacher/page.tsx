@@ -91,7 +91,7 @@ export default function TeacherDashboard() {
       >
         <div>
           <h1 className="font-serif text-4xl font-bold tracking-tight text-foreground">
-            Teacher Hub
+            Welcome, {user?.name?.split(' ')[0] || 'Teacher'}
           </h1>
           <p className="text-editorial-meta text-lg mt-1">
             Orchestrating academic excellence through precision insights.

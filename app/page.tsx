@@ -28,7 +28,7 @@ const PORTALS = [
     title: 'Assessment Portal',
     subtitle: 'Academic Vault',
     description: 'Enter your secure credentials to initiate proctored academic assessments.',
-    href: '/auth/login?role=student',
+    href: '/student',
     icon: ClipboardList,
     accent: 'Student Access'
   }
@@ -86,7 +86,7 @@ export default function HomePage() {
               className="group h-full"
             >
               <Link href={portal.href} className="block h-full">
-                <Card className={`min-h-[320px] border-border bg-card/60 backdrop-blur-2xl overflow-hidden transition-all duration-500 shadow-xl hover:border-primary/30 hover:shadow-primary/10 relative flex flex-col justify-center`}>
+                <Card className={`min-h-[280px] border-border bg-card/60 backdrop-blur-2xl overflow-hidden transition-all duration-500 shadow-xl hover:border-primary/30 hover:shadow-primary/10 relative flex flex-col justify-center`}>
                   
                   {/* Hover Accent Glow */}
                   <div className="absolute inset-0 bg-linear-to-br from-transparent to-transparent group-hover:from-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -97,15 +97,15 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  <CardContent className="p-8 md:p-10 flex flex-col items-center text-center h-full relative z-10 flex-grow">
-                    <div className={`p-5 rounded-3xl bg-primary/5 mb-8 ring-1 ring-black/5 dark:ring-white/5 group-hover:scale-110 transition-transform duration-500`}>
-                      <portal.icon className="w-10 h-10 text-primary" />
+                  <CardContent className="p-6 md:p-8 flex flex-col items-center text-center h-full relative z-10 flex-grow">
+                    <div className={`p-4 rounded-3xl bg-primary/5 mb-6 ring-1 ring-black/5 dark:ring-white/5 group-hover:scale-110 transition-transform duration-500`}>
+                      <portal.icon className="w-8 h-8 text-primary" />
                     </div>
                     
                     <h3 className="font-serif text-2xl font-bold mb-2 group-hover:text-primary transition-colors">
                       {portal.title}
                     </h3>
-                    <p className="font-sans text-xs uppercase tracking-widest font-bold text-muted-foreground mb-6">
+                    <p className="font-sans text-xs uppercase tracking-widest font-bold text-muted-foreground mb-4">
                       {portal.subtitle}
                     </p>
                     <p className="font-sans text-sm text-muted-foreground leading-relaxed mb-4 flex-grow">

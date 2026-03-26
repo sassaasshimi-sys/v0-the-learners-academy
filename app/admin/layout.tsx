@@ -23,6 +23,12 @@ import {
   SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Spinner } from '@/components/ui/spinner'
 import { cn } from '@/lib/utils'
 import {
@@ -94,7 +100,7 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
 
   // Middleware handles route protection now.
 
@@ -153,17 +159,34 @@ export default function AdminLayout({
 
 
           {/* Quick User Menu */}
-          <div className="flex items-center gap-4">
-            <span className="hidden md:inline-block font-medium text-sm text-muted-foreground">
-              {user?.name}
-            </span>
-            <Avatar className="h-9 w-9 border border-primary/10 shadow-sm">
-              <AvatarImage src={user?.avatar} alt={user?.name} />
-              <AvatarFallback className="bg-primary/5 text-primary text-xs font-bold">
-                {user?.name?.split(' ').map(n => n[0]).join('') || 'U'}
-              </AvatarFallback>
-            </Avatar>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="flex items-center gap-4 outline-none hover:opacity-80 transition-opacity">
+              <span className="hidden md:inline-block font-medium text-sm text-muted-foreground">
+                {user?.name}
+              </span>
+              <Avatar className="h-9 w-9 border border-primary/10 shadow-sm">
+                <AvatarImage src={user?.avatar} alt={user?.name} />
+                <AvatarFallback className="bg-primary/5 text-primary text-xs font-bold">
+                  {user?.name?.split(' ').map(n => n[0]).join('') || 'U'}
+                </AvatarFallback>
+              </Avatar>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem asChild className="cursor-pointer">
+                <Link href="/admin/settings" className="flex items-center gap-2 w-full">
+                  <Settings className="w-4 h-4 text-muted-foreground" />
+                  <span>Settings</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive" 
+                onSelect={() => logout()}
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                <span>Sign out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </header>
 
         {/* Page Content */}
