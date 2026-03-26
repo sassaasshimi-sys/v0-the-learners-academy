@@ -394,14 +394,14 @@ export default function StudentAssessmentsPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-6 border-b bg-muted/30">
-                  <div className="flex items-center gap-4">
-                    <div className="p-2 rounded-xl bg-primary/10 text-primary">
-                      <ClipboardList className="w-6 h-6" />
+                <div className="flex items-center justify-between p-4 lg:p-6 border-b bg-muted/30">
+                  <div className="flex items-center gap-3 lg:gap-4">
+                    <div className="p-1.5 lg:p-2 rounded-xl bg-primary/10 text-primary">
+                      <ClipboardList className="w-5 h-5 lg:w-6 lg:h-6" />
                     </div>
                     <div>
-                      <h2 className="font-serif font-bold text-lg leading-none">{activeTest?.title}</h2>
-                      <p className="text-xs text-muted-foreground mt-1 uppercase tracking-widest font-bold">
+                      <h2 className="font-serif font-bold text-base lg:text-lg leading-none">{activeTest?.title}</h2>
+                      <p className="text-[9px] lg:text-xs text-muted-foreground mt-1 uppercase tracking-widest font-bold">
                         Question {currentQuestionIndex + 1} of {randomizedQuestions.length}
                       </p>
                     </div>
@@ -421,7 +421,7 @@ export default function StudentAssessmentsPage() {
                   </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-8 lg:p-12">
+                <div className="flex-1 overflow-y-auto p-5 sm:p-8 lg:p-12">
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={currentQuestionIndex}
@@ -432,10 +432,10 @@ export default function StudentAssessmentsPage() {
                       className="space-y-8 max-w-3xl mx-auto"
                     >
                       <div className="space-y-4">
-                        <Badge variant="secondary" className="px-3 py-1 text-[10px] uppercase tracking-[0.3em] font-bold">
+                        <Badge variant="secondary" className="px-3 py-1 text-[8px] sm:text-[10px] uppercase tracking-[0.3em] font-bold">
                           {randomizedQuestions[currentQuestionIndex].category}
                         </Badge>
-                        <h3 className="text-2xl lg:text-3xl font-serif leading-tight text-foreground">
+                        <h3 className="text-xl sm:text-2xl lg:text-3xl font-serif leading-tight text-foreground">
                           {randomizedQuestions[currentQuestionIndex].content}
                         </h3>
                       </div>
@@ -456,7 +456,7 @@ export default function StudentAssessmentsPage() {
                               <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${answers[randomizedQuestions[currentQuestionIndex].id] === opt ? 'border-primary' : 'border-muted-foreground/30'}`}>
                                 {answers[randomizedQuestions[currentQuestionIndex].id] === opt && <div className="w-3 h-3 rounded-full bg-primary" />}
                               </div>
-                              <Label htmlFor={`opt-${i}`} className="flex-1 cursor-pointer text-lg font-medium leading-tight">{opt}</Label>
+                              <Label htmlFor={`opt-${i}`} className="flex-1 cursor-pointer text-base sm:text-lg font-medium leading-tight">{opt}</Label>
                             </div>
                           ))}
                         </RadioGroup>

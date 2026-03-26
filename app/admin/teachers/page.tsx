@@ -237,7 +237,8 @@ export default function TeachersPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="rounded-lg border">
+          {/* Desktop Table View */}
+          <div className="hidden md:block rounded-lg border overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -338,6 +339,107 @@ export default function TeachersPage() {
                 )}
               </TableBody>
             </Table>
+          </div>
+
+          {/* Mobile Card List View */}
+          <div className="grid gap-4 md:hidden">
+            {filteredTeachers.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground bg-muted/10 rounded-2xl border border-dashed">
+                No teachers found in the registry.
+              </div>
+            ) : (
+              filteredTeachers.map((teacher) => (
+                <div
+                  key={teacher.id}
+                  className="bg-card border rounded-2xl p-4 shadow-sm hover:shadow-md transition-premium active:scale-[0.98]"
+                  onClick={() => {
+                    setSelectedTeacher(teacher)
+                    setIsViewDialogOpen(true)
+                  }}
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-10 w-10 ring-2 ring-primary/5">
+                        <AvatarFallback className="bg-primary/10 text-primary font-bold">
+                          {teacher.name.split(' ').map(n => n[0]).join('')}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h4 className="font-serif font-bold text-base leading-none mb-1">{teacher.name}</h4>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold opacity-60">
+                          {teacher.employeeId}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge 
+                      variant={teacher.status === 'active' ? 'default' : 'secondary'}
+                      className={cn("text-[8px] px-1.5 py-0 uppercase tracking-tighter", teacher.status === 'active' ? 'bg-success' : '')}
+                    >
+                      {teacher.status}
+                    </Badge>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 mb-4 text-xs">
+                    <div className="space-y-1">
+                      <p className="text-muted-foreground font-medium uppercase tracking-tighter text-[9px]">Registry Email</p>
+                      <p className="font-semibold line-clamp-1">{teacher.email}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-muted-foreground font-medium uppercase tracking-tighter text-[9px]">Assigned Class</p>
+                      <p className="font-bold text-primary truncate">
+                        {teacher.assignedClass || 'Level TBC'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-4 border-t gap-2">
+                    <div className="flex gap-4">
+                      <div className="text-center">
+                        <p className="font-bold text-sm leading-none">{teacher.coursesCount}</p>
+                        <p className="text-[8px] text-muted-foreground uppercase tracking-tight">Classes</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="font-bold text-sm leading-none">{teacher.studentsCount}</p>
+                        <p className="text-[8px] text-muted-foreground uppercase tracking-tight">Students</p>
+                      </div>
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 rounded-full">
+                          <MoreHorizontal className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48 rounded-xl p-1">
+                        <DropdownMenuItem onClick={(e) => {
+                          e.stopPropagation()
+                          setSelectedTeacher(teacher)
+                          setIsViewDialogOpen(true)
+                        }}>
+                          <Eye className="w-4 h-4 mr-2" /> View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={(e) => {
+                          e.stopPropagation()
+                          handleToggleStatus(teacher)
+                        }}>
+                          <UserX className="w-4 h-4 mr-2" /> 
+                          {teacher.status === 'active' ? 'Deactivate' : 'Activate'}
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem 
+                          className="text-destructive focus:text-destructive"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleDelete(teacher)
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" /> Remove Professional
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </CardContent>
       </Card>

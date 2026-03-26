@@ -292,7 +292,8 @@ export default function ClassesPage() {
 
       <Card>
         <CardContent className="p-0 overflow-hidden">
-          <Table>
+          <div className="hidden md:block">
+            <Table>
             <TableHeader className="bg-muted/30">
               <TableRow>
                 <TableHead className="w-[150px] font-bold text-foreground">Room Number</TableHead>
@@ -372,12 +373,65 @@ export default function ClassesPage() {
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
             </TableBody>
-          </Table>
+            </Table>
+          </div>
+
+          {/* Mobile Grid View */}
+          <div className="md:hidden p-4 space-y-4">
+            {filteredCourses.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground bg-muted/10 rounded-2xl border border-dashed">
+                No active classes found in the registry.
+              </div>
+            ) : (
+              filteredCourses.map((course) => (
+                <div 
+                  key={course.id} 
+                  className="bg-card border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-premium active:scale-[0.98]"
+                  onClick={() => {
+                    setSelectedCourse(course)
+                    setIsViewDialogOpen(true)
+                  }}
+                >
+                  <div className="p-4 border-b bg-muted/20 flex items-center justify-between">
+                    <span className="font-bold text-lg text-primary tracking-tighter">
+                      {course.roomNumber || 'Room TBC'}
+                    </span>
+                    <Badge className={cn("text-[9px] uppercase tracking-tighter", getStatusColor(course.status))}>
+                      {course.status}
+                    </Badge>
+                  </div>
+                  <div className="p-4 space-y-3">
+                    <div>
+                      <h4 className="font-serif font-bold text-lg leading-tight mb-1">{course.title}</h4>
+                      <div className="flex items-center gap-2">
+                         <Badge variant="outline" className={cn("text-[8px] h-4 px-1 py-0 uppercase tracking-tighter", getLevelColor(course.level))}>
+                          {course.level}
+                        </Badge>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3 pt-2">
+                       <div className="flex flex-col gap-1">
+                          <p className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest">Timing</p>
+                          <p className="text-xs font-semibold">{course.schedule}</p>
+                       </div>
+                       <div className="flex flex-col gap-1">
+                          <p className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest">Teacher</p>
+                          <p className="text-xs font-bold font-serif">{course.teacherName}</p>
+                       </div>
+                    </div>
+                  </div>
+                  <div className="p-2 bg-muted/5 flex justify-end px-4 border-t">
+                    <Button variant="ghost" size="sm" className="h-9 w-full rounded-xl text-primary font-bold">
+                       View Registry Profile
+                       <Eye className="w-3.5 h-3.5 ml-2" />
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </CardContent>
       </Card>
 
