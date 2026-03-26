@@ -1,6 +1,7 @@
 'use server'
 
 import db from '@/lib/db'
+import { revalidatePath } from 'next/cache'
 import type { Teacher } from '@/lib/types'
 
 export async function getTeachers() {
@@ -13,18 +14,24 @@ export async function getTeachers() {
 }
 
 export async function addTeacher(teacher: Omit<Teacher, 'coursesCount' | 'studentsCount'>) {
-  return db.teacher.create({ 
-    data: { 
-      ...teacher, 
-      joinedAt: teacher.joinedAt ? new Date(teacher.joinedAt) : new Date() 
-    } as any 
-  })
+    const newTeacher = await db.teacher.create({
+      data: {
+        ...teacher,
+        joinedAt: teacher.joinedAt ? new Date(teacher.joinedAt) : new Date()
+      } as any
+    })
+    revalidatePath('/')
+    return newTeacher
 }
 
 export async function removeTeacher(id: string) {
-  return db.teacher.delete({ where: { id } })
+    const result = await db.teacher.delete({ where: { id } })
+    revalidatePath('/')
+    return result
 }
 
 export async function updateTeacherStatus(id: string, status: string) {
-  return db.teacher.update({ where: { id }, data: { status } })
+    const result = await db.teacher.update({ where: { id }, data: { status } })
+    revalidatePath('/')
+    return result
 }

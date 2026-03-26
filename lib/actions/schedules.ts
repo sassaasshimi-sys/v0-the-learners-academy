@@ -1,6 +1,7 @@
 'use server'
 
 import db from '@/lib/db'
+import { revalidatePath } from 'next/cache'
 import type { Schedule } from '@/lib/types'
 
 export async function getSchedules() {
@@ -8,13 +9,19 @@ export async function getSchedules() {
 }
 
 export async function addSchedule(schedule: Omit<Schedule, 'id'>) {
-  return db.schedule.create({ data: schedule as any })
+  const res = await db.schedule.create({ data: schedule as any })
+  revalidatePath('/')
+  return res
 }
 
 export async function updateSchedule(id: string, data: Partial<Schedule>) {
-  return db.schedule.update({ where: { id }, data: data as any })
+  const res = await db.schedule.update({ where: { id }, data: data as any })
+  revalidatePath('/')
+  return res
 }
 
 export async function removeSchedule(id: string) {
-  return db.schedule.delete({ where: { id } })
+  const res = await db.schedule.delete({ where: { id } })
+  revalidatePath('/')
+  return res
 }

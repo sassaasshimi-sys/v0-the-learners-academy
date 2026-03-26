@@ -1,6 +1,7 @@
 'use server'
 
 import db from '@/lib/db'
+import { revalidatePath } from 'next/cache'
 import type { Student } from '@/lib/types'
 
 export async function getStudents() {
@@ -13,19 +14,25 @@ export async function getStudents() {
 }
 
 export async function enrollStudent(student: Omit<Student, 'progress'>) {
-  return db.student.create({ 
+  const result = await db.student.create({ 
     data: { 
       ...student, 
       progress: 0,
       enrolledAt: student.enrolledAt ? new Date(student.enrolledAt) : new Date()
     } as any 
   })
+  revalidatePath('/')
+  return result
 }
 
 export async function removeStudent(id: string) {
-  return db.student.delete({ where: { id } })
+  const result = await db.student.delete({ where: { id } })
+  revalidatePath('/')
+  return result
 }
 
 export async function updateStudentStatus(id: string, status: string) {
-  return db.student.update({ where: { id }, data: { status } })
+  const result = await db.student.update({ where: { id }, data: { status } })
+  revalidatePath('/')
+  return result
 }

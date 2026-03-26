@@ -1,6 +1,7 @@
 'use server'
 
 import db from '@/lib/db'
+import { revalidatePath } from 'next/cache'
 import type { Question } from '@/lib/types'
 
 export async function getQuestions() {
@@ -8,13 +9,19 @@ export async function getQuestions() {
 }
 
 export async function addQuestion(question: Omit<Question, 'id'>) {
-  return db.question.create({ data: question as any })
+  const result = await db.question.create({ data: question as any })
+  revalidatePath('/')
+  return result
 }
 
 export async function deleteQuestion(id: string) {
-  return db.question.delete({ where: { id } })
+  const result = await db.question.delete({ where: { id } })
+  revalidatePath('/')
+  return result
 }
 
 export async function updateQuestion(id: string, data: Partial<Question>) {
-  return db.question.update({ where: { id }, data: data as any })
+  const result = await db.question.update({ where: { id }, data: data as any })
+  revalidatePath('/')
+  return result
 }

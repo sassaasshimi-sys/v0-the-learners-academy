@@ -1,6 +1,7 @@
 'use server'
 
 import db from '@/lib/db'
+import { revalidatePath } from 'next/cache'
 import type { AssessmentTemplate } from '@/lib/types'
 
 export async function getAssessments() {
@@ -22,7 +23,7 @@ export async function publishAssessment(assessment: Omit<AssessmentTemplate, 'id
   }
 
   const accessCode = assessment.accessCode || Math.random().toString(36).substring(2, 8).toUpperCase()
-  return db.assessmentTemplate.create({ 
+  const result = await db.assessmentTemplate.create({ 
     data: { 
       id: `test-${Date.now()}`,
       title: assessment.title,
@@ -36,8 +37,12 @@ export async function publishAssessment(assessment: Omit<AssessmentTemplate, 'id
       createdAt: new Date()
     } 
   })
+  revalidatePath('/')
+  return result
 }
 
 export async function removeAssessment(id: string) {
-  return db.assessmentTemplate.delete({ where: { id } })
+  const result = await db.assessmentTemplate.delete({ where: { id } })
+  revalidatePath('/')
+  return result
 }

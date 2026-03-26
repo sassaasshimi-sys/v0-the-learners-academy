@@ -91,39 +91,51 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const refresh = useCallback(async () => {
     setIsLoading(true)
-    try {
-      const [t, s, c, q, a, sub, sch] = await Promise.all([
-        getTeachers(),
-        getStudents(),
-        getCourses(),
-        getQuestions(),
-        getAssessments(),
-        getSubmissions(),
-        getSchedules(),
-      ])
-      
-      // Ensure dates are string-compatible for UI components that might expect strings
-      const normalizeDate = (d: any) => (d instanceof Date ? d.toISOString() : d)
-
-      setTeachers((t as unknown as Teacher[]).map(t => ({ ...t, joinedAt: normalizeDate(t.joinedAt) })))
-      setStudents((s as unknown as Student[]).map(s => ({ ...s, enrolledAt: normalizeDate(s.enrolledAt) })))
-      setCourses((c as unknown as Course[]).map(c => ({ 
-        ...c, 
-        startDate: normalizeDate(c.startDate),
-        endDate: normalizeDate(c.endDate)
-      })))
-      setQuestions(q as unknown as Question[])
-      setAssessments(a as unknown as AssessmentTemplate[])
-      setSubmissions((sub as unknown as Submission[]).map(s => ({ ...s, submittedAt: normalizeDate(s.submittedAt) })))
-      setSchedules(sch as unknown as Schedule[])
-    } catch (err) {
-      console.error('Failed to load data from DB:', err)
-      toast.error(err instanceof Error ? err.message.substring(0, 150) : 'Database operation failed')
-    } finally {
-      setIsLoading(false)
-      setIsInitialized(true)
+    
+    // Helper to fetch data safely without crashing the entire refresh if one fails
+    async function safeFetch<T>(fn: () => Promise<T>, label: string, fallback: T): Promise<T> {
+      try {
+        return await fn() as T
+      } catch (err) {
+        console.error(`Failed to fetch ${label}:`, err)
+        return fallback
+      }
     }
-  }, [])
+
+    // Helper to ensure dates are string-compatible for UI components
+    const normalizeDate = (d: any) => (d instanceof Date ? d.toISOString() : d)
+
+    try {
+      // Execute sequentially or in small groups to respect connection pool limits (especially on Neon/Vercel)
+      const t = await safeFetch(getTeachers, 'teachers', [])
+      const s = await safeFetch(getStudents, 'students', [])
+      const c = await safeFetch(getCourses, 'courses', [])
+      const q = await safeFetch(getQuestions, 'questions', [])
+      const a = await safeFetch(getAssessments, 'assessments', [])
+      const sub = await safeFetch(getSubmissions, 'submissions', [])
+      const sch = await safeFetch(getSchedules, 'schedules', [])
+
+      startTransition(() => {
+        setTeachers(t.map((item: any) => ({ ...item, joinedAt: normalizeDate(item.joinedAt) })) as unknown as Teacher[])
+        setStudents(s.map((item: any) => ({ ...item, enrolledAt: normalizeDate(item.enrolledAt) })) as unknown as Student[])
+        setCourses(c.map((item: any) => ({ 
+          ...item, 
+          startDate: normalizeDate(item.startDate),
+          endDate: normalizeDate(item.endDate)
+        })) as unknown as Course[])
+        setQuestions(q as unknown as Question[])
+        setAssessments(a as unknown as AssessmentTemplate[])
+        setSubmissions(sub.map((item: any) => ({ ...item, submittedAt: normalizeDate(item.submittedAt) })) as unknown as Submission[])
+        setSchedules(sch as unknown as Schedule[])
+        
+        setIsInitialized(true)
+        setIsLoading(false)
+      })
+    } catch (err) {
+      console.error('Critical failure in data refresh:', err)
+      setIsLoading(false)
+    }
+  }, [getTeachers, getStudents, getCourses, getQuestions, getAssessments, getSubmissions, getSchedules, startTransition])
 
   useEffect(() => {
     refresh()

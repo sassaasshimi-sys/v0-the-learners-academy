@@ -1,6 +1,7 @@
 'use server'
 
 import db from '@/lib/db'
+import { revalidatePath } from 'next/cache'
 import type { Submission, StudentTest } from '@/lib/types'
 
 export async function getSubmissions() {
@@ -8,7 +9,7 @@ export async function getSubmissions() {
 }
 
 export async function submitTestResult(result: StudentTest, assignmentTitle: string) {
-  return db.submission.create({
+  const res = await db.submission.create({
     data: {
       assignmentId: result.templateId,
       assignmentTitle,
@@ -22,11 +23,15 @@ export async function submitTestResult(result: StudentTest, assignmentTitle: str
       aiJustification: 'AI evaluation complete.',
     }
   })
+  revalidatePath('/')
+  return res
 }
 
 export async function gradeSubmission(id: string, grade: number, feedback: string) {
-  return db.submission.update({
+  const res = await db.submission.update({
     where: { id },
     data: { grade, feedback, status: 'graded' }
   })
+  revalidatePath('/')
+  return res
 }

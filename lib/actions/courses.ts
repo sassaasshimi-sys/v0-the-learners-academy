@@ -1,6 +1,7 @@
 'use server'
 
 import db from '@/lib/db'
+import { revalidatePath } from 'next/cache'
 import type { Course } from '@/lib/types'
 
 export async function getCourses() {
@@ -13,7 +14,7 @@ export async function getCourses() {
 }
 
 export async function addCourse(course: Omit<Course, 'enrolled'>) {
-  return db.course.create({ 
+  const result = await db.course.create({ 
     data: { 
       ...course, 
       enrolled: 0,
@@ -21,12 +22,18 @@ export async function addCourse(course: Omit<Course, 'enrolled'>) {
       endDate: new Date(course.endDate)
     } as any 
   })
+  revalidatePath('/')
+  return result
 }
 
 export async function removeCourse(id: string) {
-  return db.course.delete({ where: { id } })
+  const result = await db.course.delete({ where: { id } })
+  revalidatePath('/')
+  return result
 }
 
 export async function updateCourseStatus(id: string, status: string) {
-  return db.course.update({ where: { id }, data: { status } })
+  const result = await db.course.update({ where: { id }, data: { status } })
+  revalidatePath('/')
+  return result
 }
