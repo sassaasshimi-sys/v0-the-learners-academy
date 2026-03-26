@@ -14,10 +14,6 @@ const PORTALS = [
     description: 'Configure institutional settings, manage user access, and oversee system health.',
     href: '/auth/login?role=admin',
     icon: Shield,
-    color: '#f59e0b', // amber-500
-    bg: 'bg-amber-500/10',
-    hoverBorder: 'hover:border-amber-500/30',
-    hoverShadow: 'hover:shadow-amber-500/10',
     accent: 'Restricted'
   },
   {
@@ -26,10 +22,6 @@ const PORTALS = [
     description: 'Manage classes, design assessments, and monitor student performance metrics.',
     href: '/auth/login?role=teacher',
     icon: Users,
-    color: '#10b981', // emerald-500
-    bg: 'bg-emerald-500/10',
-    hoverBorder: 'hover:border-emerald-500/30',
-    hoverShadow: 'hover:shadow-emerald-500/10',
     accent: 'Faculty Only'
   },
   {
@@ -38,10 +30,6 @@ const PORTALS = [
     description: 'Enter your secure credentials to initiate proctored academic assessments.',
     href: '/auth/login?role=student',
     icon: ClipboardList,
-    color: '#3b82f6', // blue-500
-    bg: 'bg-blue-500/10',
-    hoverBorder: 'hover:border-blue-500/30',
-    hoverShadow: 'hover:shadow-blue-500/10',
     accent: 'Student Access'
   }
 ]
@@ -69,14 +57,7 @@ export default function HomePage() {
             className="flex flex-col items-center mb-6"
           >
             <Logo size="2xl" orientation="vertical" className="mb-4" />
-            <h1 className="font-serif text-4xl md:text-5xl font-bold tracking-tight text-foreground mt-4">
-              The Learners Academy
-            </h1>
           </motion.div>
-          
-          <p className="font-sans text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed text-center">
-            A digital ecosystem architected for institutional excellence, pedagogical precision, and academic integrity.
-          </p>
         </motion.div>
 
         {/* Portal Grid */}
@@ -105,10 +86,10 @@ export default function HomePage() {
               className="group h-full"
             >
               <Link href={portal.href} className="block h-full">
-                <Card className={`aspect-square border-border bg-card/60 backdrop-blur-2xl overflow-hidden transition-all duration-500 shadow-xl ${portal.hoverBorder} ${portal.hoverShadow} relative flex flex-col justify-center`}>
+                <Card className={`min-h-[320px] border-border bg-card/60 backdrop-blur-2xl overflow-hidden transition-all duration-500 shadow-xl hover:border-primary/30 hover:shadow-primary/10 relative flex flex-col justify-center`}>
                   
                   {/* Hover Accent Glow */}
-                  <div className="absolute inset-0 bg-linear-to-br from-transparent to-transparent group-hover:from-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute inset-0 bg-linear-to-br from-transparent to-transparent group-hover:from-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                   <div className="absolute top-0 right-0 p-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-[-10px] group-hover:translate-y-0">
                     <div className="px-3 py-1 rounded-full bg-background/80 backdrop-blur-md text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground border border-border">
@@ -117,14 +98,14 @@ export default function HomePage() {
                   </div>
 
                   <CardContent className="p-8 md:p-10 flex flex-col items-center text-center h-full relative z-10 flex-grow">
-                    <div className={`p-5 rounded-3xl ${portal.bg} mb-8 ring-1 ring-black/5 dark:ring-white/5 group-hover:scale-110 transition-transform duration-500`}>
-                      <portal.icon className="w-10 h-10" style={{ color: portal.color }} />
+                    <div className={`p-5 rounded-3xl bg-primary/5 mb-8 ring-1 ring-black/5 dark:ring-white/5 group-hover:scale-110 transition-transform duration-500`}>
+                      <portal.icon className="w-10 h-10 text-primary" />
                     </div>
                     
                     <h3 className="font-serif text-2xl font-bold mb-2 group-hover:text-primary transition-colors">
                       {portal.title}
                     </h3>
-                    <p className="font-sans text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground mb-6">
+                    <p className="font-sans text-xs uppercase tracking-widest font-bold text-muted-foreground mb-6">
                       {portal.subtitle}
                     </p>
                     <p className="font-sans text-sm text-muted-foreground leading-relaxed mb-4 flex-grow">
