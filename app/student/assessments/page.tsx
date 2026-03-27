@@ -312,12 +312,20 @@ export default function StudentAssessmentsPage() {
     }
 
     // Column Matching
-    if (q.type === 'Matching' && q.matchPairs) {
+    if (q.type === 'Matching') {
       const studentPairs: Record<string, string> = (() => {
         try { return JSON.parse(currentAnswer || '{}') } catch { return {} }
       })()
-      // Ensure unique options in dropdown
-      const allRights = Array.from(new Set([...q.matchPairs].map(p => p.right))).sort()
+
+      // Robust data normalization (handles both Array and String from JSON fields)
+      const rawPairs = q.matchPairs || []
+      const pairs = Array.isArray(rawPairs) 
+        ? rawPairs 
+        : typeof rawPairs === 'string' 
+          ? JSON.parse(rawPairs) 
+          : []
+
+      const allRights = Array.from(new Set(pairs.map((p: any) => p.right))).sort()
 
       return (
         <div className="space-y-3 pt-4">
@@ -325,7 +333,7 @@ export default function StudentAssessmentsPage() {
             <p className="text-editorial-label text-[10px] pl-1">Column A — Term</p>
             <p className="text-editorial-label text-[10px] pl-1">Column B — Match</p>
           </div>
-          {q.matchPairs.map((pair, i) => (
+          {pairs.map((pair: any, i: number) => (
             <div key={i} className="grid grid-cols-2 gap-3 items-center">
               <div className="rounded-xl border border-border/60 bg-muted/30 px-3 py-2.5 text-sm font-medium leading-tight">
                 {pair.left}
@@ -340,8 +348,8 @@ export default function StudentAssessmentsPage() {
                 <SelectTrigger className="h-9 text-sm border-2 rounded-xl focus:border-primary/40">
                   <SelectValue placeholder="Select match…" />
                 </SelectTrigger>
-                <SelectContent>
-                  {allRights.map(right => (
+                <SelectContent className="z-[151]">
+                  {allRights.map((right: any) => (
                     <SelectItem key={right} value={right} className="text-sm">{right}</SelectItem>
                   ))}
                 </SelectContent>
