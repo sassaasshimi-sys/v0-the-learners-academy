@@ -41,6 +41,7 @@ import {
   LogOut,
   Bell,
   ChevronDown,
+  ClipboardCheck,
 } from 'lucide-react'
 
 const adminNavItems = [
@@ -53,6 +54,11 @@ const adminNavItems = [
     title: 'Teachers',
     href: '/admin/teachers',
     icon: Users,
+  },
+  {
+    title: 'Attendance',
+    href: '/admin/attendance',
+    icon: ClipboardCheck,
   },
   {
     title: 'Students',
