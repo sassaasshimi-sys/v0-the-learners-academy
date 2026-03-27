@@ -32,7 +32,9 @@ export async function evaluateSubjective(
       'Grammar': ['structure', 'tense', 'passive', 'active', 'clause', 'sentence'],
       'Vocab & Idioms': ['nuance', 'context', 'precise', 'phrasal', 'formal'],
       'Reading': ['comprehension', 'theme', 'inference', 'summary', 'detail'],
-      'Writing': ['cohesion', 'argument', 'thesis', 'evidence', 'clarity'],
+      'Writing': ['cohesion', 'argument', 'thesis', 'evidence', 'clarity', 'paragraph', 'introduction', 'conclusion'],
+      'Listening': ['heard', 'described', 'mentioned', 'speaker', 'tone', 'audio', 'passage', 'stated'],
+      'Speaking': ['fluency', 'pronunciation', 'intonation', 'articulate', 'expression', 'response', 'pace'],
       'Both': ['concept', 'analysis', 'logic', 'example']
   }
 

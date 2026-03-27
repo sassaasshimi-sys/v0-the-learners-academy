@@ -118,17 +118,20 @@ export interface Schedule {
 }
 
 export type QuestionCategory = 'Grammar' | 'Vocab & Idioms' | 'Listening' | 'Reading' | 'Speaking' | 'Writing'
-export type QuestionType = 'MCQ' | 'Subjective'
+export type QuestionType = 'MCQ' | 'Subjective' | 'True/False' | 'Fill in the Blanks' | 'Writing' | 'Matching' | 'Reading' | 'Listening'
 
 export interface Question {
   id: string
   category: QuestionCategory
   type: QuestionType
   content: string
-  options?: string[] // For MCQ
+  options?: string[] // For MCQ and True/False
   correctAnswer?: string
   imageUrl?: string
   phase: 'First Test' | 'Last Test' | 'Both'
+  passageText?: string   // For Reading: passage shown above question
+  audioUrl?: string      // For Listening: audio clip URL
+  matchPairs?: { left: string; right: string }[] // For Matching: column pairs
 }
 
 export interface AssessmentTemplate {

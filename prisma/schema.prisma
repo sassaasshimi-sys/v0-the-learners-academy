@@ -115,12 +115,15 @@ model Submission {
 model Question {
   id            String   @id @default(cuid())
   category      String
-  type          String
+  type          String   // "MCQ" | "Subjective" | "True/False" | "Fill in the Blanks" | "Writing" | "Matching"
   content       String
   options       String[]
   correctAnswer String?
   imageUrl      String?
-  phase         String // "First Test" | "Last Test" | "Both"
+  phase         String   // "First Test" | "Last Test" | "Both"
+  passageText   String?  // Reading: full passage text shown above the question
+  audioUrl      String?  // Listening: audio clip URL auto-played on question load
+  matchPairs    Json?    // Matching: [{left: "term", right: "definition"}, ...]
 }
 
 model AssessmentTemplate {

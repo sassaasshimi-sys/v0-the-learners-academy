@@ -46,6 +46,7 @@ import {
 import { useAuth } from '@/contexts/auth-context'
 import { useData } from '@/contexts/data-context'
 import { generateSecureToken } from '@/lib/utils'
+import { toggleAssessmentStatusAction } from '@/lib/actions/teacher-actions'
 import { AssessmentSkeleton } from '@/components/dashboard-skeleton'
 import type { AssessmentTemplate } from '@/lib/types'
 import { useForm } from 'react-hook-form'
@@ -74,7 +75,7 @@ export default function AssessmentsPage() {
     removeAssessment,
     isInitialized
   } = useData()
-  const { toggleAssessmentStatusAction } = require('@/lib/actions/teacher-actions') // Fallback for direct server actions
+  // toggleAssessmentStatusAction is imported at the top of the file
   const [searchQuery, setSearchQuery] = useState('')
   const [isCreateOpen, setIsCreateOpen] = useState(false)
 

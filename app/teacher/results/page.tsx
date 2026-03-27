@@ -39,8 +39,7 @@ import { useAuth } from '@/contexts/auth-context'
 export default function ResultsPage() {
   const { user } = useAuth()
   const { submissions, students, assessments, courses, gradeSubmission } = useData()
-  const myCourses = mockCourses.filter(c => c.teacherId === user?.id)
-  const myCourseIds = myCourses.map(c => c.id)
+  const myCourses = courses.filter(c => c.teacherId === user?.id)
   const [searchQuery, setSearchQuery] = useState('')
   const [phaseFilter, setPhaseFilter] = useState('all')
   const [classFilter, setClassFilter] = useState('all')
@@ -52,25 +51,27 @@ export default function ResultsPage() {
   const filteredResults = submissions.filter(result => {
     const student = students.find(s => s.id === result.studentId)
     const assessment = assessments.find(a => a.id === result.assignmentId)
-    
-    // Check if student is in the filtered class
-    const isMyStudent = student?.enrolledCourses.some(id => 
-      myCourses.some(c => c.id === id)
+
+    // Check if this submission belongs to one of the teacher's assessments
+    // (assessment classLevels stores course titles, so we match against myCourses titles)
+    const isMyAssessment = assessment?.classLevels.some(level =>
+      myCourses.some(c => c.title === level)
     )
-    if (!isMyStudent) return false
+    if (!isMyAssessment) return false
 
     const matchesSearch = student?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          assessment?.title.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesPhase = phaseFilter === 'all' || assessment?.phase === phaseFilter
-    const matchesClass = classFilter === 'all' || student?.enrolledCourses.includes(classFilter)
+    const selectedCourse = myCourses.find(c => c.id === classFilter)
+    const matchesClass = classFilter === 'all' || assessment?.classLevels.includes(selectedCourse?.title || '')
     
     return matchesSearch && matchesPhase && matchesClass
   })
 
   // Dynamic Statistics
   const allTeacherResults = submissions.filter(result => {
-    const student = students.find(s => s.id === result.studentId)
-    return student?.enrolledCourses.some(id => myCourseIds.includes(id))
+    const assessment = assessments.find(a => a.id === result.assignmentId)
+    return assessment?.classLevels.some(level => myCourses.some(c => c.title === level))
   })
 
   // Pending Grading
