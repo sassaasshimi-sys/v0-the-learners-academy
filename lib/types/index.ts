@@ -139,9 +139,10 @@ export interface AssessmentTemplate {
   title: string
   phase: 'First Test' | 'Last Test'
   classLevels: string[]
-  nature: 'MCQ' | 'Subjective' | 'Mixed'
+  nature: 'MCQ' | 'Subjective' | 'Mixed' | 'True/False' | 'Fill in the Blanks' | 'Writing' | 'Matching' | 'Reading' | 'Listening'
   totalMarks: number
   durationMinutes: number
+  questionCount: number
   createdAt: string
   status: 'active' | 'draft' | 'archived'
   accessCode: string

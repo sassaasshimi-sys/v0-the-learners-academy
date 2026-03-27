@@ -49,9 +49,12 @@ export default function StudentAssessmentsPage() {
 
   // ── Start Test ──────────────────────────────────────────────────────────────
   const startTest = (assessment: AssessmentTemplate) => {
-    const pool = mockQuestions.filter(q =>
-      q.phase === assessment.phase || q.phase === 'Both'
-    )
+    const pool = mockQuestions.filter(q => {
+      const phaseMatch = q.phase === assessment.phase || q.phase === 'Both'
+      const natureMatch = assessment.nature === 'Mixed' || q.type === assessment.nature
+      return phaseMatch && natureMatch
+    })
+
     const seed = user?.id || 'anonymous'
     const deterministicRandom = (s: string) => {
       let hash = 0
@@ -60,7 +63,9 @@ export default function StudentAssessmentsPage() {
     }
     const rand = deterministicRandom(seed)
     const shuffled = [...pool].sort(() => rand() - 0.5)
-    const selected = shuffled.slice(0, 10)
+    
+    // Select the requested number of questions (or all if pool is smaller)
+    const selected = shuffled.slice(0, assessment.questionCount || 10)
 
     setRandomizedQuestions(selected)
     setActiveTest(assessment)
@@ -144,44 +149,39 @@ export default function StudentAssessmentsPage() {
   const finishTest = async (isAuto = false) => {
     setIsEvaluating(true)
 
-    let basePoints   = 0
-    let subjectivePoints = 0
-    let totalScorable = 0
-    let aiFeedbackChain = ""
-    let aiJustificationChain = ""
+    const totalScorable = randomizedQuestions.length
+    const pointsPerQuestion = totalScorable > 0 ? (activeTest?.totalMarks || 100) / totalScorable : 0
+    let totalScore = 0
 
     const autoGraded = randomizedQuestions.filter(q => (AUTO_GRADED_TYPES as readonly string[]).includes(q.type))
     const aiGraded   = randomizedQuestions.filter(q => (AI_GRADED_TYPES as readonly string[]).includes(q.type))
 
     // Auto-graded questions
     autoGraded.forEach(q => {
-      totalScorable++
       if (q.type === 'Matching') {
         try {
           const studentPairs = JSON.parse(answers[q.id] || '{}')
           const allCorrect = (q.matchPairs || []).every(p => studentPairs[p.left] === p.right)
-          if (allCorrect) basePoints++
+          if (allCorrect) totalScore += pointsPerQuestion
         } catch {}
       } else if (q.type === 'Fill in the Blanks') {
-        if (answers[q.id]?.toLowerCase().trim() === q.correctAnswer?.toLowerCase().trim()) basePoints++
+        if (answers[q.id]?.toLowerCase().trim() === q.correctAnswer?.toLowerCase().trim()) totalScore += pointsPerQuestion
       } else {
         // MCQ + True/False
-        if (answers[q.id] === q.correctAnswer) basePoints++
+        if (answers[q.id] === q.correctAnswer) totalScore += pointsPerQuestion
       }
     })
 
     // AI-graded questions
     for (const q of aiGraded) {
-      totalScorable++
       const audit = await evaluateSubjective(q, answers[q.id] || "")
-      subjectivePoints += audit.score
+      // Convert AI score (0-1) to weighted points
+      totalScore += (audit.score * pointsPerQuestion)
       aiFeedbackChain += audit.feedback + " "
       aiJustificationChain += audit.justification + " "
     }
 
-    const finalPercentage = totalScorable > 0
-      ? Math.round(((basePoints + subjectivePoints) / totalScorable) * 100)
-      : 0
+    const finalPercentage = Math.round(totalScore)
 
     setFinalScore(finalPercentage)
     setAiAuditResults({

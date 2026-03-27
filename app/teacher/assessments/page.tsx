@@ -57,9 +57,10 @@ const assessmentSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters'),
   phase: z.enum(['First Test', 'Last Test']),
   classLevel: z.string().min(1, 'Please select a class'),
-  nature: z.enum(['MCQ', 'Subjective', 'Mixed']),
+  nature: z.enum(['MCQ', 'Subjective', 'Mixed', 'True/False', 'Fill in the Blanks', 'Writing', 'Matching', 'Reading', 'Listening']),
   totalMarks: z.coerce.number().min(1, 'Marks must be positive'),
   duration: z.coerce.number().min(1, 'Duration must be positive'),
+  questionCount: z.coerce.number().min(1, 'Count must be at least 1').max(50, 'Max 50 questions'),
   accessCode: z.string().min(5, 'Access code is required').regex(/^[A-Z0-9-]+$/, 'Letters, numbers, and hyphens only'),
 })
 
@@ -91,6 +92,7 @@ export default function AssessmentsPage() {
       nature: 'Mixed',
       totalMarks: 100,
       duration: 60,
+      questionCount: 15,
       accessCode: generateSecureToken(),
     }
   })
@@ -116,6 +118,7 @@ export default function AssessmentsPage() {
       nature: data.nature,
       totalMarks: data.totalMarks,
       durationMinutes: data.duration,
+      questionCount: data.questionCount,
       createdAt: new Date().toISOString(),
       status: 'active',
       accessCode: data.accessCode,
@@ -199,30 +202,43 @@ export default function AssessmentsPage() {
                   {errors.classLevel && <p className="text-[10px] text-destructive font-bold uppercase mt-1">{errors.classLevel.message}</p>}
                 </Field>
                 <Field>
-                  <FieldLabel>Question Nature</FieldLabel>
+                  <FieldLabel className="text-xs">Question Nature</FieldLabel>
                   <Select defaultValue="Mixed" onValueChange={(val) => setValue('nature', val as any)}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-9">
                       <SelectValue placeholder="Select nature" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="Mixed">Mixed (All Types)</SelectItem>
                       <SelectItem value="MCQ">MCQ Only</SelectItem>
                       <SelectItem value="Subjective">Subjective Only</SelectItem>
-                      <SelectItem value="Mixed">Mixed</SelectItem>
+                      <SelectItem value="True/False">True / False Only</SelectItem>
+                      <SelectItem value="Fill in the Blanks">Fill / Blank Only</SelectItem>
+                      <SelectItem value="Matching">Matching Only</SelectItem>
+                      <SelectItem value="Writing">Writing Only</SelectItem>
+                      <SelectItem value="Reading">Reading Analysis</SelectItem>
+                      <SelectItem value="Listening">Listening Focus</SelectItem>
                     </SelectContent>
                   </Select>
                 </Field>
+
                 <div className="grid grid-cols-2 gap-4">
                   <Field>
-                    <FieldLabel>Marks</FieldLabel>
-                    <Input {...register('totalMarks')} type="number" />
-                    {errors.totalMarks && <p className="text-[10px] text-destructive font-bold uppercase mt-1">{errors.totalMarks.message}</p>}
+                    <FieldLabel className="text-xs">Questions</FieldLabel>
+                    <Input {...register('questionCount', { valueAsNumber: true })} type="number" className="h-9" />
+                    {errors.questionCount && <p className="text-[10px] text-destructive font-bold uppercase mt-1">{errors.questionCount.message}</p>}
                   </Field>
                   <Field>
-                    <FieldLabel>Mins</FieldLabel>
-                    <Input {...register('duration')} type="number" />
-                    {errors.duration && <p className="text-[10px] text-destructive font-bold uppercase mt-1">{errors.duration.message}</p>}
+                    <FieldLabel className="text-xs">Total Marks</FieldLabel>
+                    <Input {...register('totalMarks', { valueAsNumber: true })} type="number" className="h-9" />
+                    {errors.totalMarks && <p className="text-[10px] text-destructive font-bold uppercase mt-1">{errors.totalMarks.message}</p>}
                   </Field>
                 </div>
+                
+                <Field>
+                  <FieldLabel className="text-xs">Duration (Mins)</FieldLabel>
+                  <Input {...register('duration', { valueAsNumber: true })} type="number" className="h-9" />
+                  {errors.duration && <p className="text-[10px] text-destructive font-bold uppercase mt-1">{errors.duration.message}</p>}
+                </Field>
                 <Field>
                   <FieldLabel>Access Token (Unique for Class)</FieldLabel>
                   <div className="flex gap-2">

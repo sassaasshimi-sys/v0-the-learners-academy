@@ -134,6 +134,7 @@ model AssessmentTemplate {
   nature          String // "MCQ" | "Subjective" | "Mixed"
   totalMarks      Int
   durationMinutes Int
+  questionCount   Int      @default(10)
   createdAt       DateTime @default(now())
   status          String   @default("active")
   accessCode      String
