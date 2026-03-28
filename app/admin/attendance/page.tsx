@@ -394,10 +394,9 @@ export default function AttendancePage() {
             )}
          </div>
       </div>
-    </div>
 
       {/* 3. Footer Legend & Status Pane */}
-      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-12 px-6 pt-4 border-t border-primary/5">
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-12 px-6 pt-4 border-t border-primary/5 shrink-0">
          <div className="flex flex-wrap items-center gap-8 animate-in slide-in-from-left-8 duration-1000">
             <div className="flex items-center gap-3">
                <div className="w-2.5 h-2.5 rounded-full bg-success ring-4 ring-success/[0.05]" />
