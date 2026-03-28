@@ -153,34 +153,35 @@ export default function AttendancePage() {
   return (
     <div className="min-h-screen space-y-12 max-w-[1700px] mx-auto animate-in fade-in zoom-in-95 duration-700 pb-20">
       {/* 1. Analytics Horizon (The Premium Header) */}
-      <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between px-1">
-        <div className="space-y-1.5">
-          <h1 className="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-foreground">
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between px-2">
+        <div className="space-y-1">
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
             Staff Registry
           </h1>
-          <p className="text-muted-foreground font-sans text-xs sm:text-sm tracking-[0.15em] font-medium opacity-50 uppercase mt-1">
+          <p className="text-muted-foreground font-sans text-[10px] tracking-[0.2em] font-bold opacity-40 uppercase">
              Registry Management — {MONTHS[selectedMonth]} {selectedYear}
           </p>
         </div>
 
         <div className="flex flex-col md:flex-row items-stretch md:items-center gap-12 lg:mr-4">
            {/* Metric Clusters */}
-           <div className="flex flex-wrap items-center gap-10 border-l border-primary/10 pl-10">
+           {/* Metric Grid (Responsive Tile Layout) */}
+           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8 items-center border-l lg:border-l-0 border-primary/5 lg:pl-0 pl-6">
               <div className="flex flex-col">
-                 <span className="font-serif text-2xl font-bold tracking-tight">{overallStats.presence}</span>
-                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 leading-none mt-1">Presence</span>
+                 <span className="font-serif text-xl font-bold tracking-tight">{overallStats.presence}</span>
+                 <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 leading-none mt-1">Presence</span>
               </div>
               <div className="flex flex-col">
-                 <span className="font-serif text-2xl font-bold tracking-tight text-destructive/60">{overallStats.uncheckedToday}</span>
-                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 leading-none mt-1">Unchecked</span>
+                 <span className="font-serif text-xl font-bold tracking-tight text-destructive/60">{overallStats.uncheckedToday}</span>
+                 <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 leading-none mt-1">Unchecked</span>
               </div>
-              <div className="flex flex-col">
-                 <span className="font-serif text-2xl font-bold tracking-tight text-warning">{overallStats.lateFrequency}</span>
-                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 leading-none mt-1">Lates</span>
+              <div className="flex flex-col border-l border-primary/5 pl-4 hidden md:flex">
+                 <span className="font-serif text-xl font-bold tracking-tight text-warning">{overallStats.lateFrequency}</span>
+                 <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 leading-none mt-1">Lates</span>
               </div>
-              <div className="flex flex-col">
-                 <span className="font-serif text-2xl font-bold tracking-tight text-primary/80">{overallStats.totalSubstitutes}</span>
-                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 leading-none mt-1">Substitutions</span>
+              <div className="flex flex-col border-l border-primary/5 pl-4 hidden md:flex">
+                 <span className="font-serif text-xl font-bold tracking-tight text-primary/70">{overallStats.totalSubstitutes}</span>
+                 <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 leading-none mt-1">Subs</span>
               </div>
            </div>
 
@@ -237,29 +238,24 @@ export default function AttendancePage() {
                     onMouseEnter={() => setHoveredTeacherId(teacher.id)}
                     onMouseLeave={() => setHoveredTeacherId(null)}
                     className={cn(
-                      "h-[112px] px-12 flex flex-col justify-center transition-all duration-500 relative group/teacher",
+                      "h-[132px] px-12 flex flex-col justify-center transition-all duration-500 relative group/teacher",
                       hoveredTeacherId === teacher.id ? "bg-primary/[0.04] shadow-[inset_0_0_40px_rgba(0,0,0,0.02)]" : "bg-transparent"
                     )}
                   >
                      {hoveredTeacherId === teacher.id && (
-                        <div className="absolute left-0 w-2.5 h-16 bg-primary/40 rounded-r-full shadow-[0_0_35px_rgba(var(--primary),0.3)] animate-in slide-in-from-left-6 duration-700" />
+                        <div className="absolute left-0 w-2 h-20 bg-primary/40 rounded-r-full shadow-[0_0_35px_rgba(var(--primary),0.3)] animate-in slide-in-from-left-6 duration-700" />
                      )}
                      
-                     <div className="space-y-2">
-                        <p className="font-serif font-bold text-2xl leading-tight text-foreground/90 tracking-tight transition-transform duration-500 group-hover/teacher:translate-x-2">
+                     <div className="space-y-1.5 focus-within:translate-x-1 transition-transform">
+                        <p className="font-serif font-bold text-lg leading-tight text-foreground/90 tracking-tight">
                           {teacher.name}
                         </p>
-                        <div className="flex items-center gap-3">
-                           <div className="px-2.5 py-1 rounded-md bg-primary/[0.03] border border-primary/10 backdrop-blur-sm shadow-sm">
-                              <span className="font-mono text-[10px] text-muted-foreground/60 uppercase tracking-[0.2em] font-bold">
-                                ID // {teacher.employeeId}
-                              </span>
-                           </div>
+                        <div className="flex items-center gap-2.5">
+                           <span className="font-mono text-[9px] text-muted-foreground/40 uppercase tracking-[0.2em] font-medium">
+                             ID // {teacher.employeeId}
+                           </span>
                            {teacher.status === 'active' && (
-                              <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-success/50 animate-pulse shadow-[0_0_10px_rgba(0,255,0,0.3)]" />
-                                <span className="text-[9px] font-black uppercase tracking-widest text-success/40">Verified</span>
-                              </div>
+                              <span className="w-1.5 h-1.5 rounded-full bg-success/30 shadow-[0_0_10px_rgba(0,255,0,0.2)]" />
                            )}
                         </div>
                      </div>
@@ -279,118 +275,105 @@ export default function AttendancePage() {
             </div>
          </div>
 
-         {/* B. Independent Zen Calendar Pane (Independent Scroll) */}
-         <div className="flex-1 overflow-x-auto custom-scrollbar bg-background/[0.01] relative">
-            <div className="w-max pr-40"> {/* Enhanced Right Security Scroll Buffer */}
-               <table className="border-collapse text-left">
-                  <thead>
-                     {/* Tier 1: Day Labels (MON, TUE...) */}
-                     <tr className="bg-muted/[0.06] border-b border-primary/5 h-[90px] text-nowrap">
-                        {calendarDays.map(day => {
-                           const date = new Date(selectedYear, selectedMonth, day)
-                           const isWeekend = date.getDay() === 0 || date.getDay() === 6
-                           return (
-                              <th key={`day-${day}`} className={cn(
-                                 "w-[110px] min-w-[110px] text-center border-r border-primary/5 transition-colors relative",
-                                 isWeekend ? "bg-muted/30 shadow-[inset_0_0_40px_rgba(0,0,0,0.03)]" : "bg-card/5"
-                              )}>
-                                 <span className="text-[10px] font-black uppercase tracking-[0.5em] text-muted-foreground/40">{DAYS[date.getDay()]}</span>
-                                 {isWeekend && (
-                                   <div className="absolute inset-0 bg-grid-slate-200/[0.02] pointer-events-none opacity-20" />
-                                 )}
-                              </th>
-                           )
-                        })}
-                     </tr>
-                     {/* Tier 2: Date Anchors (01, 02...) */}
-                     <tr className="bg-muted/[0.03] border-b border-primary/10 h-[90px] text-nowrap">
-                        {calendarDays.map(day => {
-                           const date = new Date(selectedYear, selectedMonth, day)
-                           const isWeekend = date.getDay() === 0 || date.getDay() === 6
-                           return (
-                              <th key={`date-${day}`} className={cn(
-                                 "w-[110px] min-w-[110px] text-center border-r border-primary/5 transition-colors relative",
-                                 isWeekend ? "bg-muted/30" : "bg-card/5"
-                              )}>
-                                 <span className="font-mono text-4xl font-bold text-primary/40 tracking-tighter drop-shadow-sm">{day < 10 ? `0${day}` : day}</span>
-                              </th>
-                           )
-                        })}
-                     </tr>
-                  </thead>
-                  <tbody>
-                     {teachers.map(teacher => {
-                        return (
-                           <tr 
-                             key={teacher.id} 
-                             onMouseEnter={() => setHoveredTeacherId(teacher.id)}
-                             onMouseLeave={() => setHoveredTeacherId(null)}
-                             className={cn(
-                               "h-[112px] border-b border-primary/[0.03] transition-all duration-500 group/row relative",
-                               hoveredTeacherId === teacher.id ? "bg-primary/[0.03] shadow-[inset_0_0_30px_rgba(0,0,0,0.01)]" : "bg-transparent"
-                             )}
-                           >
-                              {calendarDays.map(day => {
-                                 const record = (attendanceMap[teacher.id] || {})[day.toString()]
-                                 const date = new Date(selectedYear, selectedMonth, day)
-                                 const isWeekend = date.getDay() === 0 || date.getDay() === 6
-                                 
-                                 return (
-                                    <td key={day} className={cn(
-                                       "w-[110px] min-w-[110px] border-r border-primary/[0.03] text-center transition-all duration-500 relative",
-                                       isWeekend ? "bg-muted/[0.08] shadow-[inset_0_0_20px_rgba(0,0,0,0.02)]" : "bg-transparent"
-                                    )}>
-                                       {isWeekend ? (
-                                          <div className="flex flex-col items-center justify-center opacity-20 gap-1.5 pointer-events-none">
-                                              <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40 shadow-sm" />
-                                              <span className="text-[8px] font-black uppercase tracking-[0.25em] text-muted-foreground/30">Weekend</span>
-                                          </div>
-                                       ) : (
-                                          <AttendanceCell 
-                                            teacherId={teacher.id} 
-                                            day={day} 
-                                            record={record} 
-                                            onUpdate={handleUpdateStatus}
-                                          />
-                                       )}
-                                    </td>
-                                 )
-                              })}
-                           </tr>
-                        )
-                     })}
-                  </tbody>
-               </table>
+         {/* B. Independent Zen Calendar Pane (Independent Scroll - Restricted width) */}
+         <div className="flex-1 overflow-x-hidden bg-background/[0.02] relative">
+            <div className="w-full flex flex-col">
+               {/* 1. Shared Header for Tri-Fold segments */}
+               <div className="sticky top-0 z-30 flex flex-col divide-y divide-primary/5 bg-card/80 backdrop-blur-xl border-b border-primary/10 shadow-sm">
+                  {[0, 10, 20].map((start, idx) => (
+                    <div key={`header-tier-${idx}`} className="flex h-[44px]">
+                       {calendarDays.slice(start, start + (idx === 2 ? 11 : 10)).map(day => {
+                          const date = new Date(selectedYear, selectedMonth, day)
+                          const isWeekend = date.getDay() === 0 || date.getDay() === 6
+                          return (
+                            <div key={`head-${day}`} className={cn(
+                              "w-[85px] border-r border-primary/5 flex flex-col items-center justify-center relative",
+                              isWeekend ? "bg-muted/30" : ""
+                            )}>
+                               <span className="text-[8px] font-black tracking-tighter text-muted-foreground/30 uppercase leading-none mb-1">{DAYS[date.getDay()]}</span>
+                               <span className="font-mono text-base font-bold text-primary/40 leading-none">{day < 10 ? `0${day}` : day}</span>
+                            </div>
+                          )
+                       })}
+                    </div>
+                  ))}
+               </div>
+
+               {/* 2. Grid Content */}
+               <div className="flex flex-col divide-y divide-primary/5 overflow-y-auto">
+                  {teachers.map(teacher => (
+                    <div 
+                      key={`grid-row-${teacher.id}`}
+                      onMouseEnter={() => setHoveredTeacherId(teacher.id)}
+                      onMouseLeave={() => setHoveredTeacherId(null)}
+                      className={cn(
+                        "flex flex-col transition-all duration-500",
+                        hoveredTeacherId === teacher.id ? "bg-primary/[0.02]" : "bg-transparent"
+                      )}
+                    >
+                       {[0, 10, 20].map((start, idx) => (
+                         <div 
+                            key={`row-${teacher.id}-${idx}`} 
+                            className={cn(
+                              "flex h-[44px] divide-x divide-primary/[0.02]",
+                              idx === 1 ? "bg-primary/[0.01]" : idx === 2 ? "bg-primary/[0.02]" : ""
+                            )}
+                         >
+                            {calendarDays.slice(start, start + (idx === 2 ? 11 : 10)).map(day => {
+                               const record = (attendanceMap[teacher.id] || {})[day.toString()]
+                               const date = new Date(selectedYear, selectedMonth, day)
+                               const isWeekend = date.getDay() === 0 || date.getDay() === 6
+                               return (
+                                  <div key={`cell-${teacher.id}-${day}`} className={cn(
+                                    "w-[85px] border-r border-primary/[0.02] flex items-center justify-center transition-all duration-500",
+                                    isWeekend ? "bg-muted/[0.06]" : ""
+                                  )}>
+                                     {isWeekend ? (
+                                        <div className="w-1 h-1 rounded-full bg-muted-foreground/20" />
+                                     ) : (
+                                        <AttendanceCell 
+                                          teacherId={teacher.id} 
+                                          day={day} 
+                                          record={record} 
+                                          onUpdate={handleUpdateStatus}
+                                        />
+                                     )}
+                                  </div>
+                               )
+                            })}
+                         </div>
+                       ))}
+                    </div>
+                  ))}
+               </div>
             </div>
          </div>
       </div>
 
       {/* 3. Footer Legend & Status Pane */}
       <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-12 px-6 pt-4 border-t border-primary/5">
-         <div className="flex flex-wrap items-center gap-12 animate-in slide-in-from-left-8 duration-1000">
-            <div className="flex items-center gap-4">
-               <div className="w-3 h-3 rounded-full bg-success ring-8 ring-success/[0.03] shadow-[0_0_20px_rgba(0,255,100,0.15)]" />
-               <span className="text-[10px] font-black uppercase tracking-[0.25em] opacity-30">Academy Presence</span>
+         <div className="flex flex-wrap items-center gap-8 animate-in slide-in-from-left-8 duration-1000">
+            <div className="flex items-center gap-3">
+               <div className="w-2.5 h-2.5 rounded-full bg-success ring-4 ring-success/[0.05]" />
+               <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40">Presence</span>
             </div>
-            <div className="flex items-center gap-4">
-               <div className="w-3 h-3 rounded-full bg-destructive/60 ring-8 ring-destructive/[0.03]" />
-               <span className="text-[10px] font-black uppercase tracking-[0.25em] opacity-30">Unexcused Absence</span>
+            <div className="flex items-center gap-3">
+               <div className="w-2.5 h-2.5 rounded-full bg-destructive/60 ring-4 ring-destructive/[0.05]" />
+               <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40">Absence</span>
             </div>
-            <div className="flex items-center gap-4">
-               <div className="w-3 h-3 rounded-full bg-warning ring-8 ring-warning/[0.03]" />
-               <span className="text-[10px] font-black uppercase tracking-[0.25em] opacity-30">Institutional Late</span>
+            <div className="flex items-center gap-3">
+               <div className="w-2.5 h-2.5 rounded-full bg-warning ring-4 ring-warning/[0.05]" />
+               <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40">Late</span>
             </div>
-            <div className="flex items-center gap-4">
-               <div className="w-4 h-4 text-primary flex items-center justify-center">
-                  <Star className="w-4 h-4 fill-primary/30" />
-               </div>
-               <span className="text-[10px] font-black uppercase tracking-[0.25em] opacity-30">Academic Substitution</span>
+            <div className="flex items-center gap-3">
+               <Star className="w-3 h-3 text-primary/40 fill-primary/10" />
+               <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40">Substitution</span>
             </div>
          </div>
 
-         <div className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/20 text-center lg:text-right">
-            The Learner's Academy Registry System<br/>
-            Ref // TLA-ATD-GRID-800
+         <div className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/20 text-center lg:text-right">
+            Registry Master System<br/>
+            Ref // TLA-GRID-V2
          </div>
       </div>
     </div>
@@ -404,7 +387,7 @@ function AttendanceCell({ teacherId, day, record, onUpdate }: any) {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <button className="group/cell relative w-full h-[112px] flex items-center justify-center transition-all active:scale-95 outline-none hover:bg-primary/[0.03] overflow-visible">
+        <button className="group/cell relative w-full h-[44px] flex items-center justify-center transition-all active:scale-95 outline-none hover:bg-primary/[0.03] overflow-visible">
           {/* Main Indicator Hub */}
           <div className="relative">
              <div className={cn(
