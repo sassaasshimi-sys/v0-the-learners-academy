@@ -42,6 +42,8 @@ import {
   Bell,
   ChevronDown,
   ClipboardCheck,
+  DollarSign,
+  TrendingUp,
 } from 'lucide-react'
 
 const adminNavItems = [
@@ -66,9 +68,19 @@ const adminNavItems = [
     icon: GraduationCap,
   },
   {
+    title: 'Growth Reports',
+    href: '/admin/students/reports',
+    icon: TrendingUp,
+  },
+  {
     title: 'Classes',
     href: '/admin/classes',
     icon: BookOpen,
+  },
+  {
+    title: 'Economics',
+    href: '/admin/economics',
+    icon: DollarSign,
   },
   {
     title: 'Schedule',
