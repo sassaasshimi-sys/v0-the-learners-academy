@@ -27,7 +27,9 @@ import {
   Clock,
   Briefcase,
   Tally4,
-  Check
+  Check,
+  Plus,
+  X
 } from 'lucide-react'
 import { useData } from '@/contexts/data-context'
 import { cn } from '@/lib/utils'
