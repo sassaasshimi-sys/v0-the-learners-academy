@@ -171,6 +171,11 @@
   * {
     @apply border-border outline-ring/50;
   }
+  /* The Nuclear Typography Override - Eradicates all deep monospace fallbacks */
+  *:not(h1, h2, h3, h4, h5, h6, [data-slot="card-title"], [data-slot="dialog-title"], .font-serif) {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+  }
+
   body {
     @apply bg-background text-foreground shrink-0 overflow-x-hidden;
     /* Safe Area support for modern phones */
