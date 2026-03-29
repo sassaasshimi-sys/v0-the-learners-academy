@@ -402,9 +402,9 @@ export default function QuestionLibraryPage() {
                               <div className="space-y-1">
                                 {(q.matchPairs as { left: string; right: string }[]).slice(0, 3).map((pair, i) => (
                                   <div key={i} className="flex items-center gap-2 text-xs text-muted-foreground">
-                                    <span className="font-mono bg-muted px-1.5 py-0.5 rounded text-[10px]">{pair.left}</span>
-                                    <span className="text-muted-foreground/40">→</span>
-                                    <span className="font-mono bg-muted px-1.5 py-0.5 rounded text-[10px]">{pair.right}</span>
+                                    <span className="font-sans bg-muted px-1.5 py-0.5 rounded text-[10px]">{pair.left}</span>
+                                    <span className="text-muted-foreground/30 font-bold">::</span>
+                                    <span className="font-sans bg-muted px-1.5 py-0.5 rounded text-[10px]">{pair.right}</span>
                                   </div>
                                 ))}
                                 {(q.matchPairs as any[]).length > 3 && (
@@ -462,7 +462,7 @@ export default function QuestionLibraryPage() {
             <div className="px-4 pb-4 space-y-2">
               <div className="flex justify-between text-xs">
                 <span className="text-muted-foreground">Total Questions</span>
-                <span className="font-bold font-mono">{questions.length}</span>
+                <span className="font-bold font-sans">{questions.length}</span>
               </div>
               <div className="pt-2 border-t border-border/50 space-y-1.5">
                 <p className="text-editorial-label text-[10px]">By Type</p>
@@ -471,7 +471,7 @@ export default function QuestionLibraryPage() {
                   return count > 0 ? (
                     <div key={t.value} className="flex justify-between text-xs">
                       <span className="text-muted-foreground truncate">{t.value}</span>
-                      <span className="font-bold font-mono ml-2 shrink-0">{count}</span>
+                      <span className="font-bold font-sans ml-2 shrink-0">{count}</span>
                     </div>
                   ) : null
                 })}
@@ -481,7 +481,7 @@ export default function QuestionLibraryPage() {
                 {['First Test', 'Last Test', 'Both'].map(p => (
                   <div key={p} className="flex justify-between text-xs">
                     <span className="text-muted-foreground">{p}</span>
-                    <span className="font-bold font-mono">{questions.filter((q: Question) => q.phase === p).length}</span>
+                    <span className="font-bold font-sans">{questions.filter((q: Question) => q.phase === p).length}</span>
                   </div>
                 ))}
               </div>

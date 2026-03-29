@@ -339,7 +339,7 @@ export default function AssessmentsPage() {
                         <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover/token:opacity-100 transition-opacity" />
                         <div className="relative z-10 flex flex-col">
                           <span className="text-[9px] uppercase tracking-widest font-bold text-muted-foreground">Access Token</span>
-                          <span className="font-mono text-sm font-bold tracking-tighter text-primary">{assessment.accessCode}</span>
+                          <span className="font-sans text-sm font-bold tracking-tighter text-primary">{assessment.accessCode}</span>
                         </div>
                         <div className="relative z-10 flex items-center gap-3">
                           <div className="flex items-center gap-2 pr-2 border-r border-border/50">

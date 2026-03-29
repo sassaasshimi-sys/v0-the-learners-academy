@@ -174,7 +174,7 @@ export default function FeeRegistryPage() {
                                  </div>
                                  <div className="space-y-0.5">
                                     <p className="font-serif font-bold text-base text-foreground/80">{p.student.name}</p>
-                                    <p className="text-[10px] font-mono font-bold text-muted-foreground/30 uppercase tracking-widest">{p.student.studentId || 'No ID'}</p>
+                                    <p className="text-[10px] font-sans font-bold text-muted-foreground/30 uppercase tracking-widest">{p.student.studentId || 'No ID'}</p>
                                  </div>
                               </div>
                            </td>

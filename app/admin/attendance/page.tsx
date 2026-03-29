@@ -123,10 +123,13 @@ export default function AttendancePage() {
       const teacherAttendance = attendanceMap[teacher.id] || {}
       
       Object.values(teacherAttendance).forEach((rec: any) => {
-        if (rec.status === 'Present') stats[teacher.id].present++
+        // Only count as 'Present' if not acting as a substitute (to separate them)
+        if (rec.status === 'Present' && !rec.isSubstitute) stats[teacher.id].present++
+        
         if (rec.status === 'Absent') stats[teacher.id].absent++
-        if (rec.status === 'Late') stats[teacher.id].late++
-        if (rec.status === 'Leave') stats[teacher.id].leave++
+        else if (rec.status === 'Late') stats[teacher.id].late++
+        else if (rec.status === 'Leave') stats[teacher.id].leave++
+        
         if (rec.isSubstitute) stats[teacher.id].substitutes++
       })
     })
@@ -181,14 +184,14 @@ export default function AttendancePage() {
   }
 
   return (
-    <div className="h-[calc(100vh-140px)] flex flex-col gap-6 max-w-[1700px] mx-auto animate-in fade-in zoom-in-95 duration-700 overflow-hidden">
+    <div className="h-[calc(100vh-140px)] flex flex-col gap-6 max-w-[1700px] mx-auto animate-in fade-in zoom-in-95 duration-700 overflow-hidden font-sans">
       {/* 1. Analytics Horizon (The Premium Header) */}
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between px-2 shrink-0">
         <div className="space-y-0.5">
-          <h1 className="font-serif text-3xl font-bold tracking-tight text-foreground">
+          <h1 className="font-bold text-3xl tracking-tight text-foreground">
             Attendance Registry
           </h1>
-          <p className="text-muted-foreground font-sans text-[10px] tracking-[0.2em] font-bold opacity-30 uppercase">
+          <p className="text-muted-foreground text-[10px] tracking-[0.2em] font-bold opacity-30 uppercase">
              {MONTHS[selectedMonth]} {selectedYear} // Global Panel
           </p>
         </div>
@@ -197,11 +200,11 @@ export default function AttendancePage() {
            {/* Global Metric Summary */}
            <div className="flex items-center gap-8 px-6 py-2.5 rounded-2xl bg-card border border-primary/5 shadow-sm">
               <div className="flex flex-col border-r border-primary/5 pr-8">
-                 <span className="font-serif text-xl font-bold tracking-tight">{overallStats.presence}</span>
+                 <span className="text-xl font-bold tracking-tight">{overallStats.presence}</span>
                  <span className="text-[9px] font-black uppercase tracking-[0.1em] text-muted-foreground/30 leading-none mt-1">Global Presence</span>
               </div>
               <div className="flex flex-col">
-                 <span className="font-serif text-xl font-bold tracking-tight text-destructive/60">{overallStats.uncheckedToday}</span>
+                 <span className="text-xl font-bold tracking-tight text-destructive/60">{overallStats.uncheckedToday}</span>
                  <span className="text-[9px] font-black uppercase tracking-[0.1em] text-muted-foreground/30 leading-none mt-1">Pending</span>
               </div>
            </div>
@@ -250,7 +253,7 @@ export default function AttendancePage() {
             
             <div className="flex-1 overflow-y-auto pr-2 flex flex-col gap-2 custom-scrollbar">
                {teachers.map(teacher => {
-                  const stats = statsMap[teacher.id] || { present: 0, absent: 0, late: 0, leave: 0 }
+                  const stats = statsMap[teacher.id] || { present: 0, absent: 0, late: 0, leave: 0, substitutes: 0 }
                   const isSelected = selectedTeacherId === teacher.id
                   
                   return (
@@ -271,19 +274,19 @@ export default function AttendancePage() {
                        <div className="flex items-start justify-between">
                           <div className="space-y-1">
                              <div className="flex items-center gap-3">
-                                <h4 className="font-serif font-bold text-lg leading-tight text-foreground/90">{teacher.name}</h4>
+                                <h4 className="font-bold text-lg leading-tight text-foreground/90">{teacher.name}</h4>
                                 {teacher.status === 'active' && (
                                    <span className="w-2 h-2 rounded-full bg-success/40 animate-pulse" />
                                 )}
                              </div>
-                             <p className="font-mono text-[9px] text-muted-foreground/40 uppercase tracking-widest uppercase">ID // {teacher.employeeId}</p>
+                             <p className="text-[9px] text-muted-foreground/40 uppercase tracking-widest uppercase">ID // {teacher.employeeId}</p>
                           </div>
                           <Badge variant="outline" className="text-[8px] font-black tracking-widest border-primary/10 opacity-40">
                              {teacher.position || 'Lecturer'}
                           </Badge>
                        </div>
 
-                       <div className="mt-5 pt-4 border-t border-primary/5 grid grid-cols-4 gap-2">
+                       <div className="mt-5 pt-4 border-t border-primary/5 grid grid-cols-5 gap-1.5">
                           <div className="flex flex-col items-center">
                              <span className="text-[10px] font-bold text-success/60">{stats.present}</span>
                              <span className="text-[7px] font-black uppercase tracking-widest text-muted-foreground/30">P</span>
@@ -297,8 +300,12 @@ export default function AttendancePage() {
                              <span className="text-[7px] font-black uppercase tracking-widest text-muted-foreground/30">L</span>
                           </div>
                           <div className="flex flex-col items-center">
-                             <span className="text-[10px] font-bold text-primary/50">{stats.leave}</span>
+                             <span className="text-[10px] font-bold text-primary/80">{stats.substitutes}</span>
                              <span className="text-[7px] font-black uppercase tracking-widest text-muted-foreground/30">S</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                             <span className="text-[10px] font-bold text-primary/40">{stats.leave}</span>
+                             <span className="text-[7px] font-black uppercase tracking-widest text-muted-foreground/30">LV</span>
                           </div>
                        </div>
                     </div>
@@ -315,10 +322,10 @@ export default function AttendancePage() {
                   <div className="px-12 py-10 flex flex-col lg:flex-row lg:items-center justify-between gap-12 bg-muted/5 border-b border-primary/5">
                      <div className="space-y-2">
                         <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/30 leading-none">Attendance Record</span>
-                        <h3 className="font-serif text-4xl font-bold tracking-tight">
+                        <h3 className="text-4xl font-bold tracking-tight">
                            {teachers.find(t => t.id === selectedTeacherId)?.name}
                         </h3>
-                        <p className="text-[11px] italic font-serif text-muted-foreground/40 leading-none">Detailed Personnel Summary for {MONTHS[selectedMonth]} {selectedYear}</p>
+                        <p className="text-[11px] text-muted-foreground/40 leading-none">Detailed Personnel Summary for {MONTHS[selectedMonth]} {selectedYear}</p>
                      </div>
 
                      <div className="flex flex-wrap gap-4">
@@ -359,7 +366,7 @@ export default function AttendancePage() {
                                  >
                                     <div className="absolute top-4 left-5">
                                        <span className={cn(
-                                          "font-mono text-xl font-bold transition-colors",
+                                          "text-xl font-bold transition-colors",
                                           isWeekend ? "text-muted-foreground/20" : "text-primary/20 group-hover/cell:text-primary/60"
                                        )}>{day < 10 ? `0${day}` : day}</span>
                                     </div>
@@ -371,6 +378,8 @@ export default function AttendancePage() {
                                           record={record} 
                                           onUpdate={handleUpdateStatus}
                                           isWeekend={isWeekend}
+                                          currentMonth={selectedMonth}
+                                          currentYear={selectedYear}
                                        />
                                     </div>
                                     
@@ -389,7 +398,7 @@ export default function AttendancePage() {
             ) : (
                <div className="flex-1 flex flex-col items-center justify-center opacity-20 space-y-4">
                   <CalendarIcon className="w-16 h-16 stroke-1" />
-                  <p className="font-serif text-xl">Select a teacher record to begin audit</p>
+                  <p className="text-xl">Select a teacher record to begin audit</p>
                </div>
             )}
          </div>
@@ -439,12 +448,13 @@ function MetricPill({ label, value, color }: { label: string, value: number, col
         colorMap[color]
      )}>
         <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60 leading-none mb-1">{label}</span>
-        <span className="text-2xl font-serif font-bold tracking-tight">{value}</span>
+        <span className="text-2xl font-bold tracking-tight">{value}</span>
      </div>
   )
 }
 
 function AttendanceGridCell({ teacherId, day, record, onUpdate, isWeekend }: any) {
+  const [open, setOpen] = useState(false)
   const currentStatus = record?.status || null
   const isSubstitute = record?.isSubstitute || false
 
@@ -454,25 +464,31 @@ function AttendanceGridCell({ teacherId, day, record, onUpdate, isWeekend }: any
      )
   }
 
+  const handleSelect = (status: AttendanceStatus, sub = isSubstitute) => {
+    onUpdate(teacherId, day, status, sub)
+    setOpen(false)
+  }
+
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button className="group/cell relative w-full h-full flex items-center justify-center transition-all active:scale-90 outline-none overflow-visible">
           {/* Main Indicator Hub */}
           <div className="relative">
              <div className={cn(
                "w-5 h-5 rounded-full transition-all duration-500 border-2",
-               currentStatus === 'Present' ? "bg-success border-success shadow-[0_0_20px_rgba(0,255,150,0.4)]" :
+               isSubstitute ? "bg-primary border-primary shadow-[0_0_20px_rgba(var(--primary),0.4)]" : 
+               currentStatus === 'Present' ? "bg-success border-success" :
                currentStatus === 'Absent' ? "bg-destructive/10 border-destructive/40" :
                currentStatus === 'Late' ? "bg-warning/10 border-warning/40" :
-               currentStatus === 'Leave' ? "bg-muted/10 border-primary/20" :
+               currentStatus === 'Leave' ? "bg-muted-foreground/20 border-muted-foreground/40" :
                "bg-primary/[0.03] border-primary/5 group-hover/cell:border-primary/40 group-hover/cell:bg-primary/5"
              )} />
              
              {/* Service Star Overlay */}
              {isSubstitute && (
                <div className="absolute -top-3 -right-3 p-1 animate-in zoom-in duration-700">
-                  <Star className="w-3 h-3 text-primary fill-primary shadow-sm" />
+                  <Star className="w-3 h-3 text-white fill-white drop-shadow-sm" />
                </div>
              )}
           </div>
@@ -481,54 +497,64 @@ function AttendanceGridCell({ teacherId, day, record, onUpdate, isWeekend }: any
       <PopoverContent className="w-64 p-4 rounded-[2rem] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.15)] border-primary/10 backdrop-blur-3xl bg-card/90">
         <div className="px-3 py-2 border-b border-primary/5 mb-4">
            <p className="text-[10px] uppercase tracking-[0.2em] font-black text-muted-foreground/50 leading-none mb-2">Institutional Audit // Day {day}</p>
-           <p className="text-[9px] italic font-serif text-muted-foreground/30 leading-none">Security Protocol Enforced</p>
+           <p className="text-[9px] text-muted-foreground/30 leading-none">Security Protocol Enforced</p>
         </div>
         <div className="grid gap-1.5">
           <Button 
             variant="ghost" 
             size="sm" 
             className="justify-start gap-4 h-12 rounded-2xl hover:bg-success/10 hover:text-success transition-all duration-300 px-5 group/item"
-            onClick={() => onUpdate(teacherId, day, 'Present', isSubstitute)}
+            onClick={() => handleSelect('Present', false)}
           >
             <div className="w-3 h-3 rounded-full bg-success shadow-[0_0_10px_rgba(0,255,100,0.3)] transition-transform group-hover/item:scale-125" />
-            <span className="text-[11px] font-black uppercase tracking-widest">Present</span>
-            {currentStatus === 'Present' && <Check className="w-4 h-4 ml-auto text-success" />}
+            <span className="text-[11px] font-black uppercase tracking-widest text-foreground/70">Regular Present</span>
+            {currentStatus === 'Present' && !isSubstitute && <Check className="w-4 h-4 ml-auto text-success" />}
           </Button>
+          
           <Button 
             variant="ghost" 
             size="sm" 
-            className="justify-start gap-4 h-12 rounded-2xl hover:bg-destructive/10 hover:text-destructive transition-all duration-300 px-5 group/item"
-            onClick={() => onUpdate(teacherId, day, 'Absent', isSubstitute)}
+            className="justify-start gap-4 h-12 rounded-2xl hover:bg-primary/10 hover:text-primary transition-all duration-300 px-5 group/item"
+            onClick={() => handleSelect('Present', true)}
+          >
+            <div className="relative">
+               <div className="w-3 h-3 rounded-full bg-primary shadow-[0_0_10px_rgba(var(--primary),0.2)] transition-transform group-hover/item:scale-125" />
+               <Star className="absolute -top-1 -right-1 w-2 h-2 text-white fill-white" />
+            </div>
+            <span className="text-[11px] font-black uppercase tracking-widest text-foreground/70">Substitution</span>
+            {isSubstitute && <Check className="w-4 h-4 ml-auto text-primary" />}
+          </Button>
+
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="justify-start gap-4 h-11 rounded-2xl hover:bg-destructive/10 hover:text-destructive transition-all duration-300 px-5 group/item"
+            onClick={() => handleSelect('Absent', false)}
           >
             <div className="w-3 h-3 rounded-full bg-destructive shadow-[0_0_10px_rgba(255,50,50,0.2)] transition-transform group-hover/item:scale-125" />
-            <span className="text-[11px] font-black uppercase tracking-widest">Absent</span>
+            <span className="text-[11px] font-black uppercase tracking-widest text-foreground/70">Absent</span>
             {currentStatus === 'Absent' && <Check className="w-4 h-4 ml-auto text-destructive" />}
           </Button>
           <Button 
             variant="ghost" 
             size="sm" 
-            className="justify-start gap-4 h-12 rounded-2xl hover:bg-warning/10 hover:text-warning transition-all duration-300 px-5 group/item"
-            onClick={() => onUpdate(teacherId, day, 'Late', isSubstitute)}
+            className="justify-start gap-4 h-11 rounded-2xl hover:bg-warning/10 hover:text-warning transition-all duration-300 px-5 group/item"
+            onClick={() => handleSelect('Late', false)}
           >
             <div className="w-3 h-3 rounded-full bg-warning shadow-[0_0_10px_rgba(255,200,0,0.2)] transition-transform group-hover/item:scale-125" />
-            <span className="text-[11px] font-black uppercase tracking-widest">Late</span>
+            <span className="text-[11px] font-black uppercase tracking-widest text-foreground/70">Late Entry</span>
             {currentStatus === 'Late' && <Check className="w-4 h-4 ml-auto text-warning" />}
           </Button>
-          
-          <div className="my-3 border-t border-primary/5" />
-          
+
           <Button 
-            variant={isSubstitute ? "secondary" : "ghost"} 
+            variant="ghost" 
             size="sm" 
-            className={cn(
-              "justify-start gap-4 h-12 rounded-2xl transition-all duration-300 group/sub px-5 shadow-sm",
-              isSubstitute ? "bg-primary/20 text-primary border-primary/20" : "hover:text-primary"
-            )}
-            onClick={() => onUpdate(teacherId, day, currentStatus || 'Present', !isSubstitute)}
+            className="justify-start gap-4 h-11 rounded-2xl hover:bg-muted-foreground/10 hover:text-foreground transition-all duration-300 px-5 group/item"
+            onClick={() => handleSelect('Leave', false)}
           >
-            <Star className={cn("w-4 h-4 transition-transform group-hover/sub:rotate-45", isSubstitute ? "fill-primary" : "")} />
-            <span className="text-[11px] font-black uppercase tracking-widest">Substitution</span>
-            {isSubstitute && <Check className="w-4 h-4 ml-auto text-primary" />}
+            <div className="w-3 h-3 rounded-full bg-muted-foreground/40 transition-transform group-hover/item:scale-125" />
+            <span className="text-[11px] font-black uppercase tracking-widest text-foreground/70">Leave / Off</span>
+            {currentStatus === 'Leave' && <Check className="w-4 h-4 ml-auto text-foreground" />}
           </Button>
         </div>
       </PopoverContent>

@@ -246,7 +246,7 @@ export default function RegistrationReportsPage() {
                         {filteredLedger.slice(0, 10).map((student: any) => (
                            <tr key={student.id} className="hover:bg-muted/10 transition-premium group">
                               <td className="px-8 py-6 font-serif font-bold text-base text-foreground/80">{student.name}</td>
-                              <td className="px-6 py-6 font-mono font-bold text-[10px] text-muted-foreground/30">{student.studentId || 'PENDING'}</td>
+                              <td className="px-6 py-6 font-sans font-bold text-[10px] text-muted-foreground/30">{student.studentId || 'PENDING'}</td>
                               <td className="px-6 py-6 text-[10px] font-bold text-muted-foreground/30">{new Date(student.enrolledAt).toLocaleDateString()}</td>
                               <td className="px-6 py-6">
                                  <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest border-primary/10 opacity-60">

@@ -112,8 +112,12 @@ const CLASS_TIMINGS = [
 export default function StudentsPage() {
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [metricProgress, setMetricProgress] = useState(0)
   const [metricGrade, setMetricGrade] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
 
   const { students, courses: mockCourses, enrollStudent, removeStudent, updateStudentStatus, updateStudent, updateStudentSuccessMetrics } = useData()
 
@@ -386,7 +390,7 @@ export default function StudentsPage() {
                 ) : (
                   filteredStudents.map((student) => (
                     <TableRow key={student.id}>
-                      <TableCell className="font-bold text-primary tracking-tighter">
+                      <TableCell className="font-sans font-bold text-primary tracking-tighter">
                         {student.studentId || 'ID-TBC'}
                       </TableCell>
                       <TableCell>
@@ -412,7 +416,7 @@ export default function StudentsPage() {
                           </span>
                         </div>
                       </TableCell>
-                      <TableCell className="font-mono text-xs opacity-70">
+                      <TableCell className="font-sans text-xs opacity-70">
                         {student.phone}
                       </TableCell>
                       <TableCell>
@@ -641,7 +645,7 @@ export default function StudentsPage() {
                 <div className="space-y-3">
                    <div className="flex items-center justify-between">
                       <h4 className="text-xs font-black uppercase tracking-widest opacity-40">Academic Progress</h4>
-                      <Badge variant="outline" className="text-[10px] font-mono font-bold">{metricProgress}%</Badge>
+                      <Badge variant="outline" className="text-[10px] font-sans font-bold">{metricProgress}%</Badge>
                    </div>
                    <Input 
                       type="range" 

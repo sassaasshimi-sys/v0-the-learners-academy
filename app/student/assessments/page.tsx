@@ -293,7 +293,7 @@ export default function StudentAssessmentsPage() {
         <div className="space-y-2 pt-4">
           <div className="flex items-center justify-between mb-1">
             <Label className="text-editorial-label text-xs">Essay Response</Label>
-            <span className={`font-mono text-xs font-bold tabular-nums ${wordCount === 0 ? 'text-muted-foreground/40' : wordCount < 80 ? 'text-warning' : 'text-success'}`}>
+            <span className={`font-sans text-xs font-bold tabular-nums ${wordCount === 0 ? 'text-muted-foreground/40' : wordCount < 80 ? 'text-warning' : 'text-success'}`}>
               {wordCount} {wordCount === 1 ? 'word' : 'words'}
             </span>
           </div>
@@ -583,7 +583,7 @@ export default function StudentAssessmentsPage() {
                         <AlertTriangle className="w-3 h-3" /> {strikes}/3
                       </Badge>
                     )}
-                    <div className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full font-mono text-sm font-bold ${timeLeft < 300 ? 'bg-destructive/10 text-destructive animate-pulse' : 'bg-primary/10 text-primary'}`}>
+                    <div className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full font-sans text-sm font-bold ${timeLeft < 300 ? 'bg-destructive/10 text-destructive animate-pulse' : 'bg-primary/10 text-primary'}`}>
                       <Timer className="w-4 h-4" /> {formatTime(timeLeft)}
                     </div>
                   </div>
