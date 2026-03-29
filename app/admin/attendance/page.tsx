@@ -171,7 +171,7 @@ export default function AttendancePage() {
     const activeTeachers = teachers.filter(t => t.status === 'active')
     toast.promise(
       Promise.all(activeTeachers.map(t => 
-        markAttendance(t.id, new Date().toISOString(), 'Present', false)
+        markAttendance(t.id, new Date().toISOString(), 'Present', 0)
       )),
       {
         loading: 'Syncing registry...',

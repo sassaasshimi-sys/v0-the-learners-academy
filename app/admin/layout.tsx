@@ -70,7 +70,7 @@ const adminNavItems = [
   },
   {
     title: 'Growth Reports',
-    href: '/admin/students/reports',
+    href: '/admin/growth',
     icon: TrendingUp,
   },
   {

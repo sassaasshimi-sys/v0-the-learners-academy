@@ -40,7 +40,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={cormorant.variable}>
-      <body className="antialiased">
+      <body className="antialiased font-sans">
         <AuthProvider>
           <DataProvider>
             <div id="root-content">
