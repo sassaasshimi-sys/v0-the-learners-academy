@@ -3,10 +3,11 @@
 import db from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 
-export async function getTeacherAttendance(month: number, year: number) {
-  // Returns all attendance records for a specific month
-  const startDate = new Date(year, month, 1)
-  const endDate = new Date(year, month + 1, 0)
+export async function getTeacherAttendance(startDateInput?: Date, endDateInput?: Date) {
+  // Returns all attendance records for a specific date range, default is current month
+  const today = new Date()
+  const startDate = startDateInput || new Date(today.getFullYear(), today.getMonth(), 1)
+  const endDate = endDateInput || new Date(today.getFullYear(), today.getMonth() + 1, 0)
   
   return db.teacherAttendance.findMany({
     where: {
@@ -25,6 +26,9 @@ export async function getTeacherAttendance(month: number, year: number) {
           status: true
         }
       }
+    },
+    orderBy: {
+      date: 'asc'
     }
   })
 }

@@ -37,35 +37,52 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 import { useData } from '@/contexts/data-context'
 import { STAGGER_CONTAINER, STAGGER_ITEM } from '@/lib/premium-motion'
 import { markAttendance, getTeacherAttendance } from '@/lib/actions/attendance'
 import { toast } from 'sonner'
-import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, isWeekend, getDay } from 'date-fns'
+import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isToday, isWeekend, startOfWeek, endOfWeek, addWeeks, subWeeks, isSameDay } from 'date-fns'
 
 /*
   Design Rules:
   - No Bold
   - No Italics
   - Subtle Animations
-  - Premium Editorial Aesthetics
+  - Institutional Professionalism
 */
 
 export default function AttendancePage() {
-  const { teachers, refresh } = useData()
+  const { teachers } = useData()
   const [currentDate, setCurrentDate] = useState(new Date())
+  const [viewMode, setViewMode] = useState<'week' | 'month'>('month')
   const [selectedTeacherId, setSelectedTeacherId] = useState<string | null>(null)
   const [attendanceData, setAttendanceData] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
-  // Fetch attendance records for the current month
+  // --- Dynamic Filtering Logic ---
+  const currentRange = useMemo(() => {
+    if (viewMode === 'month') {
+      return { 
+        start: startOfMonth(currentDate), 
+        end: endOfMonth(currentDate),
+        label: format(currentDate, 'MMMM yyyy')
+      }
+    }
+    const start = startOfWeek(currentDate, { weekStartsOn: 1 })
+    const end = endOfWeek(currentDate, { weekStartsOn: 1 })
+    return { 
+      start, 
+      end,
+      label: `Week of ${format(start, 'MMM d')}`
+    }
+  }, [currentDate, viewMode])
+
   useEffect(() => {
     async function fetchAttendance() {
       setIsLoading(true)
       try {
-        const data = await getTeacherAttendance(currentDate.getMonth(), currentDate.getFullYear())
+        const data = await getTeacherAttendance(currentRange.start, currentRange.end)
         setAttendanceData(data)
       } catch (error) {
         console.error('Failed to fetch attendance:', error)
@@ -74,34 +91,67 @@ export default function AttendancePage() {
       }
     }
     fetchAttendance()
-  }, [currentDate])
+  }, [currentRange])
 
-  const daysInMonth = useMemo(() => {
-    const start = startOfMonth(currentDate)
-    const end = endOfMonth(currentDate)
-    return eachDayOfInterval({ start, end })
-  }, [currentDate])
+  const daysInRange = useMemo(() => {
+    return eachDayOfInterval({ start: currentRange.start, end: currentRange.end })
+  }, [currentRange])
 
   const selectedTeacher = useMemo(() => 
     teachers.find(t => t.id === selectedTeacherId), 
   [teachers, selectedTeacherId])
 
+  // --- Actions ---
   const handleMarkAttendance = async (teacherId: string, date: string, status: string, substituteCount: number = 0) => {
     try {
       await markAttendance(teacherId, date, status, substituteCount)
-      toast.success('Marked Successfully')
-      // Refresh local data
-      const data = await getTeacherAttendance(currentDate.getMonth(), currentDate.getFullYear())
+      toast.success('Record Standardized')
+      const data = await getTeacherAttendance(currentRange.start, currentRange.end)
       setAttendanceData(data)
     } catch (error) {
-      toast.error('Failed to update record')
+      toast.error('Registry Error')
     }
+  }
+
+  const handleDownloadCsv = () => {
+    if (!selectedTeacherId) {
+      toast.error('Select a teacher to export their profile')
+      return
+    }
+    const dataRows = daysInRange.map(day => {
+      const record = getAttendanceForDay(selectedTeacherId!, day)
+      return {
+        Date: format(day, 'yyyy-MM-dd'),
+        Name: selectedTeacher?.name,
+        Status: record?.status || 'Unmarked',
+        Substitutions: record?.substituteCount || 0
+      }
+    })
+
+    const csvContent = [
+      ['Date', 'Teacher', 'Registry Status', 'Extra Class/Substitutions'],
+      ...dataRows.map(r => [r.Date, r.Name, r.Status, r.Substitutions])
+    ].map(e => e.join(",")).join("\n")
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.setAttribute("href", url)
+    link.setAttribute("download", `attendance_registry_${selectedTeacher?.name.replace(/ /g, '_')}_${format(currentDate, 'MMM_yyyy')}.csv`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    toast.success('Registry export generated')
+  }
+
+  const handlePrintPdf = () => {
+    window.print()
   }
 
   const getAttendanceForDay = (teacherId: string, day: Date) => {
     return attendanceData.find(a => 
       a.teacherId === teacherId && 
-      new Date(a.date).toDateString() === day.toDateString()
+      isSameDay(new Date(a.date), day)
     )
   }
 
@@ -116,246 +166,265 @@ export default function AttendancePage() {
     }
   }
 
-  const nextMonth = () => setCurrentDate(addMonths(currentDate, 1))
-  const prevMonth = () => setCurrentDate(subMonths(currentDate, 1))
+  const handleNavigate = (direction: 'next' | 'prev') => {
+    if (viewMode === 'month') {
+      setCurrentDate(prev => direction === 'next' ? addMonths(prev, 1) : subMonths(prev, 1))
+    } else {
+      setCurrentDate(prev => direction === 'next' ? addWeeks(prev, 1) : subWeeks(prev, 1))
+    }
+  }
 
   return (
     <motion.div 
-      className="space-y-8"
+      className="space-y-8 print:space-y-0"
       variants={STAGGER_CONTAINER}
       initial="hidden"
       animate="visible"
       style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
     >
-      {/* Header */}
-      <motion.div variants={STAGGER_ITEM} className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
+      {/* Header section - Main Dashboard View */}
+      <motion.div variants={STAGGER_ITEM} className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between print:hidden">
+        <div className="max-w-2xl">
           <h1 className="font-serif text-5xl tracking-normal text-foreground font-normal">
             Attendance Registry
           </h1>
-          <p className="text-muted-foreground mt-2 text-base font-normal max-w-2xl opacity-80">
-            Administrative tracking of faculty engagement and substitute deployments.
+          <p className="text-muted-foreground mt-2 text-base font-normal opacity-80 leading-relaxed">
+            Institutional tracking system for academic engagement, extra-load (substitutions), and professional faculty attendance auditing.
           </p>
         </div>
-        <div className="flex items-center gap-3 bg-card border px-5 py-2.5 rounded-2xl border-primary/5 shadow-sm">
-          <Button variant="ghost" size="icon" onClick={prevMonth} className="h-9 w-9 hover:bg-primary/5 rounded-full">
-            <ChevronLeft className="w-4 h-4 opacity-50" />
-          </Button>
-          <div className="flex items-center gap-3 min-w-[160px] justify-center">
-            <Calendar className="w-4 h-4 text-primary opacity-40" />
-            <span className="text-[10px] tracking-[0.25em] uppercase opacity-70 font-normal">{format(currentDate, 'MMMM yyyy')}</span>
+        
+        <div className="flex flex-col gap-4 items-end">
+          <div className="flex items-center gap-1 bg-muted/20 p-1 rounded-2xl border border-primary/5">
+            <button 
+              onClick={() => setViewMode('month')}
+              className={cn(
+                "px-6 py-2 text-[10px] uppercase tracking-[0.2em] rounded-xl transition-all font-normal",
+                viewMode === 'month' ? "bg-card shadow-sm text-primary" : "text-muted-foreground hover:text-primary"
+              )}
+            >
+              Monthly Perspective
+            </button>
+            <button 
+              onClick={() => setViewMode('week')}
+              className={cn(
+                "px-6 py-2 text-[10px] uppercase tracking-[0.2em] rounded-xl transition-all font-normal",
+                viewMode === 'week' ? "bg-card shadow-sm text-primary" : "text-muted-foreground hover:text-primary"
+              )}
+            >
+              Weekly Zoom
+            </button>
           </div>
-          <Button variant="ghost" size="icon" onClick={nextMonth} className="h-9 w-9 hover:bg-primary/5 rounded-full">
-            <ChevronRight className="w-4 h-4 opacity-50" />
-          </Button>
+
+          <div className="flex items-center gap-4 bg-card border px-5 py-2.5 rounded-2xl border-primary/5 shadow-sm">
+            <Button variant="ghost" size="icon" onClick={() => handleNavigate('prev')} className="h-9 w-9 hover:bg-primary/5 rounded-full">
+              <ChevronLeft className="w-4 h-4 opacity-50" />
+            </Button>
+            <div className="flex items-center gap-3 min-w-[180px] justify-center">
+              <Calendar className="w-4 h-4 text-primary opacity-40" />
+              <span className="text-[10px] tracking-[0.25em] uppercase opacity-70 font-normal">{currentRange.label}</span>
+            </div>
+            <Button variant="ghost" size="icon" onClick={() => handleNavigate('next')} className="h-9 w-9 hover:bg-primary/5 rounded-full">
+              <ChevronRight className="w-4 h-4 opacity-50" />
+            </Button>
+          </div>
         </div>
       </motion.div>
 
-      {/* Stats Summary */}
-      <motion.div variants={STAGGER_ITEM} className="grid gap-4 md:grid-cols-4">
-        {[
-          { label: 'Present Today', value: attendanceData.filter(a => isToday(new Date(a.date)) && a.status === 'Present').length, icon: CheckCircle2, color: 'text-success' },
-          { label: 'Absent Today', value: attendanceData.filter(a => isToday(new Date(a.date)) && a.status === 'Absent').length, icon: XCircle, color: 'text-destructive' },
-          { label: 'Substitutions', value: attendanceData.reduce((sum, a) => sum + (a.substituteCount || 0), 0), icon: FileEdit, color: 'text-primary' },
-          { label: 'Late Entries', value: attendanceData.filter(a => isToday(new Date(a.date)) && a.status === 'Late').length, icon: Clock, color: 'text-warning' },
-        ].map((stat, i) => (
-          <Card key={i} className="border-primary/5 shadow-sm hover:shadow-md transition-premium">
-            <CardContent className="pt-6">
+      {/* Main Content Registry */}
+      <div className="grid gap-8 lg:grid-cols-4 print:grid-cols-1">
+        {/* Faculty Directory - Hidden in print */}
+        <motion.div variants={STAGGER_ITEM} className="lg:col-span-1 space-y-6 print:hidden">
+          <Card className="border-primary/5 shadow-premium overflow-hidden rounded-[2rem]">
+            <CardHeader className="bg-muted/5 border-b border-primary/5 px-6 py-5">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mb-1 font-normal">{stat.label}</p>
-                  <p className="font-serif text-3xl font-normal">{stat.value}</p>
-                </div>
-                <stat.icon className={cn("h-5 w-5 opacity-30", stat.color)} />
+                <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-normal opacity-60">Faculty Roster</span>
+                <Users className="w-4 h-4 text-muted-foreground opacity-30" />
               </div>
+            </CardHeader>
+            <CardContent className="p-4 space-y-1.5 max-h-[700px] overflow-y-auto scrollbar-thin">
+              {teachers.map(teacher => (
+                <button
+                  key={teacher.id}
+                  onClick={() => setSelectedTeacherId(teacher.id)}
+                  className={cn(
+                    "w-full flex items-center gap-3.5 p-3.5 rounded-2xl transition-premium text-left hover:bg-muted/30 group",
+                    selectedTeacherId === teacher.id ? "bg-primary/5 border border-primary/10 shadow-sm" : "border border-transparent"
+                  )}
+                >
+                  <Avatar className="h-10 w-10 border border-primary/5 group-hover:scale-105 transition-transform">
+                    <AvatarImage src={teacher.avatar} />
+                    <AvatarFallback className="text-[10px] bg-primary/5 text-primary font-normal">
+                      {teacher.name.split(' ').map(n => n[0]).join('')}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="overflow-hidden">
+                    <p className={cn("text-sm font-serif truncate font-normal leading-tight", selectedTeacherId === teacher.id ? "text-primary" : "text-foreground")}>
+                      {teacher.name}
+                    </p>
+                    <p className="text-[9px] uppercase tracking-tighter opacity-40 font-normal">{teacher.employeeId}</p>
+                  </div>
+                </button>
+              ))}
             </CardContent>
           </Card>
-        ))}
-      </motion.div>
-
-      {/* Main Content Layout */}
-      <div className="grid gap-6 lg:grid-cols-4">
-        {/* Left Sidebar: Teacher List */}
-        <motion.div variants={STAGGER_ITEM} className="lg:col-span-1 border rounded-2xl bg-card border-primary/5 p-4 h-fit shadow-sm">
-          <div className="flex items-center justify-between mb-4 px-2">
-            <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-normal">Faculty Directory</span>
-            <Users className="w-4 h-4 text-muted-foreground opacity-20" />
-          </div>
-          <div className="space-y-1.5 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin">
-            {teachers.map(teacher => (
-              <button
-                key={teacher.id}
-                onClick={() => setSelectedTeacherId(teacher.id)}
-                className={cn(
-                  "w-full flex items-center gap-3 p-3 rounded-xl transition-premium text-left hover:bg-muted/40 group",
-                  selectedTeacherId === teacher.id ? "bg-primary/5 border border-primary/10 shadow-sm" : "border border-transparent"
-                )}
-              >
-                <Avatar className="h-9 w-9 border border-transparent group-hover:border-primary/10 transition-all">
-                  <AvatarImage src={teacher.avatar} />
-                  <AvatarFallback className="text-[10px] bg-primary/5 text-primary">
-                    {teacher.name.split(' ').map(n => n[0]).join('')}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="overflow-hidden">
-                  <p className={cn("text-sm truncate font-normal", selectedTeacherId === teacher.id ? "text-foreground" : "text-muted-foreground")}>
-                    {teacher.name}
-                  </p>
-                  <p className="text-[9px] uppercase tracking-tighter opacity-40 font-normal">{teacher.employeeId}</p>
-                </div>
-              </button>
-            ))}
-          </div>
         </motion.div>
 
-        {/* Right Main Panel: Calendar Grid */}
+        {/* Dynamic Registry Table */}
         <motion.div variants={STAGGER_ITEM} className="lg:col-span-3 space-y-6">
           {selectedTeacher ? (
-            <Card className="border-primary/5 shadow-premium overflow-hidden">
-              <CardHeader className="border-b border-primary/5 bg-muted/10 pb-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <Avatar className="h-12 w-12 border border-primary/10 shadow-sm">
+            <Card className="border-primary/5 shadow-premium rounded-[2.5rem] overflow-hidden bg-card/60 backdrop-blur-xl">
+              <CardHeader className="border-b border-primary/5 bg-muted/5 p-8">
+                <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                  <div className="flex items-center gap-5">
+                    <Avatar className="h-16 w-16 border-2 border-background shadow-xl">
                       <AvatarImage src={selectedTeacher.avatar} />
-                      <AvatarFallback className="font-serif bg-primary/5 text-primary text-lg font-normal">
+                      <AvatarFallback className="font-serif bg-primary/5 text-primary text-2xl font-normal">
                         {selectedTeacher.name.split(' ').map(n => n[0]).join('')}
                       </AvatarFallback>
                     </Avatar>
-                    <div>
-                      <CardTitle className="font-serif text-2xl tracking-normal font-normal">{selectedTeacher.name}</CardTitle>
-                      <CardDescription className="text-[9px] uppercase tracking-[0.2em] font-normal opacity-70">
-                        {selectedTeacher.employeeId} — Academic Personnel Dashboard
-                      </CardDescription>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-3">
+                        <h3 className="font-serif text-3xl font-normal leading-none">{selectedTeacher.name}</h3>
+                        <Badge variant="outline" className="text-[9px] uppercase tracking-widest font-normal border-primary/10 opacity-60">Faculty Member</Badge>
+                      </div>
+                      <p className="text-[11px] uppercase tracking-[0.2em] font-normal opacity-50">
+                        Institutional ID: {selectedTeacher.employeeId} — Academic Record for {currentRange.label}
+                      </p>
                     </div>
                   </div>
                   
-                  <div className="flex gap-6 px-6 bg-background/50 py-2.5 rounded-xl border border-primary/5">
-                    <div className="flex flex-col items-center">
-                      <span className="text-[8px] text-muted-foreground uppercase font-normal tracking-wide">Present</span>
-                      <span className="text-xl font-serif text-success font-normal">{getTeacherStats(selectedTeacher.id).present}</span>
-                    </div>
-                    <Separator orientation="vertical" className="h-8 opacity-10" />
-                    <div className="flex flex-col items-center">
-                      <span className="text-[8px] text-muted-foreground uppercase font-normal tracking-wide">Substitutes</span>
-                      <span className="text-xl font-serif text-primary font-normal">{getTeacherStats(selectedTeacher.id).substitutions}</span>
-                    </div>
-                    <Separator orientation="vertical" className="h-8 opacity-10" />
-                    <div className="flex flex-col items-center">
-                      <span className="text-[8px] text-muted-foreground uppercase font-normal tracking-wide">Other</span>
-                      <span className="text-xl font-serif text-muted-foreground font-normal">
-                        {getTeacherStats(selectedTeacher.id).absent + getTeacherStats(selectedTeacher.id).leave + getTeacherStats(selectedTeacher.id).late}
-                      </span>
-                    </div>
+                  <div className="flex items-center gap-3 print:hidden">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" className="rounded-xl px-6 h-11 gap-3 font-normal text-[10px] uppercase tracking-widest border-primary/10">
+                          <Download className="w-4 h-4 mr-2" /> Export Audit
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-56 rounded-2xl shadow-premium border-primary/5 p-2">
+                        <DropdownMenuItem onClick={handleDownloadCsv} className="gap-3 cursor-pointer py-3 rounded-xl font-normal">
+                          <span className="text-xs">Download spreadsheet (CSV)</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={handlePrintPdf} className="gap-3 cursor-pointer py-3 rounded-xl font-normal">
+                          <span className="text-xs">Download document (PDF)</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+
+                <div className="flex gap-10 mt-8 pt-8 border-t border-primary/5">
+                  <div className="flex flex-col items-center gap-1.5">
+                    <span className="text-[9px] text-muted-foreground uppercase font-normal tracking-widest">Attendance Share</span>
+                    <span className="text-3xl font-serif text-success font-normal">
+                      {Math.round((getTeacherStats(selectedTeacher.id).present / daysInRange.length) * 100 || 0)}%
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-center gap-1.5">
+                    <span className="text-[9px] text-muted-foreground uppercase font-normal tracking-widest">Extra Load (Subs)</span>
+                    <span className="text-3xl font-serif text-primary font-normal">{getTeacherStats(selectedTeacher.id).substitutions}</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-1.5">
+                    <span className="text-[9px] text-muted-foreground uppercase font-normal tracking-widest">Late Entries</span>
+                    <span className="text-3xl font-serif text-warning font-normal">{getTeacherStats(selectedTeacher.id).late}</span>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="p-0">
                 <div className="overflow-x-auto">
                   <Table>
-                    <TableHeader className="bg-muted/5">
-                      <TableRow className="border-b border-primary/5 hover:bg-transparent">
-                        <TableHead className="w-[150px] text-[10px] uppercase tracking-[0.2em] pl-8 h-14 font-normal text-muted-foreground">Date</TableHead>
-                        <TableHead className="text-[10px] uppercase tracking-[0.2em] h-14 font-normal text-muted-foreground">Status</TableHead>
-                        <TableHead className="text-[10px] uppercase tracking-[0.2em] h-14 font-normal text-muted-foreground">Substitution</TableHead>
-                        <TableHead className="text-right pr-8 text-[10px] uppercase tracking-[0.2em] h-14 font-normal text-muted-foreground">Actions</TableHead>
+                    <TableHeader className="bg-muted/10 border-b border-primary/5 h-16">
+                      <TableRow className="border-none hover:bg-transparent">
+                        <TableHead className="w-[200px] text-[11px] uppercase tracking-[0.2em] pl-10 font-normal text-muted-foreground opacity-60">Calendar Cycle</TableHead>
+                        <TableHead className="text-[11px] uppercase tracking-[0.2em] font-normal text-muted-foreground opacity-60">Registry Status</TableHead>
+                        <TableHead className="text-[11px] uppercase tracking-[0.2em] font-normal text-muted-foreground opacity-60">Extra Classes (Substitution)</TableHead>
+                        <TableHead className="text-right pr-10 text-[11px] uppercase tracking-[0.2em] font-normal text-muted-foreground opacity-60 print:hidden">Audit Action</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {daysInMonth.map((day) => {
+                      {daysInRange.map((day) => {
                         const record = getAttendanceForDay(selectedTeacher.id, day)
                         const isWeekendDay = isWeekend(day)
-                        const formattedDate = format(day, 'yyyy-MM-dd')
+                        const isoDate = format(day, 'yyyy-MM-dd')
                         
                         return (
-                          <TableRow key={formattedDate} className={cn(
-                            "group transition-premium border-b border-primary/5 hover:bg-primary/5",
-                            isToday(day) && "bg-primary/5"
+                          <TableRow key={isoDate} className={cn(
+                            "group transition-premium border-b border-primary/5 hover:bg-primary/[0.01] h-20",
+                            isToday(day) && "bg-primary/[0.03]"
                           )}>
-                            <TableCell className="pl-8 py-4">
+                            <TableCell className="pl-10">
                               <div className="flex flex-col">
-                                <span className={cn("text-sm font-normal", isWeekendDay ? "text-muted-foreground/40" : "text-foreground")}>
+                                <span className={cn("text-sm font-serif", isWeekendDay ? "opacity-30" : "text-foreground")}>
                                   {format(day, 'EEEE, MMM d')}
                                 </span>
-                                {isToday(day) && <span className="text-[8px] uppercase tracking-widest text-primary mt-1 font-normal">Present Day</span>}
+                                {isToday(day) && <span className="text-[8px] uppercase tracking-[0.3em] text-primary mt-1 font-normal animate-pulse">Current Cycle</span>}
                               </div>
                             </TableCell>
                             <TableCell>
                               {record ? (
                                 <div className={cn(
-                                  "inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] uppercase tracking-widest border border-transparent transition-all",
-                                  record.status === 'Present' && "bg-success/10 text-success border-success/10",
-                                  record.status === 'Absent' && "bg-destructive/10 text-destructive border-destructive/10",
-                                  record.status === 'Late' && "bg-warning/10 text-warning border-warning/10",
-                                  record.status === 'Leave' && "bg-muted text-muted-foreground"
+                                  "inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full text-[10px] uppercase tracking-widest border border-transparent font-normal transition-all",
+                                  record.status === 'Present' && "bg-success/5 text-success border-success/10",
+                                  record.status === 'Absent' && "bg-destructive/5 text-destructive border-destructive/10",
+                                  record.status === 'Late' && "bg-warning/5 text-warning border-warning/10",
+                                  record.status === 'Leave' && "bg-indigo-50 text-indigo-400 border-indigo-100"
                                 )}>
-                                  <div className={cn(
-                                    "w-1.5 h-1.5 rounded-full",
-                                    record.status === 'Present' && "bg-success",
-                                    record.status === 'Absent' && "bg-destructive",
-                                    record.status === 'Late' && "bg-warning",
-                                    record.status === 'Leave' && "bg-muted-foreground"
-                                  )} />
                                   {record.status}
                                 </div>
                               ) : (
-                                <span className="text-[10px] uppercase tracking-widest text-muted-foreground opacity-20 group-hover:opacity-60 transition-opacity font-normal">
-                                  Unmarked
+                                <span className="text-[10px] uppercase tracking-widest text-muted-foreground opacity-10 group-hover:opacity-40 transition-opacity font-normal">
+                                  Registry Awaiting Log
                                 </span>
                               )}
                             </TableCell>
                             <TableCell>
-                              <div className="flex items-center gap-3">
-                                <div className={cn(
-                                  "w-6 h-6 rounded-lg flex items-center justify-center text-[10px] transition-all border border-primary/10",
-                                  (record?.substituteCount || 0) > 0 
-                                    ? "bg-primary/10 text-primary shadow-sm" 
-                                    : "bg-muted/20 text-muted-foreground/30"
-                                )}>
-                                  {record?.substituteCount || 0}
+                              <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-0.5 bg-muted/20 p-1 rounded-xl border border-primary/5 print:border-none">
+                                  <button 
+                                    className="w-8 h-8 flex items-center justify-center hover:bg-card rounded-lg transition-all text-muted-foreground opacity-40 hover:opacity-100 print:hidden"
+                                    onClick={() => handleMarkAttendance(selectedTeacher.id, isoDate, record?.status || 'Present', Math.max(0, (record?.substituteCount || 0) - 1))}
+                                  >
+                                    <ChevronLeft className="w-4 h-4" />
+                                  </button>
+                                  <div className={cn(
+                                    "w-12 h-10 flex items-center justify-center font-serif text-xl transition-all rounded-lg",
+                                    (record?.substituteCount || 0) > 0 ? "text-primary bg-primary/5" : "text-muted-foreground opacity-20"
+                                  )}>
+                                    {record?.substituteCount || 0}
+                                  </div>
+                                  <button 
+                                    className="w-8 h-8 flex items-center justify-center hover:bg-card rounded-lg transition-all text-muted-foreground opacity-40 hover:opacity-100 print:hidden"
+                                    onClick={() => handleMarkAttendance(selectedTeacher.id, isoDate, record?.status || 'Present', (record?.substituteCount || 0) + 1)}
+                                  >
+                                    <ChevronRight className="w-4 h-4" />
+                                  </button>
                                 </div>
-                                <span className="text-[10px] text-muted-foreground/60 uppercase tracking-widest font-normal">
-                                  Classes Conducted
+                                <span className={cn("text-[10px] uppercase tracking-widest font-normal opacity-40", (record?.substituteCount || 0) > 0 && "opacity-80 text-primary")}>
+                                  Academic Loads Recorded
                                 </span>
                               </div>
                             </TableCell>
-                            <TableCell className="text-right pr-8">
+                            <TableCell className="text-right pr-10 print:hidden">
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="sm" className="h-10 w-10 hover:bg-primary/10 rounded-full transition-all text-muted-foreground">
+                                  <Button variant="ghost" size="sm" className="h-10 w-10 hover:bg-primary/5 rounded-full text-muted-foreground transition-all">
                                     <MoreHorizontal className="w-4 h-4" />
                                   </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-56 overflow-hidden rounded-2xl border-primary/10 shadow-premium p-1.5">
-                                  <DropdownMenuLabel className="text-[8px] uppercase tracking-[0.3em] opacity-40 px-4 py-3 font-normal">Institutional Status</DropdownMenuLabel>
+                                <DropdownMenuContent align="end" className="w-56 rounded-2xl shadow-premium border-primary/5 p-1.5 overflow-hidden">
+                                  <DropdownMenuLabel className="text-[8px] uppercase tracking-[0.3em] opacity-40 px-4 py-3 font-normal">Institutional Protocols</DropdownMenuLabel>
                                   <DropdownMenuSeparator className="opacity-5" />
-                                  <DropdownMenuItem onClick={() => handleMarkAttendance(selectedTeacher.id, formattedDate, 'Present')} className="gap-3 cursor-pointer py-2.5 rounded-xl focus:bg-success/5 font-normal">
-                                    <CheckCircle2 className="w-4 h-4 text-success opacity-70" /> <span className="text-xs">Faculty Present</span>
+                                  <DropdownMenuItem onClick={() => handleMarkAttendance(selectedTeacher.id, isoDate, 'Present')} className="gap-3 cursor-pointer py-3 rounded-xl focus:bg-success/5 font-normal">
+                                    <CheckCircle2 className="w-4 h-4 text-success opacity-70" /> <span className="text-xs">Professional Presence</span>
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => handleMarkAttendance(selectedTeacher.id, formattedDate, 'Late')} className="gap-3 cursor-pointer py-2.5 rounded-xl focus:bg-warning/5 font-normal">
-                                    <Clock className="w-4 h-4 text-warning opacity-70" /> <span className="text-xs">Late Entry Record</span>
+                                  <DropdownMenuItem onClick={() => handleMarkAttendance(selectedTeacher.id, isoDate, 'Late')} className="gap-3 cursor-pointer py-3 rounded-xl focus:bg-warning/5 font-normal">
+                                    <Clock className="w-4 h-4 text-warning opacity-70" /> <span className="text-xs">Late Admission Record</span>
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => handleMarkAttendance(selectedTeacher.id, formattedDate, 'Leave')} className="gap-3 cursor-pointer py-2.5 rounded-xl focus:bg-indigo-50 font-normal">
-                                    <Calendar className="w-4 h-4 text-indigo-400 opacity-70" /> <span className="text-xs">Academic Leave</span>
+                                  <DropdownMenuItem onClick={() => handleMarkAttendance(selectedTeacher.id, isoDate, 'Leave')} className="gap-3 cursor-pointer py-3 rounded-xl focus:bg-indigo-50 font-normal">
+                                    <Calendar className="w-4 h-4 text-indigo-400 opacity-70" /> <span className="text-xs">Authorized Academic Leave</span>
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => handleMarkAttendance(selectedTeacher.id, formattedDate, 'Absent')} className="gap-3 cursor-pointer py-2.5 rounded-xl focus:bg-destructive/5 font-normal">
-                                    <XCircle className="w-4 h-4 text-destructive opacity-70" /> <span className="text-xs">Mark Unannounced Absence</span>
+                                  <DropdownMenuItem onClick={() => handleMarkAttendance(selectedTeacher.id, isoDate, 'Absent')} className="gap-3 cursor-pointer py-3 rounded-xl focus:bg-destructive/5 font-normal">
+                                    <XCircle className="w-4 h-4 text-destructive opacity-70" /> <span className="text-xs">Unannounced Absence Log</span>
                                   </DropdownMenuItem>
-                                  <DropdownMenuSeparator className="opacity-5" />
-                                  <DropdownMenuLabel className="text-[8px] uppercase tracking-[0.3em] opacity-40 px-4 py-3 font-normal">Deployment Metrics</DropdownMenuLabel>
-                                  <DropdownMenuItem 
-                                    onClick={() => handleMarkAttendance(selectedTeacher.id, formattedDate, record?.status || 'Present', (record?.substituteCount || 0) + 1)} 
-                                    className="gap-3 cursor-pointer py-2.5 rounded-xl focus:bg-primary/5 font-normal"
-                                  >
-                                    <Plus className="w-4 h-4 text-primary opacity-70" /> <span className="text-xs text-primary">Assign Substitution</span>
-                                  </DropdownMenuItem>
-                                  {(record?.substituteCount || 0) > 0 && (
-                                    <DropdownMenuItem 
-                                      onClick={() => handleMarkAttendance(selectedTeacher.id, formattedDate, record?.status || 'Present', Math.max(0, (record?.substituteCount || 0) - 1))} 
-                                      className="gap-3 cursor-pointer py-2.5 rounded-xl focus:bg-destructive/5 font-normal"
-                                    >
-                                      <ChevronLeft className="w-4 h-4 text-destructive opacity-70" /> <span className="text-xs text-destructive">Revoke Assignment</span>
-                                    </DropdownMenuItem>
-                                  )}
                                 </DropdownMenuContent>
                               </DropdownMenu>
                             </TableCell>
@@ -368,16 +437,51 @@ export default function AttendancePage() {
               </CardContent>
             </Card>
           ) : (
-            <div className="flex flex-col items-center justify-center p-20 border border-primary/5 rounded-[2.5rem] bg-card shadow-inner-premium transition-premium">
-              <div className="w-20 h-20 rounded-full bg-primary/5 flex items-center justify-center mb-6">
-                <Users className="w-8 h-8 text-primary opacity-20" />
+            <div className="flex flex-col items-center justify-center p-32 border border-primary/5 rounded-[3rem] bg-card/40 backdrop-blur-xl shadow-inner-premium transition-premium group print:hidden">
+              <div className="w-24 h-24 rounded-full bg-primary/5 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
+                <Users className="w-10 h-10 text-primary opacity-20" />
               </div>
-              <p className="font-serif text-2xl text-foreground opacity-60 font-normal">Select Academic Personnel</p>
-              <p className="text-[10px] uppercase tracking-[0.3em] mt-3 opacity-40 font-normal">Institutional Registry Access Required</p>
+              <p className="font-serif text-3xl text-foreground opacity-60 font-normal">Select Academic Personnel Profile</p>
+              <p className="text-[11px] uppercase tracking-[0.4em] mt-4 opacity-40 font-normal">Secured Registry Access Control Required</p>
             </div>
           )}
         </motion.div>
       </div>
+
+      {/* Institutional Stylized Print Overlay */}
+      <style jsx global>{`
+        @media print {
+          body * {
+            visibility: hidden;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+          }
+          .print\\:hidden {
+            display: none !important;
+          }
+          .lg\\:col-span-3, .lg\\:col-span-3 * {
+            visibility: visible;
+          }
+          .lg\\:col-span-3 {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+          }
+          .rounded-\\[2\\.5rem\\] {
+            border-radius: 0 !important;
+          }
+          .shadow-premium {
+            box-shadow: none !important;
+          }
+          .border-primary\\/5 {
+            border-color: #eee !important;
+          }
+          h3.font-serif {
+            font-family: 'Times New Roman', serif !important;
+            font-size: 32pt !important;
+          }
+        }
+      `}</style>
     </motion.div>
   )
 }
