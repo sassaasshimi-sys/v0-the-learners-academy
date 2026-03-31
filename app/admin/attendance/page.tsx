@@ -248,7 +248,7 @@ export default function AttendancePage() {
           <h1 className="font-serif text-3xl tracking-normal text-foreground font-normal">
             Attendance Registry
           </h1>
-          <p className="text-muted-foreground mt-2 text-sm font-normal opacity-80 leading-relaxed">
+          <p className="text-muted-foreground mt-2 text-sm font-normal opacity-90 leading-relaxed">
             Institutional tracking system for academic engagement, extra-load (substitutions), and professional faculty attendance auditing.
           </p>
         </div>
@@ -280,8 +280,8 @@ export default function AttendancePage() {
               <ChevronLeft className="w-4 h-4 opacity-50" />
             </Button>
             <div className="flex items-center gap-3 min-w-[180px] justify-center">
-              <Calendar className="w-4 h-4 text-primary opacity-40" />
-              <span className="text-[10px] tracking-[0.25em] uppercase opacity-70 font-normal">{currentRange.label}</span>
+              <Calendar className="w-4 h-4 text-primary opacity-60" />
+              <span className="text-[10px] tracking-[0.25em] uppercase opacity-80 font-normal">{currentRange.label}</span>
             </div>
             <Button variant="ghost" size="icon" onClick={() => handleNavigate('next')} className="h-9 w-9 hover:bg-primary/5 rounded-full">
               <ChevronRight className="w-4 h-4 opacity-50" />
@@ -321,7 +321,7 @@ export default function AttendancePage() {
                     <p className={cn("text-sm font-serif truncate font-normal leading-tight", selectedTeacherId === teacher.id ? "text-primary" : "text-foreground")}>
                       {teacher.name}
                     </p>
-                    <p className="text-[9px] uppercase tracking-tighter opacity-40 font-normal">{teacher.employeeId}</p>
+                    <p className="text-[9px] uppercase tracking-tighter opacity-70 font-normal">{teacher.employeeId}</p>
                   </div>
                 </button>
               ))}
@@ -347,49 +347,53 @@ export default function AttendancePage() {
                         <h3 className="font-serif text-2xl font-normal leading-none">{selectedTeacher.name}</h3>
                         <Badge variant="outline" className="text-[9px] uppercase tracking-widest font-normal border-primary/10 opacity-60">Faculty Member</Badge>
                       </div>
-                      <p className="text-[11px] uppercase tracking-[0.2em] font-normal opacity-50">
-                        Institutional ID: {selectedTeacher.employeeId} — Academic Record for {currentRange.label}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-3 print:hidden">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="rounded-xl px-6 h-11 gap-3 font-normal text-[10px] uppercase tracking-widest border-primary/10">
-                          <Download className="w-4 h-4 mr-2" /> Export Audit
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-56 rounded-2xl shadow-premium border-primary/5 p-2">
-                        <DropdownMenuItem onClick={handleDownloadCsv} className="gap-3 cursor-pointer py-3 rounded-xl font-normal">
-                          <span className="text-xs">Download spreadsheet (CSV)</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={handlePrintPdf} className="gap-3 cursor-pointer py-3 rounded-xl font-normal">
-                          <span className="text-xs">Download document (PDF)</span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <p className="text-[11px] uppercase tracking-[0.2em] font-normal opacity-70">
+                      Institutional ID: {selectedTeacher.employeeId} — Academic Record for {currentRange.label}
+                    </p>
                   </div>
                 </div>
+                
+                <div className="flex items-center gap-3 print:hidden">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" className="rounded-xl px-6 h-11 gap-3 font-normal text-[10px] uppercase tracking-widest border-primary/20 bg-card hover:bg-muted/10">
+                        <Download className="w-4 h-4 mr-2" /> Export Audit
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56 rounded-2xl shadow-premium border-primary/5 p-2">
+                      <DropdownMenuItem onClick={handleDownloadCsv} className="gap-3 cursor-pointer py-3 rounded-xl font-normal">
+                        <span className="text-xs">Download spreadsheet (CSV)</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={handlePrintPdf} className="gap-3 cursor-pointer py-3 rounded-xl font-normal">
+                        <span className="text-xs">Download document (PDF)</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
 
-                <div className="flex gap-10 mt-6 pt-6 border-t border-primary/5">
-                  <div className="flex flex-col items-center gap-1.5">
-                    <span className="text-[9px] text-muted-foreground uppercase font-normal tracking-widest">Attendance Share</span>
-                    <span className="text-2xl font-serif text-success font-normal">
-                      {daysInRange.length > 0 
-                        ? Math.round((getTeacherStats(selectedTeacher.id).present / daysInRange.length) * 100) 
-                        : 0}%
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-center gap-1.5">
-                    <span className="text-[9px] text-muted-foreground uppercase font-normal tracking-widest">Extra Load (Subs)</span>
-                    <span className="text-2xl font-serif text-primary font-normal">{getTeacherStats(selectedTeacher.id).substitutions}</span>
-                  </div>
-                  <div className="flex flex-col items-center gap-1.5">
-                    <span className="text-[9px] text-muted-foreground uppercase font-normal tracking-widest">Late Entries</span>
-                    <span className="text-2xl font-serif text-warning font-normal">{getTeacherStats(selectedTeacher.id).late}</span>
-                  </div>
+              <div className="flex gap-12 mt-6 pt-6 border-t border-primary/10">
+                <div className="flex flex-col items-start gap-1">
+                  <span className="text-[9px] text-muted-foreground uppercase font-normal tracking-widest opacity-80">Present</span>
+                  <span className="text-2xl font-serif text-success font-normal">{getTeacherStats(selectedTeacher.id).present}</span>
                 </div>
+                <div className="flex flex-col items-start gap-1">
+                  <span className="text-[9px] text-muted-foreground uppercase font-normal tracking-widest opacity-80">Absent</span>
+                  <span className="text-2xl font-serif text-destructive font-normal">{getTeacherStats(selectedTeacher.id).absent}</span>
+                </div>
+                <div className="flex flex-col items-start gap-1">
+                  <span className="text-[9px] text-muted-foreground uppercase font-normal tracking-widest opacity-80">Late</span>
+                  <span className="text-2xl font-serif text-warning font-normal">{getTeacherStats(selectedTeacher.id).late}</span>
+                </div>
+                <div className="flex flex-col items-start gap-1">
+                  <span className="text-[9px] text-muted-foreground uppercase font-normal tracking-widest opacity-80">Leave</span>
+                  <span className="text-2xl font-serif text-indigo-500 font-normal">{getTeacherStats(selectedTeacher.id).leave}</span>
+                </div>
+                <div className="flex flex-col items-start gap-1">
+                  <span className="text-[9px] text-muted-foreground uppercase font-normal tracking-widest opacity-80">Subs (Load)</span>
+                  <span className="text-2xl font-serif text-primary font-normal">{getTeacherStats(selectedTeacher.id).substitutions}</span>
+                </div>
+              </div>
               </CardHeader>
               <CardContent className="p-0">
                 <div className="overflow-x-auto">
@@ -457,7 +461,7 @@ export default function AttendancePage() {
                                     {record?.substituteCount || 0}
                                   </div>
                                   <div className="flex flex-col">
-                                    <span className={cn("text-[9px] uppercase tracking-widest font-normal opacity-40", (record?.substituteCount || 0) > 0 && "opacity-80 text-primary")}>
+                                    <span className={cn("text-[9px] uppercase tracking-widest font-normal opacity-70", (record?.substituteCount || 0) > 0 && "opacity-90 text-primary")}>
                                       Extra Academic Loads
                                     </span>
                                     {details.filter((d: any) => d.type === 'Substitution').length > 0 && (
@@ -468,39 +472,47 @@ export default function AttendancePage() {
                               </TableCell>
                               <TableCell className="text-right pr-10 print:hidden">
                                 <div className="flex items-center justify-end gap-2">
-                                  <Button 
-                                    variant="outline" 
-                                    size="sm" 
-                                    className="h-9 px-4 rounded-xl text-[9px] uppercase tracking-widest font-normal border-primary/5 hover:bg-primary/5 gap-2"
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      setAuditTarget({ teacherId: selectedTeacher.id, date: isoDate, record })
-                                      setIsAuditModalOpen(true)
-                                    }}
-                                  >
-                                    <FileEdit className="w-3.5 h-3.5 opacity-60" /> Audit Registry
-                                  </Button>
-                                  
                                   <DropdownMenu>
                                     <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                                      <Button variant="ghost" size="sm" className="h-9 w-9 hover:bg-primary/5 rounded-full text-muted-foreground transition-all">
+                                      <Button variant="outline" size="sm" className="h-10 w-10 hover:bg-primary/5 rounded-2xl text-primary border-primary/20 shadow-sm transition-all">
                                         <Plus className="w-4 h-4" />
                                       </Button>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end" className="w-56 rounded-2xl shadow-premium border-primary/5 p-1.5 overflow-hidden">
-                                      <DropdownMenuLabel className="text-[8px] uppercase tracking-[0.3em] opacity-40 px-4 py-3 font-normal">Institutional Protocols</DropdownMenuLabel>
-                                      <DropdownMenuSeparator className="opacity-5" />
+                                    <DropdownMenuContent align="end" className="w-56 rounded-2xl shadow-premium border-primary/5 p-1.5 overflow-hidden font-sans">
+                                      <DropdownMenuLabel className="text-[8px] uppercase tracking-[0.3em] opacity-60 px-4 py-3 font-normal">Registry Protocols</DropdownMenuLabel>
+                                      <DropdownMenuSeparator className="opacity-10" />
                                       <DropdownMenuItem onClick={() => handleMarkAttendance(selectedTeacher.id, isoDate, 'Present')} className="gap-3 cursor-pointer py-3 rounded-xl focus:bg-success/5 font-normal">
-                                        <CheckCircle2 className="w-4 h-4 text-success opacity-70" /> <span className="text-xs">Professional Presence</span>
+                                        <CheckCircle2 className="w-4 h-4 text-success opacity-80" /> <span className="text-xs">Professional Presence</span>
                                       </DropdownMenuItem>
                                       <DropdownMenuItem onClick={() => handleMarkAttendance(selectedTeacher.id, isoDate, 'Late')} className="gap-3 cursor-pointer py-3 rounded-xl focus:bg-warning/5 font-normal">
-                                        <Clock className="w-4 h-4 text-warning opacity-70" /> <span className="text-xs">Late Admission Record</span>
+                                        <Clock className="w-4 h-4 text-warning opacity-80" /> <span className="text-xs">Late Admission Record</span>
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem 
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          setAuditTarget({ teacherId: selectedTeacher.id, date: isoDate, record })
+                                          setIsAuditModalOpen(true)
+                                        }} 
+                                        className="gap-3 cursor-pointer py-3 rounded-xl focus:bg-primary/5 font-normal text-primary"
+                                      >
+                                        <Users className="w-4 h-4 opacity-80" /> <span className="text-xs">Institutional Substitution</span>
                                       </DropdownMenuItem>
                                       <DropdownMenuItem onClick={() => handleMarkAttendance(selectedTeacher.id, isoDate, 'Leave')} className="gap-3 cursor-pointer py-3 rounded-xl focus:bg-indigo-50 font-normal">
-                                        <Calendar className="w-4 h-4 text-indigo-400 opacity-70" /> <span className="text-xs">Authorized Academic Leave</span>
+                                        <Calendar className="w-4 h-4 text-indigo-400 opacity-80" /> <span className="text-xs">Authorized Academic Leave</span>
                                       </DropdownMenuItem>
                                       <DropdownMenuItem onClick={() => handleMarkAttendance(selectedTeacher.id, isoDate, 'Absent')} className="gap-3 cursor-pointer py-3 rounded-xl focus:bg-destructive/5 font-normal">
-                                        <XCircle className="w-4 h-4 text-destructive opacity-70" /> <span className="text-xs">Unannounced Absence Log</span>
+                                        <XCircle className="w-4 h-4 text-destructive opacity-80" /> <span className="text-xs">Unannounced Absence Log</span>
+                                      </DropdownMenuItem>
+                                      <DropdownMenuSeparator className="opacity-10" />
+                                      <DropdownMenuItem 
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          setAuditTarget({ teacherId: selectedTeacher.id, date: isoDate, record })
+                                          setIsAuditModalOpen(true)
+                                        }} 
+                                        className="gap-3 cursor-pointer py-3 rounded-xl focus:bg-muted font-normal"
+                                      >
+                                        <FileEdit className="w-4 h-4 opacity-80" /> <span className="text-xs">Detailed Academic Audit</span>
                                       </DropdownMenuItem>
                                     </DropdownMenuContent>
                                   </DropdownMenu>
@@ -640,7 +652,7 @@ export default function AttendancePage() {
               </Avatar>
               <div>
                 <DialogTitle className="font-serif text-xl font-normal">Audit Day Registry</DialogTitle>
-                <DialogDescription className="text-[10px] uppercase tracking-widest opacity-60">
+                <DialogDescription className="text-[10px] uppercase tracking-widest opacity-80">
                   {auditTarget ? format(new Date(auditTarget.date), 'EEEE, MMMM do, yyyy') : ''}
                 </DialogDescription>
               </div>
@@ -701,7 +713,7 @@ export default function AttendancePage() {
               }} className="space-y-6">
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label className="text-[9px] uppercase tracking-widest opacity-40 ml-1">Event Type</Label>
+                    <Label className="text-[9px] uppercase tracking-widest opacity-70 ml-1">Event Type</Label>
                     <select 
                       name="type" 
                       className="w-full bg-muted/5 border border-primary/5 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary/20"
@@ -712,11 +724,11 @@ export default function AttendancePage() {
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[9px] uppercase tracking-widest opacity-40 ml-1">Event Title / Class</Label>
+                    <Label className="text-[9px] uppercase tracking-widest opacity-70 ml-1">Event Title / Class</Label>
                     <Input name="label" placeholder="e.g. Class 10A (Chemistry)" required className="rounded-xl h-12 border-primary/5 bg-muted/5 focus:bg-card transition-all" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[9px] uppercase tracking-widest opacity-40 ml-1">Additional Context</Label>
+                    <Label className="text-[9px] uppercase tracking-widest opacity-70 ml-1">Additional Context</Label>
                     <Textarea name="info" placeholder="Context for this action..." className="rounded-xl min-h-[100px] border-primary/5 bg-muted/5 focus:bg-card transition-all" />
                   </div>
                 </div>
