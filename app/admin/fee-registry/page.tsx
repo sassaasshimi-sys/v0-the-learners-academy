@@ -15,6 +15,23 @@ import {
   MoreVertical,
   Plus
 } from 'lucide-react'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -53,9 +70,10 @@ import { useTransition } from 'react'
 */
 
 export default function FeeRegistryPage() {
-  const { feePayments, recordPayment } = useData()
+  const { students, courses, feePayments, recordPayment, addFeeAccount } = useData()
   const [searchQuery, setSearchQuery] = useState('')
   const [filterStatus, setFilterStatus] = useState<'All' | 'Paid' | 'Partial' | 'Unpaid'>('All')
+  const [isAddAccountOpen, setIsAddAccountOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
 
   // --- Calculations ---
@@ -89,16 +107,37 @@ export default function FeeRegistryPage() {
     })
   }, [feePayments, searchQuery, filterStatus])
 
+  const handleAddAccount = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+    const data = {
+      studentId: formData.get('studentId') as string,
+      courseId: formData.get('courseId') as string,
+      totalAmount: Number(formData.get('totalAmount')),
+      initialDeposit: Number(formData.get('initialDeposit')),
+    }
+
+    startTransition(async () => {
+      try {
+        await addFeeAccount(data)
+        setIsAddAccountOpen(false)
+        toast.success("Academic account initialized.")
+      } catch (error) {
+        toast.error("Failed to link account.")
+      }
+    })
+  }
+
   const handleQuickPayment = async (paymentId: string) => {
-    const amount = prompt("Enter payment amount:")
+    const amount = prompt("Enter payment amount (Rs.):")
     if (!amount || isNaN(Number(amount))) return
 
     startTransition(async () => {
       try {
         await recordPayment(paymentId, Number(amount))
-        toast.success("Payment recorded successfully.")
+        toast.success("Payment recorded.")
       } catch (error) {
-        toast.error("Failed to record payment.")
+        toast.error("Ledger update failed.")
       }
     })
   }
@@ -122,12 +161,68 @@ export default function FeeRegistryPage() {
           </p>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" className="border-primary/10 rounded-xl px-6 h-12 font-normal text-xs uppercase tracking-[0.15em] hover:bg-primary/5 transition-all">
-            <Filter className="w-4 h-4 mr-3 opacity-40" /> Filter View
-          </Button>
-          <Button className="rounded-xl px-8 h-12 font-normal text-xs uppercase tracking-[0.15em] bg-primary shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
-            Export Audit Record
-          </Button>
+          <Dialog open={isAddAccountOpen} onOpenChange={setIsAddAccountOpen}>
+            <DialogTrigger asChild>
+              <Button className="rounded-xl px-8 h-12 font-normal text-xs uppercase tracking-[0.15em] bg-primary shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                Add Student Account
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-xl rounded-[2.5rem] border-primary/5 shadow-2xl p-0 overflow-hidden">
+              <DialogHeader className="p-8 bg-muted/5 border-b border-primary/5">
+                <DialogTitle className="font-serif text-2xl font-normal">Initiate Academic Account</DialogTitle>
+                <DialogDescription className="text-[10px] uppercase tracking-widest opacity-60">
+                  Link an existing student to the financial registry
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleAddAccount} className="p-8 space-y-6">
+                <div className="grid grid-cols-2 gap-6 text-left">
+                  <div className="space-y-2">
+                    <Label className="text-[9px] uppercase tracking-[0.2em] opacity-40 ml-1">Select Student</Label>
+                    <Select name="studentId" required>
+                      <SelectTrigger className="rounded-xl h-12 border-primary/5 bg-muted/5">
+                        <SelectValue placeholder="Registration / UID" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-2xl border-primary/5 shadow-premium">
+                        {students.map(s => (
+                          <SelectItem key={s.id} value={s.id} className="rounded-lg">
+                            {s.name} ({s.studentId})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[9px] uppercase tracking-[0.2em] opacity-40 ml-1">Academic Level</Label>
+                    <Select name="courseId" required>
+                      <SelectTrigger className="rounded-xl h-12 border-primary/5 bg-muted/5">
+                        <SelectValue placeholder="Enrolled Course" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-2xl border-primary/5 shadow-premium">
+                        {courses.map(c => (
+                          <SelectItem key={c.id} value={c.id} className="rounded-lg">
+                            {c.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[9px] uppercase tracking-[0.2em] opacity-40 ml-1">Total Flexible Fee (Rs.)</Label>
+                    <Input name="totalAmount" type="number" required placeholder="0.00" className="rounded-xl h-12 border-primary/5 bg-muted/5 focus:bg-card transition-all" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[9px] uppercase tracking-[0.2em] opacity-40 ml-1">Initial Deposit (Rs.)</Label>
+                    <Input name="initialDeposit" type="number" defaultValue={0} className="rounded-xl h-12 border-primary/5 bg-muted/5 focus:bg-card transition-all" />
+                  </div>
+                </div>
+                <DialogFooter className="pt-4">
+                  <Button type="submit" disabled={isPending} className="w-full h-12 rounded-xl text-[10px] uppercase tracking-[0.2em] font-normal shadow-lg">
+                    {isPending ? 'Syncing...' : 'Authorize Registration'}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
       </motion.div>
 
@@ -148,9 +243,9 @@ export default function FeeRegistryPage() {
                 <div>
                   <p className="text-[9px] uppercase tracking-[0.3em] text-muted-foreground mb-2 font-normal opacity-60">{stat.label}</p>
                   <h3 className="font-serif text-2xl font-normal tracking-tight mb-3">
-                    ${stat.value.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    Rs. {stat.value.toLocaleString()}
                   </h3>
-                  <p className="text-[10px] text-muted-foreground mt-2 font-normal opacity-50 uppercase tracking-widest">{stat.info}</p>
+                  <p className="text-[10px] text-muted-foreground mt-2 font-normal opacity-70 uppercase tracking-widest">{stat.info}</p>
                 </div>
               </div>
             </CardContent>
@@ -195,14 +290,14 @@ export default function FeeRegistryPage() {
           <CardContent className="p-0">
             <div className="overflow-x-auto">
               <Table>
-                <TableHeader className="bg-muted/5">
-                  <TableRow className="border-b border-primary/5 hover:bg-transparent h-16">
-                    <TableHead className="w-[300px] text-[10px] uppercase tracking-[0.2em] pl-10 h-16 font-normal text-muted-foreground">Candidate Member</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-[0.2em] h-16 font-normal text-muted-foreground">Class Curriculum</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-[0.2em] h-16 font-normal text-muted-foreground">Financial Status</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-[0.2em] h-16 font-normal text-muted-foreground">Equity Contribution</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-[0.2em] h-16 font-normal text-muted-foreground">Last Audit</TableHead>
-                    <TableHead className="text-right pr-10 h-16 text-[10px] uppercase tracking-[0.2em] font-normal text-muted-foreground">Action</TableHead>
+                <TableHeader className="bg-muted/5 h-16 border-b border-primary/5">
+                  <TableRow className="border-none hover:bg-transparent">
+                    <TableHead className="w-[280px] text-[10px] uppercase tracking-[0.2em] pl-10 font-normal text-muted-foreground opacity-60">Name</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-[0.2em] font-normal text-muted-foreground opacity-60">Class</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-[0.2em] font-normal text-muted-foreground opacity-60">ID & Timing</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-[0.2em] font-normal text-muted-foreground opacity-60">Status</TableHead>
+                    <TableHead className="text-[10px] uppercase tracking-[0.2em] font-normal text-muted-foreground opacity-60 w-[240px]">Dues (Rs.)</TableHead>
+                    <TableHead className="text-right pr-10 text-[10px] uppercase tracking-[0.2em] font-normal text-muted-foreground opacity-60">Action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -237,44 +332,43 @@ export default function FeeRegistryPage() {
                           </TableCell>
                           <TableCell>
                             <div className="flex flex-col">
-                              <span className="text-sm font-normal text-foreground">{entry.course.title}</span>
-                              <span className="text-[9px] uppercase tracking-widest text-primary/60 font-normal mt-0.5">{entry.course.level}</span>
+                              <span className="text-sm font-normal text-foreground leading-tight">{entry.course.title}</span>
+                              <span className="text-[9px] uppercase tracking-widest text-primary/70 font-normal mt-1 opacity-70">{entry.course.level}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-col">
+                              <span className="text-xs font-normal text-foreground">{entry.student.studentId || 'GEN-ST'}</span>
+                              <div className="flex items-center gap-1.5 opacity-50 mt-1">
+                                <Clock className="w-2.5 h-2.5" />
+                                <span className="text-[9px] font-normal uppercase tracking-tighter">{entry.student.classTiming || 'TBC'}</span>
+                              </div>
                             </div>
                           </TableCell>
                           <TableCell>
                             <div className={cn(
-                              "inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] uppercase tracking-widest border border-transparent transition-all",
+                              "inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full text-[10px] uppercase tracking-widest border border-transparent font-normal transition-all",
                               entry.status === 'Paid' && "bg-success/5 text-success border-success/10",
                               entry.status === 'Partial' && "bg-warning/5 text-warning border-warning/10",
                               entry.status === 'Unpaid' && "bg-destructive/5 text-destructive border-destructive/10"
                             )}>
-                              <div className={cn(
-                                "w-1 h-1 rounded-full",
-                                entry.status === 'Paid' && "bg-success",
-                                entry.status === 'Partial' && "bg-warning",
-                                entry.status === 'Unpaid' && "bg-destructive"
-                              )} />
                               {entry.status}
                             </div>
                           </TableCell>
                           <TableCell>
-                            <div className="flex flex-col gap-2 w-40">
+                            <div className="flex flex-col gap-2 pr-6">
                               <div className="flex justify-between items-end">
-                                <span className="text-[11px] font-normal leading-none">${entry.amountPaid.toLocaleString()}</span>
-                                <span className="text-[9px] text-muted-foreground font-normal opacity-50 uppercase tracking-tighter">Budget: ${entry.totalAmount.toLocaleString()}</span>
+                                <div className="flex flex-col">
+                                  <span className="text-[11px] font-normal text-foreground leading-none">Paid: {entry.amountPaid.toLocaleString()}</span>
+                                  <span className="text-[8px] text-muted-foreground uppercase tracking-tighter mt-1 opacity-60">Total: {entry.totalAmount.toLocaleString()}</span>
+                                </div>
+                                {balance > 0 ? (
+                                  <span className="text-[10px] text-destructive font-serif font-normal italic">Rs. {balance.toLocaleString()} Due</span>
+                                ) : (
+                                  <CheckCircle className="w-3 h-3 text-success opacity-40" />
+                                )}
                               </div>
                               <Progress value={progress} className="h-1 bg-muted/30 [&>div]:bg-primary" />
-                              {balance > 0 && (
-                                <span className="text-[8px] text-destructive uppercase tracking-widest font-normal">Outstanding: ${balance.toLocaleString()}</span>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2 text-muted-foreground opacity-60">
-                              <Clock className="w-3 h-3" />
-                              <span className="text-[11px] font-normal">
-                                {entry.paymentDate ? format(new Date(entry.paymentDate), 'MMM d, yyyy') : 'No History'}
-                              </span>
                             </div>
                           </TableCell>
                           <TableCell className="text-right pr-10">

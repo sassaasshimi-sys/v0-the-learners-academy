@@ -17,7 +17,7 @@ import { getAssessments, publishAssessment as dbPublishAssessment, removeAssessm
 import { getSubmissions, submitTestResult as dbSubmitTestResult, gradeSubmission as dbGradeSubmission } from '@/lib/actions/submissions'
 import { getSchedules, addSchedule as dbAddSchedule, updateSchedule as dbUpdateSchedule, removeSchedule as dbRemoveSchedule } from '@/lib/actions/schedules'
 import { getEconomicStats, addExpenditure as dbAddExpenditure } from '@/lib/actions/economics'
-import { getFeePayments, recordPayment as dbRecordPayment, updateClassFee as dbUpdateClassFee } from '@/lib/actions/fees'
+import { getFeePayments, recordPayment as dbRecordPayment, updateClassFee as dbUpdateClassFee, addFeeAccount as dbAddFeeAccount } from '@/lib/actions/fees'
 
 interface DataContextType {
   teachers: Teacher[]
@@ -60,6 +60,7 @@ interface DataContextType {
   removeSchedule: (id: string) => Promise<void>
   addExpenditure: (data: any) => Promise<void>
   recordPayment: (id: string, amount: number) => Promise<void>
+  addFeeAccount: (data: any) => Promise<void>
   updateClassFee: (id: string, amount: number) => Promise<void>
   resetToDefaults: () => void
   refresh: () => Promise<void>
@@ -283,6 +284,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
     await refresh()
   }, [refresh])
 
+  const addFeeAccount = useCallback(async (data: any) => {
+    await dbAddFeeAccount(data)
+    await refresh()
+  }, [refresh])
+
   const updateClassFee = useCallback(async (id: string, amount: number) => {
     await dbUpdateClassFee(id, amount)
     await refresh()
@@ -334,6 +340,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       removeSchedule,
       addExpenditure,
       recordPayment,
+      addFeeAccount,
       updateClassFee,
       resetToDefaults,
       refresh,
