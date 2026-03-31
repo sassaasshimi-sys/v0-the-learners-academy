@@ -107,7 +107,7 @@ export default function AdminDashboard() {
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
       >
-        <h1 className="font-serif text-4xl font-bold tracking-tight text-foreground mb-2">
+        <h1 className="font-serif text-4xl tracking-tight text-foreground mb-2 font-normal">
           Welcome, {user?.name?.split(' ')[0] || 'Admin'}
         </h1>
       </motion.div>
@@ -144,9 +144,9 @@ export default function AdminDashboard() {
                   <stat.icon className="h-4 w-4 text-muted-foreground opacity-50" />
                 </CardHeader>
                 <CardContent className="px-4 pb-4">
-                  <div className="text-2xl font-serif font-bold tracking-tight">{stat.value}</div>
+                  <div className="text-2xl font-serif tracking-tight font-normal">{stat.value}</div>
                   <div className="flex items-center gap-1.5 mt-1">
-                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Cumulative Record</span>
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-normal">Cumulative Record</span>
                   </div>
                 </CardContent>
               </Card>
@@ -266,12 +266,12 @@ export default function AdminDashboard() {
                 <div key={student.id} className="flex items-center justify-between p-3 rounded-xl hover:bg-muted/30 transition-premium group">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center border border-primary/10 group-hover:scale-105 transition-transform">
-                      <span className="text-xs font-bold text-primary tracking-tighter">
+                      <span className="text-xs font-normal text-primary tracking-tighter">
                         {student.name.split(' ').map(n => n[0]).join('')}
                       </span>
                     </div>
                     <div>
-                      <p className="font-serif font-bold text-base leading-tight">{student.name}</p>
+                      <p className="font-serif text-base leading-tight font-normal">{student.name}</p>
                       <p className="text-editorial-label text-[11px] lowercase opacity-70">{student.email}</p>
                     </div>
                   </div>
@@ -280,13 +280,13 @@ export default function AdminDashboard() {
                       <span className="text-editorial-label text-[9px]">Term Progress</span>
                       <div className="flex items-center gap-2">
                         <Progress value={student.progress} className="w-16 h-1" />
-                        <span className="text-[10px] font-bold">{student.progress}%</span>
+                        <span className="text-[10px] font-normal">{student.progress}%</span>
                       </div>
                     </div>
                     <Badge 
                       variant="outline"
                       className={cn(
-                        "text-[10px] uppercase tracking-widest font-bold px-2 py-0.5",
+                        "text-[10px] uppercase tracking-widest font-normal px-2 py-0.5",
                         student.status === 'active' 
                           ? 'text-success border-success/20 bg-success/5' 
                           : 'text-muted-foreground border-border bg-muted/20'
@@ -352,7 +352,7 @@ export default function AdminDashboard() {
                 className="group p-5 rounded-2xl border bg-card hover-lift transition-premium cursor-pointer"
               >
                 <div className="flex items-start justify-between mb-4">
-                  <Badge variant="outline" className="text-[10px] uppercase tracking-widest font-bold border-primary/20 bg-primary/5 text-primary">
+                  <Badge variant="outline" className="text-[10px] uppercase tracking-widest font-normal border-primary/20 bg-primary/5 text-primary">
                     {course.level}
                   </Badge>
                   <span className="text-xs text-muted-foreground">

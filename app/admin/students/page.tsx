@@ -5,7 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
 import {
   Table,
   TableBody,
@@ -238,7 +237,7 @@ export default function StudentsPage() {
           </DialogTrigger>
           <DialogContent className="max-w-xl bg-card/90 backdrop-blur-xl border-primary/10">
             <DialogHeader>
-              <DialogTitle className="font-serif text-3xl font-bold tracking-tight">Registration Registry</DialogTitle>
+              <DialogTitle className="font-serif text-3xl tracking-tight font-normal">Registration Registry</DialogTitle>
                 <DialogDescription className="text-editorial-meta">
                 Onboard a new academic professional into the student database.
               </DialogDescription>
@@ -249,12 +248,12 @@ export default function StudentsPage() {
                   <Field>
                     <FieldLabel className="text-editorial-label">Student Name</FieldLabel>
                     <Input {...enrollForm.register('name')} placeholder="Full name" className="bg-background/50 h-10" />
-                    {enrollForm.formState.errors.name && <p className="text-[10px] text-destructive font-bold uppercase mt-1">{enrollForm.formState.errors.name.message}</p>}
+                    {enrollForm.formState.errors.name && <p className="text-[10px] text-destructive font-normal uppercase mt-1">{enrollForm.formState.errors.name.message}</p>}
                   </Field>
                   <Field>
                     <FieldLabel className="text-editorial-label">Guardian&apos;s Name</FieldLabel>
                     <Input {...enrollForm.register('guardianName')} placeholder="Full name" className="bg-background/50 h-10" />
-                    {enrollForm.formState.errors.guardianName && <p className="text-[10px] text-destructive font-bold uppercase mt-1">{enrollForm.formState.errors.guardianName.message}</p>}
+                    {enrollForm.formState.errors.guardianName && <p className="text-[10px] text-destructive font-normal uppercase mt-1">{enrollForm.formState.errors.guardianName.message}</p>}
                   </Field>
                 </div>
 
@@ -262,12 +261,12 @@ export default function StudentsPage() {
                   <Field>
                     <FieldLabel className="text-editorial-label">Student ID</FieldLabel>
                     <Input {...enrollForm.register('studentId')} placeholder="e.g. STU-001" className="bg-background/50 h-10" />
-                    {enrollForm.formState.errors.studentId && <p className="text-[10px] text-destructive font-bold uppercase mt-1">{enrollForm.formState.errors.studentId.message}</p>}
+                    {enrollForm.formState.errors.studentId && <p className="text-[10px] text-destructive font-normal uppercase mt-1">{enrollForm.formState.errors.studentId.message}</p>}
                   </Field>
                   <Field>
                     <FieldLabel className="text-editorial-label">Phone Number</FieldLabel>
                     <Input {...enrollForm.register('phone')} placeholder="+1 (555) 000-0000" className="bg-background/50 h-10" />
-                    {enrollForm.formState.errors.phone && <p className="text-[10px] text-destructive font-bold uppercase mt-1">{enrollForm.formState.errors.phone.message}</p>}
+                    {enrollForm.formState.errors.phone && <p className="text-[10px] text-destructive font-normal uppercase mt-1">{enrollForm.formState.errors.phone.message}</p>}
                   </Field>
                 </div>
 
@@ -286,7 +285,7 @@ export default function StudentsPage() {
                         ))}
                       </SelectContent>
                     </Select>
-                    {enrollForm.formState.errors.course && <p className="text-[10px] text-destructive font-bold uppercase mt-1">{enrollForm.formState.errors.course.message}</p>}
+                    {enrollForm.formState.errors.course && <p className="text-[10px] text-destructive font-normal uppercase mt-1">{enrollForm.formState.errors.course.message}</p>}
                   </Field>
                   <Field>
                     <FieldLabel className="text-editorial-label">Class Timing</FieldLabel>
@@ -302,7 +301,7 @@ export default function StudentsPage() {
                         ))}
                       </SelectContent>
                     </Select>
-                    {enrollForm.formState.errors.timing && <p className="text-[10px] text-destructive font-bold uppercase mt-1">{enrollForm.formState.errors.timing.message}</p>}
+                    {enrollForm.formState.errors.timing && <p className="text-[10px] text-destructive font-normal uppercase mt-1">{enrollForm.formState.errors.timing.message}</p>}
                   </Field>
                 </div>
               </FieldGroup>
@@ -310,7 +309,7 @@ export default function StudentsPage() {
                 <Button type="button" variant="ghost" onClick={() => { setIsAddDialogOpen(false); enrollForm.reset(); }} className="text-muted-foreground hover:text-foreground">
                   Cancel
                 </Button>
-                <Button type="submit" disabled={enrollForm.formState.isSubmitting} className="px-8 font-semibold uppercase tracking-wide">
+                <Button type="submit" disabled={enrollForm.formState.isSubmitting} className="px-8 font-normal uppercase tracking-wide">
                   {enrollForm.formState.isSubmitting ? 'Registering...' : 'Register Student'}
                 </Button>
               </DialogFooter>
@@ -390,28 +389,28 @@ export default function StudentsPage() {
                 ) : (
                   filteredStudents.map((student) => (
                     <TableRow key={student.id}>
-                      <TableCell className="font-sans font-bold text-primary tracking-tighter">
+                      <TableCell className="font-sans font-normal text-primary tracking-tighter">
                         {student.studentId || 'ID-TBC'}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <Avatar className="h-9 w-9">
-                            <AvatarFallback className="bg-primary/5 text-primary text-xs font-bold">
+                            <AvatarFallback className="bg-primary/5 text-primary text-xs font-normal">
                               {student.name.split(' ').map(n => n[0]).join('')}
                             </AvatarFallback>
                           </Avatar>
-                          <p className="font-serif font-bold text-base">{student.name}</p>
+                          <p className="font-serif text-base font-normal">{student.name}</p>
                         </div>
                       </TableCell>
-                      <TableCell className="text-muted-foreground font-medium">
+                      <TableCell className="text-muted-foreground font-normal">
                         {student.guardianName || 'N/A'}
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-col">
-                          <span className="font-bold text-sm">
+                          <span className="font-normal text-sm">
                             {mockCourses.find(c => c.id === student.enrolledCourses[0])?.title || 'Registry Level'}
                           </span>
-                          <span className="text-[10px] text-muted-foreground tracking-wide font-medium">
+                          <span className="text-[10px] text-muted-foreground tracking-wide font-normal">
                             {student.classTiming || 'Timing TBC'}
                           </span>
                         </div>
@@ -504,13 +503,13 @@ export default function StudentsPage() {
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <Avatar className="h-10 w-10 ring-2 ring-primary/5">
-                        <AvatarFallback className="bg-primary/10 text-primary font-bold">
+                        <AvatarFallback className="bg-primary/10 text-primary font-normal">
                           {student.name.split(' ').map(n => n[0]).join('')}
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <h4 className="font-serif font-bold text-base leading-none mb-1">{student.name}</h4>
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold opacity-60">
+                        <h4 className="font-serif font-normal text-base leading-none mb-1">{student.name}</h4>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-normal opacity-60">
                           {student.studentId || 'ID-TBC'}
                         </p>
                       </div>
@@ -525,12 +524,12 @@ export default function StudentsPage() {
 
                   <div className="grid grid-cols-2 gap-4 mb-4 text-xs">
                     <div className="space-y-1">
-                      <p className="text-muted-foreground font-medium uppercase tracking-tighter text-[9px]">Guardian</p>
-                      <p className="font-semibold line-clamp-1">{student.guardianName || 'N/A'}</p>
+                      <p className="text-muted-foreground font-normal uppercase tracking-tighter text-[9px]">Guardian</p>
+                      <p className="font-normal line-clamp-1">{student.guardianName || 'N/A'}</p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-muted-foreground font-medium uppercase tracking-tighter text-[9px]">Class & Timing</p>
-                      <p className="font-bold text-primary truncate">
+                      <p className="text-muted-foreground font-normal uppercase tracking-tighter text-[9px]">Class & Timing</p>
+                      <p className="font-normal text-primary truncate">
                         {mockCourses.find(c => c.id === student.enrolledCourses[0])?.title} ({student.classTiming})
                       </p>
                     </div>
@@ -542,7 +541,7 @@ export default function StudentsPage() {
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      className="flex-1 h-9 rounded-xl text-xs font-semibold"
+                      className="flex-1 h-9 rounded-xl text-xs font-normal"
                       onClick={(e) => {
                         e.stopPropagation()
                         setSelectedStudent(student)
@@ -611,7 +610,7 @@ export default function StudentsPage() {
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <h3 className="text-lg font-semibold">{selectedStudent.name}</h3>
+                  <h3 className="text-lg font-normal">{selectedStudent.name}</h3>
                   <Badge 
                     variant={selectedStudent.status === 'inactive' ? 'secondary' : 'default'}
                     className={getStatusColor(selectedStudent.status)}
@@ -631,11 +630,11 @@ export default function StudentsPage() {
                   <span>{selectedStudent.phone}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <div className="flex items-center justify-center w-4 h-4 rounded bg-primary/10 text-[10px] font-bold text-primary">ID</div>
-                  <span className="font-medium">{selectedStudent.studentId || 'N/A'}</span>
+                  <div className="flex items-center justify-center w-4 h-4 rounded bg-primary/10 text-[10px] font-normal text-primary">ID</div>
+                  <span className="font-normal">{selectedStudent.studentId || 'N/A'}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <span className="text-muted-foreground font-semibold">Guardian:</span>
+                  <span className="text-muted-foreground font-normal">Guardian:</span>
                   <span>{selectedStudent.guardianName || 'N/A'}</span>
                 </div>
               </div>
@@ -645,7 +644,7 @@ export default function StudentsPage() {
                 <div className="space-y-3">
                    <div className="flex items-center justify-between">
                       <h4 className="text-xs font-black uppercase tracking-widest opacity-40">Academic Progress</h4>
-                      <Badge variant="outline" className="text-[10px] font-sans font-bold">{metricProgress}%</Badge>
+                    <Badge variant="outline" className="text-[10px] font-sans font-normal">{metricProgress}%</Badge>
                    </div>
                    <Input 
                       type="range" 
@@ -674,7 +673,7 @@ export default function StudentsPage() {
                    <div className="flex items-end">
                       <Button 
                         onClick={handleUpdateMetrics}
-                        className="w-full h-10 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary border-none font-bold text-xs uppercase tracking-widest"
+                        className="w-full h-10 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary border-none font-normal text-xs uppercase tracking-widest"
                       >
                          Sync Metrics
                       </Button>
@@ -683,10 +682,10 @@ export default function StudentsPage() {
               </div>
 
               <div className="pt-6 border-t">
-                <h4 className="text-sm font-medium mb-3">Institutional Status</h4>
+                <h4 className="text-sm font-normal mb-3">Institutional Status</h4>
                 <div className="flex items-center gap-4">
                   <Progress value={selectedStudent.progress} className="flex-1 h-3" />
-                  <span className="text-lg font-semibold">{selectedStudent.progress}%</span>
+                  <span className="text-lg font-normal">{selectedStudent.progress}%\</span>
                 </div>
               </div>
 
@@ -695,23 +694,23 @@ export default function StudentsPage() {
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
                     <BookOpen className="w-5 h-5 text-primary" />
                   </div>
-                  <p className="text-2xl font-bold">{selectedStudent.enrolledCourses.length}</p>
-                  <p className="text-sm text-muted-foreground">Classes</p>
-                </div>
-                <div className="text-center">
-                  <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-2">
-                    <Award className="w-5 h-5 text-success" />
-                  </div>
-                  <p className={`text-2xl font-bold ${getGradeColor(selectedStudent.grade)}`}>
-                    {selectedStudent.grade || '-'}
-                  </p>
-                  <p className="text-sm text-muted-foreground">Grade</p>
-                </div>
-                <div className="text-center">
-                  <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-2">
-                    <GraduationCap className="w-5 h-5 text-accent" />
-                  </div>
-                  <p className="text-2xl font-bold">
+                  <p className="text-2xl font-normal">{selectedStudent.enrolledCourses.length}</p>
+                        <p className="text-sm text-muted-foreground font-normal">Classes</p>
+                      </div>
+                      <div className="text-center">
+                        <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-2">
+                          <Award className="w-5 h-5 text-success" />
+                        </div>
+                        <p className={`text-2xl font-normal ${getGradeColor(selectedStudent.grade)}`}>
+                          {selectedStudent.grade || '-'}
+                        </p>
+                        <p className="text-sm text-muted-foreground font-normal">Grade</p>
+                      </div>
+                      <div className="text-center">
+                        <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-2">
+                          <GraduationCap className="w-5 h-5 text-accent" />
+                        </div>
+                        <p className="text-2xl font-normal">
                     {new Date(selectedStudent.enrolledAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
                   </p>
                   <p className="text-sm text-muted-foreground">Enrolled</p>
@@ -726,7 +725,7 @@ export default function StudentsPage() {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="max-w-xl bg-card/90 backdrop-blur-xl border-primary/10">
           <DialogHeader>
-            <DialogTitle className="font-serif text-3xl font-bold tracking-tight text-primary">Edit Record</DialogTitle>
+            <DialogTitle className="font-serif text-3xl tracking-tight text-primary font-normal">Edit Record</DialogTitle>
             <DialogDescription className="text-editorial-meta">Modify essential student protocols and enrollment settings.</DialogDescription>
           </DialogHeader>
           <form onSubmit={editForm.handleSubmit(onEditSubmit)}>
@@ -788,7 +787,7 @@ export default function StudentsPage() {
             </FieldGroup>
             <DialogFooter className="pt-2">
               <Button type="button" variant="ghost" onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
-              <Button type="submit" disabled={editForm.formState.isSubmitting} className="font-bold">Save Changes</Button>
+              <Button type="submit" disabled={editForm.formState.isSubmitting} className="font-normal">Save Changes</Button>
             </DialogFooter>
           </form>
         </DialogContent>

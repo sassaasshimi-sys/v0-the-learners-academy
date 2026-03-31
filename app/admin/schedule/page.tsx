@@ -90,7 +90,7 @@ export default function SchedulePage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="font-serif text-3xl font-semibold text-foreground">
+          <h1 className="font-serif text-3xl font-normal text-foreground">
             Academic Schedule
           </h1>
           <p className="text-muted-foreground mt-1">
@@ -106,7 +106,7 @@ export default function SchedulePage() {
           </DialogTrigger>
           <DialogContent className="max-w-xl bg-card/90 backdrop-blur-xl border-primary/10">
             <DialogHeader>
-              <DialogTitle className="font-serif text-3xl font-bold tracking-tight">Schedule Registry</DialogTitle>
+              <DialogTitle className="font-serif text-3xl tracking-tight font-normal">Schedule Registry</DialogTitle>
               <DialogDescription className="text-editorial-meta">
                 Assign an academic session to a standardized slot and room.
               </DialogDescription>
@@ -168,7 +168,7 @@ export default function SchedulePage() {
                 <Button type="button" variant="ghost" onClick={() => setIsAddOpen(false)} className="text-muted-foreground hover:text-foreground">
                   Cancel
                 </Button>
-                <Button type="submit" className="px-8 font-semibold uppercase tracking-wide">Publish Schedule</Button>
+                <Button type="submit" className="px-8 font-normal uppercase tracking-wide">Publish Schedule</Button>
               </DialogFooter>
             </form>
           </DialogContent>
@@ -192,11 +192,11 @@ export default function SchedulePage() {
           <Card key={item.id} className="hover-lift border-none shadow-sm ring-1 ring-border group transition-all">
             <CardHeader className="pb-3 flex flex-row items-start justify-between">
               <div className="space-y-1">
-                <Badge variant="outline" className="text-[10px] tracking-widest uppercase font-bold text-primary border-primary/20 bg-primary/5">
+                <Badge variant="outline" className="text-[10px] tracking-widest uppercase font-normal text-primary border-primary/20 bg-primary/5">
                   {item.slotId || 'S-TBC'}
                 </Badge>
                 <CardTitle className="text-xl font-serif text-foreground leading-tight">{item.classTitle}</CardTitle>
-                <CardDescription className="font-medium text-accent">
+                <CardDescription className="font-normal text-accent">
                   Prof. {item.teacherName}
                 </CardDescription>
               </div>
@@ -220,7 +220,7 @@ export default function SchedulePage() {
                   <div className="p-1.5 rounded bg-muted/50">
                     <Clock className="w-4 h-4 text-primary" />
                   </div>
-                  <span className="font-medium">{item.timing}</span>
+                  <span className="font-normal">{item.timing}</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm text-muted-foreground">
                   <div className="p-1.5 rounded bg-muted/50">
@@ -234,7 +234,7 @@ export default function SchedulePage() {
                   </div>
                   <div className="flex gap-1">
                     {item.days.map(day => (
-                      <Badge key={day} variant="secondary" className="px-1 text-[9px] uppercase font-bold">{day}</Badge>
+                      <Badge key={day} variant="secondary" className="px-1 text-[9px] uppercase font-normal">{day}</Badge>
                     ))}
                   </div>
                 </div>

@@ -162,3 +162,35 @@ export interface StudentTest {
   score?: number
   feedback?: string
 }
+
+export interface TeacherAttendance {
+  id: string
+  teacherId: string
+  date: Date | string
+  status: 'Present' | 'Absent' | 'Late' | 'Leave'
+  substituteCount: number
+  note?: string
+  createdAt: Date | string
+  updatedAt: Date | string
+}
+
+export interface Expenditure {
+  id: string
+  amount: number
+  category: string
+  description: string
+  date: Date | string
+  createdAt: Date | string
+}
+
+export interface FeePayment {
+  id: string
+  studentId: string
+  courseId: string
+  amountPaid: number
+  totalAmount: number
+  status: 'Paid' | 'Partial' | 'Unpaid'
+  paymentDate?: Date | string
+  updatedAt: Date | string
+  createdAt: Date | string
+}

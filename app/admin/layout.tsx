@@ -41,6 +41,9 @@ import {
   LogOut,
   Bell,
   ChevronDown,
+  DollarSign,
+  TrendingUp,
+  BarChart,
 } from 'lucide-react'
 
 const adminNavItems = [
@@ -58,6 +61,26 @@ const adminNavItems = [
     title: 'Students',
     href: '/admin/students',
     icon: GraduationCap,
+  },
+  {
+    title: 'Attendance',
+    href: '/admin/attendance',
+    icon: Users,
+  },
+  {
+    title: 'Fee Registry',
+    href: '/admin/fee-registry',
+    icon: DollarSign,
+  },
+  {
+    title: 'Economics',
+    href: '/admin/economics',
+    icon: TrendingUp,
+  },
+  {
+    title: 'Growth',
+    href: '/admin/growth',
+    icon: BarChart,
   },
   {
     title: 'Classes',
@@ -126,7 +149,7 @@ export default function AdminLayout({
                         className={cn(
                           "transition-premium h-11 px-4 rounded-xl",
                           isActive 
-                            ? "bg-primary/5 text-primary font-bold shadow-sm" 
+                            ? "bg-primary/5 text-primary shadow-sm" 
                             : "text-muted-foreground hover:bg-primary/5 hover:text-primary"
                         )}
                         tooltip={item.title}
@@ -166,7 +189,7 @@ export default function AdminLayout({
               </span>
               <Avatar className="h-9 w-9 border border-primary/10 shadow-sm">
                 <AvatarImage src={user?.avatar} alt={user?.name} />
-                <AvatarFallback className="bg-primary/5 text-primary text-xs font-bold">
+                <AvatarFallback className="bg-primary/5 text-primary text-xs">
                   {user?.name?.split(' ').map(n => n[0]).join('') || 'U'}
                 </AvatarFallback>
               </Avatar>

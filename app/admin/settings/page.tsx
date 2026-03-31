@@ -54,7 +54,7 @@ export default function SettingsPage() {
     <div className="space-y-6">
       {/* Page Header */}
       <div>
-        <h1 className="font-serif text-3xl font-bold text-foreground">
+        <h1 className="font-serif text-3xl font-normal text-foreground">
           Settings
         </h1>
         <p className="text-muted-foreground mt-1">
@@ -136,7 +136,7 @@ export default function SettingsPage() {
                   />
                 </div>
                 <div className="text-center space-y-1">
-                  <p className="text-xs font-bold uppercase tracking-widest text-primary">Official Logo</p>
+                  <p className="text-xs font-normal uppercase tracking-widest text-primary opacity-60">Official Logo</p>
                   <p className="text-[11px] text-muted-foreground">Supported: JPG, PNG, SVG (Max 2MB)</p>
                 </div>
               </CardContent>
@@ -144,7 +144,7 @@ export default function SettingsPage() {
           </div>
 
           <div className="flex justify-end pt-4">
-            <Button onClick={handleSave} disabled={isLoading} className="px-8 font-semibold uppercase tracking-wide">
+            <Button onClick={handleSave} disabled={isLoading} className="px-8 font-normal uppercase tracking-wide">
               {isLoading ? 'Syncing...' : 'Save General changes'}
             </Button>
           </div>
@@ -192,7 +192,7 @@ export default function SettingsPage() {
             <CardContent>
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <p className="font-medium">Enable 2FA</p>
+                  <p className="font-normal">Enable 2FA</p>
                   <p className="text-sm text-muted-foreground">
                     Require a verification code when signing in
                   </p>
@@ -212,7 +212,7 @@ export default function SettingsPage() {
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between p-3 rounded-lg border">
                 <div>
-                  <p className="font-medium">Current Session</p>
+                  <p className="font-normal">Current Session</p>
                   <p className="text-sm text-muted-foreground">Chrome on macOS - Active now</p>
                 </div>
                 <Button variant="outline" size="sm">This device</Button>
@@ -242,7 +242,7 @@ export default function SettingsPage() {
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <p className="font-medium">Dark Mode Appearance</p>
+                  <p className="font-normal">Dark Mode Appearance</p>
                   <p className="text-sm text-editorial-meta">
                     Shift to a premium dark aesthetic for focused work
                   </p>
@@ -252,7 +252,7 @@ export default function SettingsPage() {
               <Separator />
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <p className="font-medium">High-Density Compact Mode</p>
+                  <p className="font-normal">High-Density Compact Mode</p>
                   <p className="text-sm text-editorial-meta">
                     Maximize information visibility by reducing whitespace
                   </p>
@@ -263,7 +263,7 @@ export default function SettingsPage() {
           </Card>
 
           <div className="flex justify-end pt-4">
-            <Button onClick={handleSave} disabled={isLoading} className="px-8 font-semibold uppercase tracking-wide">
+            <Button onClick={handleSave} disabled={isLoading} className="px-8 font-normal uppercase tracking-wide">
               {isLoading ? 'applying...' : 'Apply Appearance'}
             </Button>
           </div>

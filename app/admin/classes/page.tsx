@@ -172,7 +172,7 @@ export default function ClassesPage() {
       {/* Page Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="font-serif text-3xl font-bold text-foreground">
+          <h1 className="font-serif text-3xl font-normal text-foreground">
             Classes
           </h1>
           <p className="text-muted-foreground mt-1">
@@ -188,7 +188,7 @@ export default function ClassesPage() {
           </DialogTrigger>
           <DialogContent className="max-w-xl bg-card/90 backdrop-blur-xl border-primary/10">
             <DialogHeader>
-              <DialogTitle className="font-serif text-3xl font-bold tracking-tight">Class Registry</DialogTitle>
+              <DialogTitle className="font-serif text-3xl tracking-tight font-normal">Class Registry</DialogTitle>
               <DialogDescription className="text-editorial-meta">
                 Fill in the details to schedule a new academic session.
               </DialogDescription>
@@ -248,7 +248,7 @@ export default function ClassesPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <Field>
                     <FieldLabel className="text-editorial-label">Tuition Fee (PKR)</FieldLabel>
-                    <Input name="feeAmount" type="number" placeholder="e.g. 5000" required className="bg-background/50 h-10 font-bold font-serif" />
+                    <Input name="feeAmount" type="number" placeholder="e.g. 5000" required className="bg-background/50 h-10 font-normal font-serif text-editorial-meta" />
                   </Field>
                 </div>
               </FieldGroup>
@@ -256,7 +256,7 @@ export default function ClassesPage() {
                 <Button type="button" variant="ghost" onClick={() => setIsAddDialogOpen(false)} className="text-muted-foreground hover:text-foreground">
                   Cancel
                 </Button>
-                <Button type="submit" className="px-8 font-semibold uppercase tracking-wide">Publish Class</Button>
+                <Button type="submit" className="px-8 font-normal uppercase tracking-wide">Publish Class</Button>
               </DialogFooter>
             </form>
           </DialogContent>
@@ -309,11 +309,11 @@ export default function ClassesPage() {
             <Table>
             <TableHeader className="bg-muted/30">
               <TableRow>
-                <TableHead className="w-[150px] font-bold text-foreground">Room Number</TableHead>
-                <TableHead className="font-bold text-foreground">Class</TableHead>
-                <TableHead className="font-bold text-foreground">Class Timing</TableHead>
-                <TableHead className="font-bold text-foreground">Teacher</TableHead>
-                <TableHead className="font-bold text-foreground">Fee (PKR)</TableHead>
+                <TableHead className="w-[150px] font-normal text-foreground uppercase tracking-widest text-[10px]">Room Number</TableHead>
+                <TableHead className="font-normal text-foreground uppercase tracking-widest text-[10px]">Class</TableHead>
+                <TableHead className="font-normal text-foreground uppercase tracking-widest text-[10px]">Class Timing</TableHead>
+                <TableHead className="font-normal text-foreground uppercase tracking-widest text-[10px]">Teacher</TableHead>
+                <TableHead className="font-normal text-foreground uppercase tracking-widest text-[10px]">Fee (PKR)</TableHead>
                 <TableHead className="w-[70px]"></TableHead>
               </TableRow>
             </TableHeader>
@@ -328,17 +328,17 @@ export default function ClassesPage() {
               ) : (
                 filteredCourses.map((course) => (
                   <TableRow key={course.id} className="group hover:bg-muted/20 transition-colors">
-                    <TableCell className="font-bold tracking-tighter text-lg text-primary">
+                    <TableCell className="font-normal tracking-tighter text-lg text-primary">
                       {course.roomNumber || 'N/A'}
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col">
-                        <span className="font-serif font-bold text-base leading-none mb-1">{course.title}</span>
+                        <span className="font-serif font-normal text-base leading-none mb-1">{course.title}</span>
                         <div className="flex items-center gap-1.5">
-                          <Badge variant="outline" className={cn("text-[9px] h-4 px-1 py-0 uppercase tracking-tighter", getLevelColor(course.level))}>
+                          <Badge variant="outline" className={cn("text-[9px] h-4 px-1 py-0 uppercase tracking-tighter font-normal", getLevelColor(course.level))}>
                             {course.level}
                           </Badge>
-                          <Badge className={cn("text-[8px] h-3.5 px-1 py-0 uppercase tracking-tighter", getStatusColor(course.status))}>
+                          <Badge className={cn("text-[8px] h-3.5 px-1 py-0 uppercase tracking-tighter font-normal", getStatusColor(course.status))}>
                             {course.status}
                           </Badge>
                         </div>
@@ -347,7 +347,7 @@ export default function ClassesPage() {
                     <TableCell className="font-medium text-sm text-editorial-meta">
                       {course.schedule}
                     </TableCell>
-                    <TableCell className="font-serif font-bold text-base text-primary">
+                    <TableCell className="font-serif font-normal text-base text-primary">
                       Rs. {(course.feeAmount || 0).toLocaleString()}
                     </TableCell>
                     <TableCell>
@@ -412,7 +412,7 @@ export default function ClassesPage() {
                   }}
                 >
                   <div className="p-4 border-b bg-muted/20 flex items-center justify-between">
-                    <span className="font-bold text-lg text-primary tracking-tighter">
+                    <span className="font-normal text-lg text-primary tracking-tighter">
                       {course.roomNumber || 'Room TBC'}
                     </span>
                     <Badge className={cn("text-[9px] uppercase tracking-tighter", getStatusColor(course.status))}>
@@ -421,7 +421,7 @@ export default function ClassesPage() {
                   </div>
                   <div className="p-4 space-y-3">
                     <div>
-                      <h4 className="font-serif font-bold text-lg leading-tight mb-1">{course.title}</h4>
+                      <h4 className="font-serif font-normal text-lg leading-tight mb-1">{course.title}</h4>
                       <div className="flex items-center gap-2">
                          <Badge variant="outline" className={cn("text-[8px] h-4 px-1 py-0 uppercase tracking-tighter", getLevelColor(course.level))}>
                           {course.level}
@@ -431,18 +431,17 @@ export default function ClassesPage() {
                     
                     <div className="grid grid-cols-2 gap-3 pt-2">
                        <div className="flex flex-col gap-1">
-                          <p className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest">Timing</p>
-                          <p className="text-xs font-semibold">{course.schedule}</p>
+                          <p className="text-[9px] uppercase font-normal text-muted-foreground tracking-widest">Timing</p>
+                          <p className="text-xs font-normal">{course.schedule}</p>
                        </div>
                        <div className="flex flex-col gap-1">
-                          <p className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest">Teacher</p>
-                          <p className="text-xs font-bold font-serif">{course.teacherName}</p>
+                          <p className="text-[9px] uppercase font-normal text-muted-foreground tracking-widest">Teacher</p>
+                          <p className="text-xs font-normal font-serif">{course.teacherName}</p>
                        </div>
                     </div>
                   </div>
                   <div className="p-2 bg-muted/5 flex justify-end px-4 border-t">
-                    <Button variant="ghost" size="sm" className="h-9 w-full rounded-xl text-primary font-bold">
-                       View Registry Profile
+                    <Button variant="ghost" size="sm" className="h-9 w-full rounded-xl text-primary font-normal">
                        <Eye className="w-3.5 h-3.5 ml-2" />
                     </Button>
                   </div>
@@ -457,7 +456,7 @@ export default function ClassesPage() {
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle className="font-serif text-2xl font-bold">Class Details</DialogTitle>
+            <DialogTitle className="font-serif text-2xl font-normal">Class Details</DialogTitle>
           </DialogHeader>
           {selectedCourse && (
             <div className="space-y-6 py-4">
@@ -470,7 +469,7 @@ export default function ClassesPage() {
                     {selectedCourse.status}
                   </Badge>
                 </div>
-                <h3 className="text-xl font-semibold">{selectedCourse.title}</h3>
+                <h3 className="text-xl font-normal">{selectedCourse.title}</h3>
                 <p className="text-muted-foreground mt-2">{selectedCourse.description}</p>
               </div>
 
@@ -479,27 +478,27 @@ export default function ClassesPage() {
                   <Users className="w-4 h-4 text-muted-foreground" />
                   <div>
                     <p className="text-sm text-muted-foreground">Instructor</p>
-                    <p className="font-medium">{selectedCourse.teacherName}</p>
+                    <p className="font-normal">{selectedCourse.teacherName}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4 text-muted-foreground" />
                   <div>
                     <p className="text-sm text-muted-foreground">Duration</p>
-                    <p className="font-medium">{selectedCourse.duration}</p>
+                    <p className="font-normal">{selectedCourse.duration}</p>
                   </div>
                 </div>
               </div>
 
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Schedule</p>
-                <p className="font-medium">{selectedCourse.schedule}</p>
+                <p className="font-normal">{selectedCourse.schedule}</p>
               </div>
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
                   <span>Enrollment Capacity</span>
-                  <span className="font-medium">{selectedCourse.enrolled} / {selectedCourse.capacity}</span>
+                  <span className="font-normal">{selectedCourse.enrolled} / {selectedCourse.capacity}</span>
                 </div>
                 <Progress value={(selectedCourse.enrolled / selectedCourse.capacity) * 100} className="h-3" />
               </div>
@@ -507,14 +506,14 @@ export default function ClassesPage() {
               <div className="grid gap-4 grid-cols-2 pt-4 border-t">
                 <div>
                   <p className="text-sm text-muted-foreground">Start Date</p>
-                  <p className="font-medium flex items-center gap-2">
+                  <p className="font-normal flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
                     {new Date(selectedCourse.startDate).toLocaleDateString()}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">End Date</p>
-                  <p className="font-medium flex items-center gap-2">
+                  <p className="font-normal flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
                     {new Date(selectedCourse.endDate).toLocaleDateString()}
                   </p>

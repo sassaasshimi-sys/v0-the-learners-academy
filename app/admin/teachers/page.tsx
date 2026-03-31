@@ -133,7 +133,7 @@ export default function TeachersPage() {
       {/* Page Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="font-serif text-3xl font-bold text-foreground">
+          <h1 className="font-serif text-3xl font-normal text-foreground">
             Teachers
           </h1>
           <p className="text-muted-foreground mt-1">
@@ -195,7 +195,7 @@ export default function TeachersPage() {
                 <Button type="button" variant="ghost" onClick={() => setIsAddDialogOpen(false)} className="text-muted-foreground hover:text-foreground">
                   Cancel
                 </Button>
-                <Button type="submit" className="px-8 font-semibold uppercase tracking-wide">Add Professional</Button>
+                <Button type="submit" className="px-8 font-normal uppercase tracking-wide">Add Professional</Button>
               </DialogFooter>
             </form>
           </DialogContent>
@@ -276,14 +276,14 @@ export default function TeachersPage() {
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <p className="font-medium">{teacher.name}</p>
+                            <p className="font-normal">{teacher.name}</p>
                             <p className="text-sm text-muted-foreground">{teacher.email}</p>
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-col">
-                          <span className="font-medium">{teacher.employeeId}</span>
+                          <span className="font-normal">{teacher.employeeId}</span>
                           <span className="text-xs text-muted-foreground">{teacher.assignedClass || 'Not assigned'}</span>
                         </div>
                       </TableCell>
@@ -368,13 +368,13 @@ export default function TeachersPage() {
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <Avatar className="h-10 w-10 ring-2 ring-primary/5">
-                        <AvatarFallback className="bg-primary/10 text-primary font-bold">
+                        <AvatarFallback className="bg-primary/10 text-primary font-normal">
                           {teacher.name.split(' ').map(n => n[0]).join('')}
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <h4 className="font-serif font-bold text-base leading-none mb-1">{teacher.name}</h4>
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold opacity-60">
+                        <h4 className="font-serif font-normal text-base leading-none mb-1">{teacher.name}</h4>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-normal opacity-60">
                           {teacher.employeeId}
                         </p>
                       </div>
@@ -389,12 +389,12 @@ export default function TeachersPage() {
 
                   <div className="grid grid-cols-2 gap-4 mb-4 text-xs">
                     <div className="space-y-1">
-                      <p className="text-muted-foreground font-medium uppercase tracking-tighter text-[9px]">Registry Email</p>
-                      <p className="font-semibold line-clamp-1">{teacher.email}</p>
+                      <p className="text-muted-foreground font-normal uppercase tracking-tighter text-[9px]">Registry Email</p>
+                      <p className="font-normal line-clamp-1">{teacher.email}</p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-muted-foreground font-medium uppercase tracking-tighter text-[9px]">Assigned Class</p>
-                      <p className="font-bold text-primary truncate">
+                      <p className="text-muted-foreground font-normal uppercase tracking-tighter text-[9px]">Assigned Class</p>
+                      <p className="font-normal text-primary truncate">
                         {teacher.assignedClass || 'Level TBC'}
                       </p>
                     </div>
@@ -403,12 +403,12 @@ export default function TeachersPage() {
                   <div className="flex items-center justify-between pt-4 border-t gap-2">
                     <div className="flex gap-4">
                       <div className="text-center">
-                        <p className="font-bold text-sm leading-none">{teacher.coursesCount}</p>
-                        <p className="text-[8px] text-muted-foreground uppercase tracking-tight">Classes</p>
+                        <p className="font-normal text-sm leading-none">{teacher.coursesCount}</p>
+                        <p className="text-[8px] text-muted-foreground uppercase tracking-tight font-normal">Classes</p>
                       </div>
                       <div className="text-center">
-                        <p className="font-bold text-sm leading-none">{teacher.studentsCount}</p>
-                        <p className="text-[8px] text-muted-foreground uppercase tracking-tight">Students</p>
+                        <p className="font-normal text-sm leading-none">{teacher.studentsCount}</p>
+                        <p className="text-[8px] text-muted-foreground uppercase tracking-tight font-normal">Students</p>
                       </div>
                     </div>
                     <DropdownMenu>
@@ -467,7 +467,7 @@ export default function TeachersPage() {
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <h3 className="text-lg font-semibold">{selectedTeacher.name}</h3>
+                  <h3 className="text-lg font-normal">{selectedTeacher.name}</h3>
                   <Badge 
                     variant={selectedTeacher.status === 'active' ? 'default' : 'secondary'}
                     className={selectedTeacher.status === 'active' ? 'bg-success hover:bg-success/90' : ''}
