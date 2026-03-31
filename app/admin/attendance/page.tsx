@@ -71,6 +71,20 @@ import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterv
   - Institutional Professionalism
 */
 
+const ACADEMY_CLASSES = [
+  "Pre-Foundation", "Foundation One", "Foundation Two", "Foundation Three",
+  "Beginners", "Level One", "Level Two", "Level Three", "Level Four", "Level Five", "Level Six",
+  "Level Advanced", "Professional Advanced",
+  "Speaking Class", "Grammar Speaking Class", "IELTS Preparation Course"
+]
+
+const CLASS_TIMINGS = [
+  "08:00 AM - 09:00 AM", "09:00 AM - 10:00 AM", "10:00 AM - 11:00 AM", "11:00 AM - 12:00 PM",
+  "12:00 PM - 01:00 PM", "01:00 PM - 02:00 PM", "02:00 PM - 03:00 PM", "03:00 PM - 04:00 PM",
+  "04:00 PM - 05:00 PM", "05:00 PM - 06:00 PM", "06:00 PM - 07:00 PM", "07:00 PM - 08:00 PM",
+  "08:00 PM - 09:00 PM", "09:00 PM - 10:00 PM"
+]
+
 export default function AttendancePage() {
   const { teachers } = useData()
   const [currentDate, setCurrentDate] = useState(new Date())
@@ -400,10 +414,10 @@ export default function AttendancePage() {
                   <Table>
                     <TableHeader className="bg-muted/10 border-b border-primary/5 h-16">
                       <TableRow className="border-none hover:bg-transparent">
-                        <TableHead className="w-[200px] text-[11px] uppercase tracking-[0.2em] pl-10 font-normal text-muted-foreground opacity-60">Calendar Cycle</TableHead>
-                        <TableHead className="text-[11px] uppercase tracking-[0.2em] font-normal text-muted-foreground opacity-60">Registry Status</TableHead>
-                        <TableHead className="text-[11px] uppercase tracking-[0.2em] font-normal text-muted-foreground opacity-60">Extra Classes (Substitution)</TableHead>
-                        <TableHead className="text-right pr-10 text-[11px] uppercase tracking-[0.2em] font-normal text-muted-foreground opacity-60 print:hidden">Audit Action</TableHead>
+                        <TableHead className="w-[200px] text-[11px] uppercase tracking-[0.2em] pl-10 font-normal text-muted-foreground opacity-80">Calendar</TableHead>
+                        <TableHead className="text-[11px] uppercase tracking-[0.2em] font-normal text-muted-foreground opacity-80">Status</TableHead>
+                        <TableHead className="text-[11px] uppercase tracking-[0.2em] font-normal text-muted-foreground opacity-80">Substitutions</TableHead>
+                        <TableHead className="text-right pr-10 text-[11px] uppercase tracking-[0.2em] font-normal text-muted-foreground opacity-80 print:hidden">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -462,7 +476,7 @@ export default function AttendancePage() {
                                   </div>
                                   <div className="flex flex-col">
                                     <span className={cn("text-[9px] uppercase tracking-widest font-normal opacity-70", (record?.substituteCount || 0) > 0 && "opacity-90 text-primary")}>
-                                      Extra Academic Loads
+                                      Institutional Substitutions
                                     </span>
                                     {details.filter((d: any) => d.type === 'Substitution').length > 0 && (
                                       <span className="text-[7px] uppercase tracking-tighter opacity-30">Granular Logs Verified</span>
@@ -490,8 +504,7 @@ export default function AttendancePage() {
                                       <DropdownMenuItem 
                                         onClick={(e) => {
                                           e.stopPropagation()
-                                          setAuditTarget({ teacherId: selectedTeacher.id, date: isoDate, record })
-                                          setIsAuditModalOpen(true)
+                                          handleAddEvent(selectedTeacher.id, isoDate, 'Substitution', 'Standard Institutional Substitution', 'System-Logged Action')
                                         }} 
                                         className="gap-3 cursor-pointer py-3 rounded-xl focus:bg-primary/5 font-normal text-primary"
                                       >
@@ -643,7 +656,7 @@ export default function AttendancePage() {
 
       {/* Audit Registry Modal - Granular Entry */}
       <Dialog open={isAuditModalOpen} onOpenChange={setIsAuditModalOpen}>
-        <DialogContent className="sm:max-w-[600px] rounded-[2rem] border-primary/5 shadow-2xl p-0 overflow-hidden">
+        <DialogContent className="sm:max-w-[500px] rounded-[2rem] border-primary/5 shadow-2xl p-0 overflow-hidden">
           <DialogHeader className="p-8 bg-muted/5 border-b border-primary/5">
             <div className="flex items-center gap-4 mb-2">
               <Avatar className="h-10 w-10 border border-primary/10">
@@ -651,7 +664,7 @@ export default function AttendancePage() {
                 <AvatarFallback>{selectedTeacher?.name?.[0]}</AvatarFallback>
               </Avatar>
               <div>
-                <DialogTitle className="font-serif text-xl font-normal">Audit Day Registry</DialogTitle>
+                <DialogTitle className="font-serif text-xl font-normal">Granular Academic Audit</DialogTitle>
                 <DialogDescription className="text-[10px] uppercase tracking-widest opacity-80">
                   {auditTarget ? format(new Date(auditTarget.date), 'EEEE, MMMM do, yyyy') : ''}
                 </DialogDescription>
@@ -659,85 +672,58 @@ export default function AttendancePage() {
             </div>
           </DialogHeader>
           
-          <Tabs defaultValue="status" className="p-0">
-            <div className="px-8 pt-6">
-              <TabsList className="bg-muted/10 p-1 rounded-xl h-12 w-full border border-primary/5">
-                <TabsTrigger value="status" className="flex-1 rounded-lg text-[10px] uppercase tracking-widest font-normal data-[state=active]:bg-card data-[state=active]:shadow-sm">
-                  Registry Status
-                </TabsTrigger>
-                <TabsTrigger value="event" className="flex-1 rounded-lg text-[10px] uppercase tracking-widest font-normal data-[state=active]:bg-card data-[state=active]:shadow-sm">
-                  Add Granular Log
-                </TabsTrigger>
-              </TabsList>
-            </div>
-
-            <TabsContent value="status" className="p-8 space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  { id: 'Present', icon: CheckCircle2, color: 'text-success', bg: 'bg-success/5', label: 'Presence' },
-                  { id: 'Late', icon: Clock, color: 'text-warning', bg: 'bg-warning/5', label: 'Late Entry' },
-                  { id: 'Leave', icon: Calendar, color: 'text-indigo-400', bg: 'bg-indigo-50', label: 'Authorized Leave' },
-                  { id: 'Absent', icon: XCircle, color: 'text-destructive', bg: 'bg-destructive/5', label: 'Unannounced Absence' },
-                ].map((status) => (
-                  <button
-                    key={status.id}
-                    onClick={() => {
-                      if (auditTarget) handleMarkAttendance(auditTarget.teacherId, auditTarget.date, status.id)
-                      setIsAuditModalOpen(false)
-                    }}
-                    className={cn(
-                      "flex flex-col items-center gap-3 p-6 rounded-2xl border transition-premium group hover:shadow-md",
-                      auditTarget?.record?.status === status.id 
-                        ? "border-primary/20 bg-primary/[0.02]" 
-                        : "border-primary/5 bg-muted/5 hover:bg-card"
-                    )}
+          <div className="p-8 space-y-6">
+            <form onSubmit={async (e) => {
+              e.preventDefault()
+              const formData = new FormData(e.currentTarget)
+              const academyClass = formData.get('academyClass') as string
+              const timing = formData.get('timing') as string
+              const info = formData.get('info') as string
+              if (auditTarget) {
+                // We combine Class and Timing for the record label
+                await handleAddEvent(auditTarget.teacherId, auditTarget.date, 'Substitution', `${academyClass} (${timing})`, info)
+                setIsAuditModalOpen(false)
+              }
+            }} className="space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label className="text-[9px] uppercase tracking-widest opacity-70 ml-1">Academy Classes</Label>
+                  <select 
+                    name="academyClass" 
+                    required
+                    className="w-full bg-muted/5 border border-primary/5 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary/20"
                   >
-                    <status.icon className={cn("w-6 h-6", status.color, "opacity-70 group-hover:opacity-100 transition-all")} />
-                    <span className="text-[10px] uppercase tracking-widest font-normal opacity-60">{status.label}</span>
-                  </button>
-                ))}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="event" className="p-8 space-y-6">
-              <form onSubmit={async (e) => {
-                e.preventDefault()
-                const formData = new FormData(e.currentTarget)
-                const type = formData.get('type') as string
-                const label = formData.get('label') as string
-                const info = formData.get('info') as string
-                if (auditTarget) {
-                  await handleAddEvent(auditTarget.teacherId, auditTarget.date, type, label, info)
-                  setIsAuditModalOpen(false)
-                }
-              }} className="space-y-6">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label className="text-[9px] uppercase tracking-widest opacity-70 ml-1">Event Type</Label>
-                    <select 
-                      name="type" 
-                      className="w-full bg-muted/5 border border-primary/5 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary/20"
-                    >
-                      <option value="Substitution">Institutional Substitution</option>
-                      <option value="Late Entry">Verified Late Admission</option>
-                      <option value="Note">Institutional Academic Note</option>
-                    </select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-[9px] uppercase tracking-widest opacity-70 ml-1">Event Title / Class</Label>
-                    <Input name="label" placeholder="e.g. Class 10A (Chemistry)" required className="rounded-xl h-12 border-primary/5 bg-muted/5 focus:bg-card transition-all" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-[9px] uppercase tracking-widest opacity-70 ml-1">Additional Context</Label>
-                    <Textarea name="info" placeholder="Context for this action..." className="rounded-xl min-h-[100px] border-primary/5 bg-muted/5 focus:bg-card transition-all" />
-                  </div>
+                    <option value="" disabled selected>Select Level/Class</option>
+                    {ACADEMY_CLASSES.map(cls => (
+                      <option key={cls} value={cls}>{cls}</option>
+                    ))}
+                  </select>
                 </div>
-                <Button type="submit" className="w-full h-12 rounded-xl text-[10px] uppercase tracking-[0.2em] font-normal shadow-lg transition-transform active:scale-95">
-                  Secure Log Entry
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
+
+                <div className="space-y-2">
+                  <Label className="text-[9px] uppercase tracking-widest opacity-70 ml-1">Class Timing (1-Hour Slot)</Label>
+                  <select 
+                    name="timing" 
+                    required
+                    className="w-full bg-muted/5 border border-primary/5 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary/20"
+                  >
+                    <option value="" disabled selected>Select Attendance Slot</option>
+                    {CLASS_TIMINGS.map(t => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-[9px] uppercase tracking-widest opacity-70 ml-1">Additional Context</Label>
+                  <Textarea name="info" placeholder="Context for this action..." className="rounded-xl min-h-[100px] border-primary/5 bg-muted/5 focus:bg-card transition-all" />
+                </div>
+              </div>
+              <Button type="submit" className="w-full h-12 rounded-xl text-[10px] uppercase tracking-[0.2em] font-normal shadow-lg transition-transform active:scale-95">
+                Secure Log Entry
+              </Button>
+            </form>
+          </div>
         </DialogContent>
       </Dialog>
     </motion.div>
