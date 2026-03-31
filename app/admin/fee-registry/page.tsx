@@ -105,7 +105,7 @@ export default function FeeRegistryPage() {
 
   return (
     <motion.div 
-      className="space-y-10"
+      className="space-y-6"
       variants={STAGGER_CONTAINER}
       initial="hidden"
       animate="visible"
@@ -114,11 +114,11 @@ export default function FeeRegistryPage() {
       {/* Header Area */}
       <motion.div variants={STAGGER_ITEM} className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="font-serif text-5xl tracking-normal text-foreground font-normal">
-            Financial Fee Registry
+          <h1 className="font-serif text-3xl tracking-normal text-foreground font-normal">
+            Institutional Fee Registry
           </h1>
-          <p className="text-muted-foreground mt-2 text-base font-normal max-w-2xl opacity-80">
-            Institutional tuition management system for tracking student capital flow and account balance reconciliation.
+          <p className="text-muted-foreground mt-2 text-sm font-normal max-w-2xl opacity-80 leading-relaxed">
+            Administrative ledger for tuition collection, payment scheduling, and real-time financial tracking across all academic sessions.
           </p>
         </div>
         <div className="flex gap-3">
@@ -146,10 +146,10 @@ export default function FeeRegistryPage() {
                   <stat.icon className={cn("h-4 w-4", stat.color)} />
                 </div>
                 <div>
-                  <p className="text-[9px] uppercase tracking-[0.25em] text-muted-foreground mb-1.5 font-normal opacity-60">{stat.label}</p>
-                  <p className="font-serif text-3xl font-normal tracking-tight text-foreground">
+                  <p className="text-[9px] uppercase tracking-[0.3em] text-muted-foreground mb-2 font-normal opacity-60">{stat.label}</p>
+                  <h3 className="font-serif text-2xl font-normal tracking-tight mb-3">
                     ${stat.value.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                  </p>
+                  </h3>
                   <p className="text-[10px] text-muted-foreground mt-2 font-normal opacity-50 uppercase tracking-widest">{stat.info}</p>
                 </div>
               </div>

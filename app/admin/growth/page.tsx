@@ -89,7 +89,7 @@ export default function GrowthPage() {
 
   return (
     <motion.div 
-      className="space-y-10"
+      className="space-y-6"
       variants={STAGGER_CONTAINER}
       initial="hidden"
       animate="visible"
@@ -98,11 +98,11 @@ export default function GrowthPage() {
       {/* Editorial Header */}
       <motion.div variants={STAGGER_ITEM} className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div className="max-w-3xl">
-          <h1 className="font-serif text-5xl tracking-normal text-foreground font-normal">
-            Institutional Growth Analytics
+          <h1 className="font-serif text-3xl tracking-normal text-foreground font-normal">
+            Growth & Analytics
           </h1>
-          <p className="text-muted-foreground mt-2 text-base font-normal opacity-80 leading-relaxed">
-            Dynamic surveillance of recruitment velocity, enrollment trends, and academic scale-out metrics for the current seasonal cycle.
+          <p className="text-muted-foreground mt-2 text-sm font-normal max-w-2xl opacity-80">
+            Institutional trajectory analysis, student retention metrics, and long-term academic growth forecasting.
           </p>
         </div>
         <div className="flex bg-muted/20 p-1.5 rounded-2xl border border-primary/5">
@@ -128,8 +128,10 @@ export default function GrowthPage() {
                   <stat.icon className={cn("w-5 h-5", stat.color, "opacity-70")} />
                 </div>
                 <div>
-                  <p className="text-[9px] uppercase tracking-[0.3em] text-muted-foreground mb-1 font-normal opacity-60">{stat.label}</p>
-                  <p className="font-serif text-4xl font-normal tracking-tight leading-none">{stat.value}</p>
+                  <p className="text-[9px] uppercase tracking-[0.3em] text-muted-foreground mb-2 font-normal opacity-60">{stat.label}</p>
+                  <h3 className="font-serif text-2xl font-normal tracking-tight mb-3">
+                    {stat.value}
+                  </h3>
                   <div className="flex items-center gap-2 mt-4 pt-4 border-t border-primary/5">
                     <History className="w-3 h-3 text-muted-foreground opacity-30" />
                     <span className="text-[10px] text-muted-foreground opacity-40 uppercase tracking-[0.2em] font-normal">{stat.context}</span>

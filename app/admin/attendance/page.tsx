@@ -181,7 +181,7 @@ export default function AttendancePage() {
 
   return (
     <motion.div 
-      className="space-y-8 print:space-y-0"
+      className="space-y-6 print:space-y-0"
       variants={STAGGER_CONTAINER}
       initial="hidden"
       animate="visible"
@@ -190,10 +190,10 @@ export default function AttendancePage() {
       {/* Header section - Main Dashboard View */}
       <motion.div variants={STAGGER_ITEM} className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between print:hidden">
         <div className="max-w-2xl">
-          <h1 className="font-serif text-5xl tracking-normal text-foreground font-normal">
+          <h1 className="font-serif text-3xl tracking-normal text-foreground font-normal">
             Attendance Registry
           </h1>
-          <p className="text-muted-foreground mt-2 text-base font-normal opacity-80 leading-relaxed">
+          <p className="text-muted-foreground mt-2 text-sm font-normal opacity-80 leading-relaxed">
             Institutional tracking system for academic engagement, extra-load (substitutions), and professional faculty attendance auditing.
           </p>
         </div>
@@ -289,7 +289,7 @@ export default function AttendancePage() {
                     </Avatar>
                     <div className="space-y-1">
                       <div className="flex items-center gap-3">
-                        <h3 className="font-serif text-3xl font-normal leading-none">{selectedTeacher.name}</h3>
+                        <h3 className="font-serif text-2xl font-normal leading-none">{selectedTeacher.name}</h3>
                         <Badge variant="outline" className="text-[9px] uppercase tracking-widest font-normal border-primary/10 opacity-60">Faculty Member</Badge>
                       </div>
                       <p className="text-[11px] uppercase tracking-[0.2em] font-normal opacity-50">
@@ -317,10 +317,10 @@ export default function AttendancePage() {
                   </div>
                 </div>
 
-                <div className="flex gap-10 mt-8 pt-8 border-t border-primary/5">
+                <div className="flex gap-10 mt-6 pt-6 border-t border-primary/5">
                   <div className="flex flex-col items-center gap-1.5">
                     <span className="text-[9px] text-muted-foreground uppercase font-normal tracking-widest">Attendance Share</span>
-                    <span className="text-3xl font-serif text-success font-normal">
+                    <span className="text-2xl font-serif text-success font-normal">
                       {daysInRange.length > 0 
                         ? Math.round((getTeacherStats(selectedTeacher.id).present / daysInRange.length) * 100) 
                         : 0}%
@@ -328,11 +328,11 @@ export default function AttendancePage() {
                   </div>
                   <div className="flex flex-col items-center gap-1.5">
                     <span className="text-[9px] text-muted-foreground uppercase font-normal tracking-widest">Extra Load (Subs)</span>
-                    <span className="text-3xl font-serif text-primary font-normal">{getTeacherStats(selectedTeacher.id).substitutions}</span>
+                    <span className="text-2xl font-serif text-primary font-normal">{getTeacherStats(selectedTeacher.id).substitutions}</span>
                   </div>
                   <div className="flex flex-col items-center gap-1.5">
                     <span className="text-[9px] text-muted-foreground uppercase font-normal tracking-widest">Late Entries</span>
-                    <span className="text-3xl font-serif text-warning font-normal">{getTeacherStats(selectedTeacher.id).late}</span>
+                    <span className="text-2xl font-serif text-warning font-normal">{getTeacherStats(selectedTeacher.id).late}</span>
                   </div>
                 </div>
               </CardHeader>
@@ -393,7 +393,7 @@ export default function AttendancePage() {
                                     <ChevronLeft className="w-4 h-4" />
                                   </button>
                                   <div className={cn(
-                                    "w-12 h-10 flex items-center justify-center font-serif text-xl transition-all rounded-lg",
+                                    "w-10 h-8 flex items-center justify-center font-serif text-lg transition-all rounded-lg",
                                     (record?.substituteCount || 0) > 0 ? "text-primary bg-primary/5" : "text-muted-foreground opacity-20"
                                   )}>
                                     {record?.substituteCount || 0}

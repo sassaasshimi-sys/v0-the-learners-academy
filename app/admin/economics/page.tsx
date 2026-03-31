@@ -120,7 +120,7 @@ export default function EconomicsPage() {
 
   return (
     <motion.div 
-      className="space-y-10"
+      className="space-y-6"
       variants={STAGGER_CONTAINER}
       initial="hidden"
       animate="visible"
@@ -129,10 +129,10 @@ export default function EconomicsPage() {
       {/* Header section */}
       <motion.div variants={STAGGER_ITEM} className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="font-serif text-5xl tracking-normal text-foreground font-normal">
+          <h1 className="font-serif text-3xl tracking-normal text-foreground font-normal">
             Institutional Economics
           </h1>
-          <p className="text-muted-foreground mt-2 text-base font-normal max-w-2xl opacity-80">
+          <p className="text-muted-foreground mt-2 text-sm font-normal max-w-2xl opacity-80">
             Comprehensive audit of institutional capital deployment, operational costs, and faculty expenditure tracking.
           </p>
         </div>
@@ -205,7 +205,7 @@ export default function EconomicsPage() {
                 <stat.icon className="w-16 h-16" />
               </div>
               <p className="text-[9px] uppercase tracking-[0.3em] text-muted-foreground mb-2 font-normal opacity-60">{stat.label}</p>
-              <h3 className="font-serif text-4xl font-normal tracking-tight mb-3">
+              <h3 className="font-serif text-2xl font-normal tracking-tight mb-3">
                 ${stat.value.toLocaleString(undefined, { minimumFractionDigits: 2 })}
               </h3>
               <div className="flex items-center gap-2">
@@ -332,7 +332,7 @@ export default function EconomicsPage() {
       {/* Transaction Log Layer */}
       <motion.div variants={STAGGER_ITEM} className="space-y-6">
         <div className="flex items-center justify-between px-2">
-          <h2 className="font-serif text-3xl font-normal text-foreground">Transaction Registry</h2>
+          <h2 className="font-serif text-xl font-normal text-foreground uppercase tracking-tight">Transaction Registry</h2>
           <div className="flex items-center gap-4">
             <span className="text-[9px] uppercase tracking-widest text-muted-foreground font-normal opacity-50">Descending Chronological Record</span>
             <Button variant="ghost" size="icon" className="h-10 w-10 border border-primary/5 rounded-full hover:bg-primary/5">
@@ -384,7 +384,7 @@ export default function EconomicsPage() {
                       </TableCell>
                       <TableCell className="text-right pr-10">
                         <span className={cn(
-                          "font-serif text-xl font-normal tracking-tight",
+                          "font-serif text-lg font-normal tracking-tight",
                           tx.type === 'Credit' ? "text-success" : "text-foreground"
                         )}>
                           {tx.type === 'Credit' ? '+' : '-'}${tx.amount.toLocaleString()}
