@@ -16,8 +16,14 @@ import {
   Package,
   Users,
   Building,
-  Briefcase
+  Briefcase,
+  Download,
+  CreditCard,
+  FileSpreadsheet,
+  FileText
 } from 'lucide-react'
+import { jsPDF } from 'jspdf'
+import 'jspdf-autotable'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -111,6 +117,82 @@ export default function EconomicsPage() {
     }
   }
 
+  const handleExportCSV = () => {
+    if (!economics?.transactions) return
+    
+    const headers = ["Date", "Log ID", "Entity", "Category", "Description", "Type", "Amount"]
+    const rows = economics.transactions.map((tx: any) => [
+      format(new Date(tx.date), 'yyyy-MM-dd'),
+      tx.id,
+      tx.person,
+      tx.category,
+      tx.description,
+      tx.type,
+      tx.amount
+    ])
+
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + headers.join(",") + "\n"
+      + rows.map((e: any) => e.join(",")).join("\n")
+
+    const encodedUri = encodeURI(csvContent)
+    const link = document.createElement("a")
+    link.setAttribute("href", encodedUri)
+    link.setAttribute("download", `Economics_Registry_${format(new Date(), 'yyyy_MM_dd')}.csv`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    toast.success("CSV Audit Ledger exported.")
+  }
+
+  const handleExportPDF = () => {
+    if (!economics?.transactions) return
+    
+    const doc = new jsPDF() as any
+    const title = "THE LEARNER'S ACADEMY - INSTITUTIONAL AUDIT LEDGER"
+    const date = `Generated on: ${format(new Date(), 'PPPP')}`
+
+    doc.setFont("times", "normal")
+    doc.setFontSize(18)
+    doc.text(title, 14, 22)
+    doc.setFontSize(10)
+    doc.setTextColor(100)
+    doc.text(date, 14, 30)
+
+    // KPI Summary
+    doc.setFillColor(245, 245, 245)
+    doc.rect(14, 40, 182, 35, 'F')
+    doc.setTextColor(0)
+    doc.setFontSize(12)
+    doc.text("CAPITAL SUMMARY", 18, 48)
+    doc.setFontSize(10)
+    doc.text(`Total Realized Revenue: Rs. ${economics.actualRevenue.toLocaleString()}`, 18, 56)
+    doc.text(`Total Operational Expenditure: Rs. ${economics.totalExpenditure.toLocaleString()}`, 18, 63)
+    doc.text(`Current Net Margin: Rs. ${economics.netMargin.toLocaleString()}`, 18, 70)
+
+    const tableHeaders = [["DATE", "ENTITY", "CATEGORY", "TYPE", "AMOUNT"]]
+    const tableData = economics.transactions.map((tx: any) => [
+      format(new Date(tx.date), 'MMM d, yyyy'),
+      tx.person,
+      tx.category,
+      tx.type,
+      `Rs. ${tx.amount.toLocaleString()}`
+    ])
+
+    doc.autoTable({
+      head: tableHeaders,
+      body: tableData,
+      startY: 85,
+      theme: 'grid',
+      headStyles: { fillColor: [40, 40, 40], fontSize: 9, cellPadding: 4 },
+      styles: { fontSize: 8, font: "helvetica", cellPadding: 3 },
+      columnStyles: { 4: { halign: 'right' } }
+    })
+
+    doc.save(`Economics_Audit_${format(new Date(), 'yyyy_MM_dd')}.pdf`)
+    toast.success("Branded PDF Registry generated.")
+  }
+
   if (isLoading || !economics) return null
 
   const pieData = Object.entries(economics.categoryBreakdown).map(([name, value]: [string, any]) => ({
@@ -135,82 +217,105 @@ export default function EconomicsPage() {
           <p className="text-muted-foreground mt-2 text-sm font-normal max-w-2xl opacity-80">
             Comprehensive audit of institutional capital deployment, operational costs, and faculty expenditure tracking.
           </p>
-        </div>
-        <Dialog open={isAddExpenseOpen} onOpenChange={setIsAddExpenseOpen}>
-          <DialogTrigger asChild>
-            <Button className="rounded-xl px-8 h-12 font-normal text-xs uppercase tracking-[0.15em] bg-primary shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
-              <Plus className="w-4 h-4 mr-3 opacity-60" /> Log Expenditure
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-md bg-card/90 backdrop-blur-3xl border-primary/5 rounded-[2rem] p-10">
-            <DialogHeader className="mb-6">
-              <DialogTitle className="font-serif text-3xl font-normal">Record Outflow</DialogTitle>
-              <CardDescription className="text-[10px] uppercase tracking-[0.2em] font-normal opacity-60">Add a new financial transaction to the ledger.</CardDescription>
-            </DialogHeader>
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-normal ml-1">Capital Amount</label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground opacity-40 font-normal">$</span>
+        <div className="flex gap-3">
+          <Dialog open={isAddExpenseOpen} onOpenChange={setIsAddExpenseOpen}>
+            <DialogTrigger asChild>
+              <Button className="rounded-xl px-8 h-12 font-normal text-xs uppercase tracking-[0.15em] bg-primary shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                <Plus className="w-4 h-4 mr-3 opacity-60" /> Log Expenditure
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md bg-card/90 backdrop-blur-3xl border-primary/5 rounded-[2rem] p-10">
+              <DialogHeader className="mb-6">
+                <DialogTitle className="font-serif text-3xl font-normal">Record Outflow</DialogTitle>
+                <CardDescription className="text-[10px] uppercase tracking-[0.2em] font-normal opacity-60">Add a new financial transaction to the ledger.</CardDescription>
+              </DialogHeader>
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-normal ml-1">Capital Amount (Rs.)</label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground opacity-40 font-normal">Rs.</span>
+                    <Input 
+                      type="number" 
+                      placeholder="0.00" 
+                      className="pl-12 h-12 bg-muted/20 border-primary/5 rounded-xl font-normal text-sm focus:bg-background"
+                      value={newExpense.amount}
+                      onChange={(e) => setNewExpense({...newExpense, amount: e.target.value})}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-normal ml-1">Asset Category</label>
+                  <Select onValueChange={(val) => setNewExpense({...newExpense, category: val})}>
+                    <SelectTrigger className="h-12 bg-muted/20 border-primary/5 rounded-xl font-normal text-sm focus:bg-background">
+                      <SelectValue placeholder="Select classification..." />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-2xl border-primary/5 p-1.5 focus:bg-card">
+                      {['Salaries', 'Supplies', 'Marketing', 'Infrastructure', 'Utilities', 'Other'].map(cat => (
+                        <SelectItem key={cat} value={cat} className="rounded-xl py-3 cursor-pointer">{cat}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-normal ml-1">Audit Description</label>
                   <Input 
-                    type="number" 
-                    placeholder="0.00" 
-                    className="pl-8 h-12 bg-muted/20 border-primary/5 rounded-xl font-normal text-sm focus:bg-background"
-                    value={newExpense.amount}
-                    onChange={(e) => setNewExpense({...newExpense, amount: e.target.value})}
+                    placeholder="Enter transactional justification..." 
+                    className="h-12 bg-muted/20 border-primary/5 rounded-xl font-normal text-sm focus:bg-background"
+                    value={newExpense.description}
+                    onChange={(e) => setNewExpense({...newExpense, description: e.target.value})}
                   />
                 </div>
               </div>
-              <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-normal ml-1">Asset Category</label>
-                <Select onValueChange={(val) => setNewExpense({...newExpense, category: val})}>
-                  <SelectTrigger className="h-12 bg-muted/20 border-primary/5 rounded-xl font-normal text-sm focus:bg-background">
-                    <SelectValue placeholder="Select classification..." />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-2xl border-primary/5 p-1.5 focus:bg-card">
-                    {['Salaries', 'Supplies', 'Marketing', 'Infrastructure', 'Utilities', 'Other'].map(cat => (
-                      <SelectItem key={cat} value={cat} className="rounded-xl py-3 cursor-pointer">{cat}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-normal ml-1">Audit Description</label>
-                <Input 
-                  placeholder="Enter transactional justification..." 
-                  className="h-12 bg-muted/20 border-primary/5 rounded-xl font-normal text-sm focus:bg-background"
-                  value={newExpense.description}
-                  onChange={(e) => setNewExpense({...newExpense, description: e.target.value})}
-                />
-              </div>
-            </div>
-            <DialogFooter className="mt-10 gap-3">
-              <Button variant="ghost" className="rounded-xl font-normal tracking-widest uppercase text-[10px] h-12 opacity-60 hover:opacity-100" onClick={() => setIsAddExpenseOpen(false)}>Ignore</Button>
-              <Button className="rounded-xl flex-1 h-12 font-normal text-[10px] uppercase tracking-[0.2em] shadow-premium" onClick={handleAddExpense}>Process Transaction</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+              <DialogFooter className="mt-10 gap-3">
+                <Button variant="ghost" className="rounded-xl font-normal tracking-widest uppercase text-[10px] h-12 opacity-60 hover:opacity-100" onClick={() => setIsAddExpenseOpen(false)}>Ignore</Button>
+                <Button className="rounded-xl flex-1 h-12 font-normal text-[10px] uppercase tracking-[0.2em] shadow-premium" onClick={handleAddExpense}>Process Transaction</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="rounded-xl px-6 h-12 border-primary/10 font-normal text-xs uppercase tracking-[0.15em] transition-all hover:bg-primary/5">
+                <Download className="w-4 h-4 mr-3 opacity-40" /> Export Registry
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 rounded-2xl border-primary/5 shadow-premium p-1.5">
+              <DropdownMenuLabel className="text-[8px] uppercase tracking-[0.3em] opacity-40 px-4 py-3 font-normal">Select Format</DropdownMenuLabel>
+              <DropdownMenuSeparator className="opacity-5" />
+              <DropdownMenuItem onClick={handleExportCSV} className="gap-3 cursor-pointer py-3 rounded-xl focus:bg-primary/5 font-normal">
+                <FileSpreadsheet className="w-4 h-4 text-primary opacity-60" /> <span className="text-xs">Export as CSV Ledger</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportPDF} className="gap-3 cursor-pointer py-3 rounded-xl focus:bg-primary/5 font-normal">
+                <FileText className="w-4 h-4 text-primary opacity-60" /> <span className="text-xs">Export as PDF Registry</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </motion.div>
 
       {/* Main KPI Row */}
       <motion.div variants={STAGGER_ITEM} className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {[
-          { label: 'Projected Portfolio', value: economics.projectedRevenue, sub: 'Total Contractual Value', icon: Building, color: 'text-primary' },
-          { label: 'Realized Revenue', value: economics.actualRevenue, sub: 'Fees Collected (Month)', icon: TrendingUp, color: 'text-success' },
-          { label: 'Institutional Expenditure', value: economics.totalExpenditure, sub: 'Salaries & Operational', icon: TrendingDown, color: 'text-destructive' },
+          { label: 'Projected Portfolio', value: economics.projectedRevenue, sub: 'Total Contractual Value', icon: Building, color: 'text-primary', progress: (economics.actualRevenue / economics.projectedRevenue) * 100 },
+          { label: 'Realized Revenue', value: economics.actualRevenue, sub: 'Fees Collected (Actual)', icon: TrendingUp, color: 'text-success', progress: 100 },
+          { label: 'Institutional Expenditure', value: economics.totalExpenditure, sub: 'Outflow vs Capital Pool', icon: TrendingDown, color: 'text-destructive', progress: (economics.totalExpenditure / economics.actualRevenue) * 100 },
         ].map((stat, i) => (
-          <Card key={i} className="border-primary/5 bg-card/40 backdrop-blur-md shadow-premium rounded-3xl overflow-hidden group">
+          <Card key={i} className="border-primary/5 bg-card/40 backdrop-blur-3xl shadow-premium rounded-[2.5rem] overflow-hidden group relative isolate">
+            <div className={cn("absolute inset-x-0 -bottom-1 h-1 transition-all opacity-20", stat.color.replace('text-', 'bg-'))} style={{ width: `${Math.min(stat.progress, 100)}%` }} />
             <CardContent className="pt-10 pb-8 relative">
-              <div className="absolute right-6 top-6 opacity-5 group-hover:opacity-10 transition-opacity">
-                <stat.icon className="w-16 h-16" />
+              <div className="absolute right-8 top-8 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
+                <stat.icon className="w-20 h-20" />
               </div>
-              <p className="text-[9px] uppercase tracking-[0.3em] text-muted-foreground mb-2 font-normal opacity-60">{stat.label}</p>
-              <h3 className="font-serif text-2xl font-normal tracking-tight mb-3">
-                ${stat.value.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+              <p className="text-[10px] uppercase tracking-[0.4em] text-muted-foreground mb-4 font-normal opacity-50">{stat.label}</p>
+              <h3 className="font-serif text-3xl font-normal tracking-tight mb-4">
+                Rs. {stat.value.toLocaleString()}
               </h3>
-              <div className="flex items-center gap-2">
-                <div className={cn("w-1 h-1 rounded-full", stat.color.replace('text-', 'bg-'))} />
-                <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-normal opacity-50">{stat.sub}</span>
+              <div className="flex items-center justify-between mt-6">
+                <div className="flex items-center gap-2">
+                  <div className={cn("w-1.5 h-1.5 rounded-full shadow-sm shadow-black/20", stat.color.replace('text-', 'bg-'))} />
+                  <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-normal opacity-40">{stat.sub}</span>
+                </div>
+                <span className="text-[10px] font-normal opacity-30 uppercase tracking-widest">{Math.round(stat.progress)}%</span>
               </div>
             </CardContent>
           </Card>
@@ -304,7 +409,7 @@ export default function EconomicsPage() {
               </ResponsiveContainer>
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                 <span className="text-[8px] uppercase tracking-[0.3em] text-muted-foreground opacity-50 font-normal">Total Share</span>
-                <span className="font-serif text-2xl font-normal">${economics.totalExpenditure.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                <span className="font-serif text-2xl font-normal">Rs. {economics.totalExpenditure.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
               </div>
             </div>
             <div className="space-y-4 mt-6">
@@ -319,7 +424,7 @@ export default function EconomicsPage() {
                       <span className="text-xs font-normal text-muted-foreground group-hover:text-foreground transition-colors">{item.name}</span>
                     </div>
                     <span className="text-[11px] font-normal tracking-tight opacity-70 group-hover:opacity-100 transition-opacity">
-                      ${item.value.toLocaleString()}
+                      Rs. {item.value.toLocaleString()}
                     </span>
                   </div>
                 )
@@ -387,7 +492,7 @@ export default function EconomicsPage() {
                           "font-serif text-lg font-normal tracking-tight",
                           tx.type === 'Credit' ? "text-success" : "text-foreground"
                         )}>
-                          {tx.type === 'Credit' ? '+' : '-'}${tx.amount.toLocaleString()}
+                          {tx.type === 'Credit' ? '+' : '-'}Rs. {tx.amount.toLocaleString()}
                         </span>
                       </TableCell>
                     </TableRow>

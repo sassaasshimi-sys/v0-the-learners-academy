@@ -11,6 +11,13 @@ export async function getEconomicStats() {
     const totalExpenditure = expenditures.reduce((acc, exp) => acc + exp.amount, 0)
     const actualRevenue = feePayments.reduce((acc, pay) => acc + pay.amountPaid, 0)
     const projectedRevenue = feePayments.reduce((acc, pay) => acc + pay.totalAmount, 0)
+    
+    // Automation: Calculate Payroll Liabilities
+    const teachers = await db.teacher.findMany({ where: { status: 'active' } })
+    const totalPayroll = teachers.reduce((acc, t) => acc + t.salary, 0)
+    
+    // The "Bottom Line"
+    const netMargin = actualRevenue - totalExpenditure
 
     // Category breakdown
     const categoryBreakdown = expenditures.reduce((acc: any, exp) => {
@@ -66,6 +73,8 @@ export async function getEconomicStats() {
       totalExpenditure,
       actualRevenue,
       projectedRevenue,
+      totalPayroll,
+      netMargin,
       categoryBreakdown,
       historicalData,
       expenditures,

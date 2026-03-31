@@ -24,6 +24,7 @@ model Teacher {
   coursesCount     Int          @default(0)
   studentsCount    Int          @default(0)
   assignedClass    String?
+  salary           Float        @default(0)
   employeePassword String?
   courses          Course[]
   assignments      Assignment[]
