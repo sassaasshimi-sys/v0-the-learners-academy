@@ -130,23 +130,23 @@ export default function AttendancePage() {
       {/* Header */}
       <motion.div variants={STAGGER_ITEM} className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="font-serif text-4xl tracking-tight text-foreground font-normal">
+          <h1 className="font-serif text-5xl tracking-normal text-foreground font-normal">
             Attendance Registry
           </h1>
-          <p className="text-muted-foreground mt-1 text-sm font-normal">
+          <p className="text-muted-foreground mt-2 text-base font-normal max-w-2xl opacity-80">
             Administrative tracking of faculty engagement and substitute deployments.
           </p>
         </div>
-        <div className="flex items-center gap-3 bg-card border px-4 py-2 rounded-xl border-primary/5 shadow-sm">
-          <Button variant="ghost" size="icon" onClick={prevMonth} className="h-8 w-8 hover:bg-primary/5">
-            <ChevronLeft className="w-4 h-4" />
+        <div className="flex items-center gap-3 bg-card border px-5 py-2.5 rounded-2xl border-primary/5 shadow-sm">
+          <Button variant="ghost" size="icon" onClick={prevMonth} className="h-9 w-9 hover:bg-primary/5 rounded-full">
+            <ChevronLeft className="w-4 h-4 opacity-50" />
           </Button>
-          <div className="flex items-center gap-2 min-w-[140px] justify-center">
-            <Calendar className="w-4 h-4 text-primary opacity-60" />
-            <span className="text-sm tracking-widest uppercase opacity-70 font-normal">{format(currentDate, 'MMMM yyyy')}</span>
+          <div className="flex items-center gap-3 min-w-[160px] justify-center">
+            <Calendar className="w-4 h-4 text-primary opacity-40" />
+            <span className="text-[10px] tracking-[0.25em] uppercase opacity-70 font-normal">{format(currentDate, 'MMMM yyyy')}</span>
           </div>
-          <Button variant="ghost" size="icon" onClick={nextMonth} className="h-8 w-8 hover:bg-primary/5">
-            <ChevronRight className="w-4 h-4" />
+          <Button variant="ghost" size="icon" onClick={nextMonth} className="h-9 w-9 hover:bg-primary/5 rounded-full">
+            <ChevronRight className="w-4 h-4 opacity-50" />
           </Button>
         </div>
       </motion.div>

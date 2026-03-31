@@ -156,7 +156,7 @@ export default function AdminLayout({
                       >
                         <Link href={item.href} className="flex items-center gap-3">
                           <item.icon className={cn("w-5 h-5", isActive ? "text-primary" : "text-muted-foreground")} />
-                          <span className="tracking-tight">{item.title}</span>
+                          <span className="tracking-tight font-medium">{item.title}</span>
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -184,7 +184,7 @@ export default function AdminLayout({
           {/* Quick User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger className="flex items-center gap-4 outline-none hover:opacity-80 transition-opacity">
-              <span className="hidden md:inline-block font-medium text-sm text-muted-foreground">
+              <span className="hidden md:inline-block font-normal text-sm text-foreground opacity-60">
                 {user?.name}
               </span>
               <Avatar className="h-9 w-9 border border-primary/10 shadow-sm">

@@ -121,18 +121,18 @@ export default function GrowthPage() {
           { label: 'Monthly Delta', value: stats.monthly, context: 'Strategic Phase (30d)', icon: Activity, color: 'text-primary' },
           { label: 'Effective Reach', value: stats.totalStudents, context: 'Cumulative Registry', icon: Users, color: 'text-indigo-400' },
         ].map((stat, i) => (
-          <Card key={i} className="border-primary/5 shadow-premium rounded-[1.75rem] bg-card/[0.02] backdrop-blur-3xl group hover:bg-card transition-all">
+          <Card key={i} className="border-primary/5 shadow-premium rounded-[1.75rem] bg-card/40 backdrop-blur-md group hover:bg-card/60 transition-all">
             <CardContent className="pt-10 pb-8 relative">
               <div className="flex flex-col gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-primary/[0.03] border border-primary/5 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 rounded-2xl bg-primary/5 border border-primary/5 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <stat.icon className={cn("w-5 h-5", stat.color, "opacity-70")} />
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-1 font-normal opacity-60">{stat.label}</p>
-                  <p className="font-serif text-4xl font-normal tracking-tight">{stat.value}</p>
-                  <div className="flex items-center gap-2 mt-3">
+                  <p className="text-[9px] uppercase tracking-[0.3em] text-muted-foreground mb-1 font-normal opacity-60">{stat.label}</p>
+                  <p className="font-serif text-4xl font-normal tracking-tight leading-none">{stat.value}</p>
+                  <div className="flex items-center gap-2 mt-4 pt-4 border-t border-primary/5">
                     <History className="w-3 h-3 text-muted-foreground opacity-30" />
-                    <span className="text-[10px] text-muted-foreground opacity-40 uppercase tracking-widest font-normal">{stat.context}</span>
+                    <span className="text-[10px] text-muted-foreground opacity-40 uppercase tracking-[0.2em] font-normal">{stat.context}</span>
                   </div>
                 </div>
               </div>

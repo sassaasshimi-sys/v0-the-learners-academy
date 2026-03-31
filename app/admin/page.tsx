@@ -359,7 +359,7 @@ export default function AdminDashboard() {
                     {course.enrolled}/{course.capacity}
                   </span>
                 </div>
-                <p className="font-medium text-sm mb-1 line-clamp-1">{course.title}</p>
+                <p className="font-normal text-sm mb-1 line-clamp-1">{course.title}</p>
                 <p className="text-xs text-muted-foreground mb-3">{course.teacherName}</p>
                 <Progress value={(course.enrolled / course.capacity) * 100} className="h-1.5" />
               </div>

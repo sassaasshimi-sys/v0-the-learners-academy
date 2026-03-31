@@ -139,7 +139,7 @@ export default function FeeRegistryPage() {
           { label: 'Monthly Volume', value: stats.monthly, info: 'Current Month', icon: DollarSign, color: 'text-primary' },
           { label: 'Total Outstanding', value: stats.totalOutstanding, info: 'Uncollected', icon: AlertCircle, color: 'text-destructive' },
         ].map((stat, i) => (
-          <Card key={i} className="border-primary/5 bg-card/60 backdrop-blur-md shadow-premium hover-lift transition-premium">
+          <Card key={i} className="border-primary/5 bg-card/40 backdrop-blur-md shadow-premium hover-lift transition-premium">
             <CardContent className="pt-8 pb-7">
               <div className="flex flex-col gap-4">
                 <div className="w-10 h-10 rounded-2xl bg-primary/5 flex items-center justify-center border border-primary/5">
