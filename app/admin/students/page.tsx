@@ -219,9 +219,9 @@ export default function StudentsPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="font-serif">
+          <h1 className="font-serif text-3xl font-normal text-foreground">
             Students
           </h1>
           <p className="text-muted-foreground mt-1">
@@ -230,7 +230,7 @@ export default function StudentsPage() {
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="h-12 px-8 shadow-lg shadow-primary/20 uppercase tracking-[0.15em] font-normal text-xs rounded-xl">
               <Plus className="w-4 h-4 mr-2" />
               Enroll Student
             </Button>
@@ -320,13 +320,13 @@ export default function StudentsPage() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2">
-        <Card>
+        <Card className="bg-card/40 backdrop-blur-md border-primary/5 shadow-premium">
           <CardHeader className="pb-2">
             <CardDescription>Total Students</CardDescription>
             <CardTitle className="text-3xl">{students.length}</CardTitle>
           </CardHeader>
         </Card>
-        <Card>
+        <Card className="bg-card/40 backdrop-blur-md border-primary/5 shadow-premium">
           <CardHeader className="pb-2">
             <CardDescription>Active Students</CardDescription>
             <CardTitle className="text-3xl text-success">
@@ -337,7 +337,7 @@ export default function StudentsPage() {
       </div>
 
       {/* Students Table */}
-      <Card>
+      <Card className="bg-card/40 backdrop-blur-md border-primary/5 shadow-premium rounded-[2.5rem] overflow-hidden">
         <CardHeader>
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <CardTitle>All Students</CardTitle>
@@ -369,7 +369,7 @@ export default function StudentsPage() {
           {/* Desktop Table View */}
           <div className="hidden md:block rounded-lg border">
             <Table>
-              <TableHeader>
+              <TableHeader className="bg-muted/5 h-16 border-b border-primary/5">
                 <TableRow>
                   <TableHead>Student ID</TableHead>
                   <TableHead>Name</TableHead>

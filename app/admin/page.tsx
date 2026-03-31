@@ -29,6 +29,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { STAGGER_CONTAINER, STAGGER_ITEM } from '@/lib/premium-motion'
 import { cn } from '@/lib/utils'
 import { useData } from '@/contexts/data-context'
 import { useAuth } from '@/contexts/auth-context'
@@ -103,40 +104,32 @@ export default function AdminDashboard() {
     <div className="space-y-8">
       {/* Page Header */}
       <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        initial="hidden"
+        animate="visible"
+        variants={STAGGER_CONTAINER}
+        className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between"
       >
-        <h1 className="font-serif text-4xl tracking-tight text-foreground mb-2 font-normal">
-          Welcome, {user?.name?.split(' ')[0] || 'Admin'}
-        </h1>
+        <motion.div variants={STAGGER_ITEM}>
+          <h1 className="font-serif text-3xl tracking-normal text-foreground font-normal">
+            Welcome, {user?.name?.split(' ')[0] || 'Admin'}
+          </h1>
+        </motion.div>
       </motion.div>
 
       {/* Stats Grid */}
       <motion.div 
         className="grid gap-4 md:grid-cols-3 lg:grid-cols-3"
         initial="hidden"
-        animate="show"
-        variants={{
-          hidden: { opacity: 0 },
-          show: {
-            opacity: 1,
-            transition: {
-              staggerChildren: 0.1
-            }
-          }
-        }}
+        animate="visible"
+        variants={STAGGER_CONTAINER}
       >
         {statCards.map((stat) => (
           <motion.div
             key={stat.title}
-            variants={{
-              hidden: { opacity: 0, y: 20 },
-              show: { opacity: 1, y: 0 }
-            }}
+            variants={STAGGER_ITEM}
           >
             <Link href={stat.href}>
-              <Card className="hover-lift cursor-pointer transition-premium border-primary/5">
+              <Card className="hover-lift cursor-pointer transition-premium border-primary/5 bg-card/40 backdrop-blur-md shadow-premium">
                 <CardHeader className="flex flex-row items-center justify-between pb-1 pt-4 px-4">
                   <CardTitle className="text-editorial-label">
                     {stat.title}

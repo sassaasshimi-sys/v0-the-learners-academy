@@ -131,18 +131,18 @@ export default function TeachersPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <h1 className="font-serif text-3xl font-normal text-foreground">
-            Teachers
+            Academic Faculty
           </h1>
           <p className="text-muted-foreground mt-1">
-            Manage your teaching staff and their assignments
+            Manage your teaching staff and assignments
           </p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="h-12 px-8 shadow-lg shadow-primary/20 uppercase tracking-[0.15em] font-normal text-xs rounded-xl">
               <Plus className="w-4 h-4 mr-2" />
               Add Teacher
             </Button>
@@ -204,13 +204,13 @@ export default function TeachersPage() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
+        <Card className="bg-card/40 backdrop-blur-md border-primary/5 shadow-premium">
           <CardHeader className="pb-2">
             <CardDescription>Total Teachers</CardDescription>
             <CardTitle className="text-3xl">{teachers.length}</CardTitle>
           </CardHeader>
         </Card>
-        <Card>
+        <Card className="bg-card/40 backdrop-blur-md border-primary/5 shadow-premium">
           <CardHeader className="pb-2">
             <CardDescription>Active Teachers</CardDescription>
             <CardTitle className="text-3xl text-success">
@@ -218,7 +218,7 @@ export default function TeachersPage() {
             </CardTitle>
           </CardHeader>
         </Card>
-        <Card>
+        <Card className="bg-card/40 backdrop-blur-md border-primary/5 shadow-premium">
           <CardHeader className="pb-2">
             <CardDescription>Inactive Teachers</CardDescription>
             <CardTitle className="text-3xl text-muted-foreground">
@@ -229,7 +229,7 @@ export default function TeachersPage() {
       </div>
 
       {/* Teachers Table */}
-      <Card>
+      <Card className="bg-card/40 backdrop-blur-md border-primary/5 shadow-premium rounded-[2.5rem] overflow-hidden">
         <CardHeader>
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <CardTitle>All Teachers</CardTitle>
@@ -248,7 +248,7 @@ export default function TeachersPage() {
           {/* Desktop Table View */}
           <div className="hidden md:block rounded-lg border overflow-x-auto">
             <Table>
-              <TableHeader>
+              <TableHeader className="bg-muted/5 h-16 border-b border-primary/5">
                 <TableRow>
                   <TableHead>Teacher</TableHead>
                   <TableHead>ID & Class</TableHead>
@@ -454,7 +454,7 @@ export default function TeachersPage() {
 
       {/* View Teacher Dialog */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg bg-card/80 backdrop-blur-xl border-primary/10">
           <DialogHeader>
             <DialogTitle>Teacher Details</DialogTitle>
           </DialogHeader>
@@ -496,11 +496,11 @@ export default function TeachersPage() {
 
               <div className="grid gap-4 grid-cols-3 pt-4 border-t">
                 <div className="text-center">
-                  <p className="text-2xl font-bold">{selectedTeacher.coursesCount}</p>
+                  <p className="text-2xl font-normal">{selectedTeacher.coursesCount}</p>
                   <p className="text-sm text-muted-foreground">Classes</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-2xl font-bold">{selectedTeacher.studentsCount}</p>
+                  <p className="text-2xl font-normal">{selectedTeacher.studentsCount}</p>
                   <p className="text-sm text-muted-foreground">Students</p>
                 </div>
                 <div className="text-center">

@@ -53,13 +53,15 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div>
-        <h1 className="font-serif text-3xl font-normal text-foreground">
-          Settings
-        </h1>
-        <p className="text-muted-foreground mt-1">
-          Manage your academy settings and preferences
-        </p>
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div>
+          <h1 className="font-serif text-3xl font-normal text-foreground">
+            Settings
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Manage your academy settings and preferences
+          </p>
+        </div>
       </div>
 
       <Tabs defaultValue="general" className="space-y-6">
@@ -80,7 +82,7 @@ export default function SettingsPage() {
 
         <TabsContent value="general" className="space-y-6">
           <div className="grid gap-6 md:grid-cols-3">
-            <Card className="md:col-span-2">
+            <Card className="md:col-span-2 bg-card/40 backdrop-blur-md border-primary/5 shadow-premium">
               <CardHeader>
                 <CardTitle className="font-serif">Institute Information</CardTitle>
                 <CardDescription>
@@ -109,7 +111,7 @@ export default function SettingsPage() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-card/40 backdrop-blur-md border-primary/5 shadow-premium">
               <CardHeader>
                 <CardTitle className="font-serif text-lg">Academy Branding</CardTitle>
                 <CardDescription>
@@ -154,7 +156,7 @@ export default function SettingsPage() {
 
         {/* Security Settings */}
         <TabsContent value="security" className="space-y-6">
-          <Card>
+          <Card className="bg-card/40 backdrop-blur-md border-primary/5 shadow-premium">
             <CardHeader>
               <CardTitle>Password</CardTitle>
               <CardDescription>
@@ -182,7 +184,7 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-card/40 backdrop-blur-md border-primary/5 shadow-premium">
             <CardHeader>
               <CardTitle>Two-Factor Authentication</CardTitle>
               <CardDescription>
@@ -202,7 +204,7 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-card/40 backdrop-blur-md border-primary/5 shadow-premium">
             <CardHeader>
               <CardTitle>Session Management</CardTitle>
               <CardDescription>
@@ -232,7 +234,7 @@ export default function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="appearance" className="space-y-6">
-          <Card>
+          <Card className="bg-card/40 backdrop-blur-md border-primary/5 shadow-premium">
             <CardHeader>
               <CardTitle className="font-serif">Interface Configuration</CardTitle>
               <CardDescription>

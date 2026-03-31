@@ -88,7 +88,7 @@ export default function SchedulePage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <h1 className="font-serif text-3xl font-normal text-foreground">
             Academic Schedule
@@ -99,7 +99,7 @@ export default function SchedulePage() {
         </div>
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="h-12 px-8 shadow-lg shadow-primary/20 uppercase tracking-[0.15em] font-normal text-xs rounded-xl">
               <Plus className="w-4 h-4 mr-2" />
               Add Schedule
             </Button>
@@ -189,7 +189,7 @@ export default function SchedulePage() {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {filteredSchedules.map((item) => (
-          <Card key={item.id} className="hover-lift border-none shadow-sm ring-1 ring-border group transition-all">
+          <Card key={item.id} className="bg-card/40 backdrop-blur-md hover-lift border-primary/5 shadow-premium ring-1 ring-border group transition-all">
             <CardHeader className="pb-3 flex flex-row items-start justify-between">
               <div className="space-y-1">
                 <Badge variant="outline" className="text-[10px] tracking-widest uppercase font-normal text-primary border-primary/20 bg-primary/5">

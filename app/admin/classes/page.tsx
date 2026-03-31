@@ -170,7 +170,7 @@ export default function ClassesPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <h1 className="font-serif text-3xl font-normal text-foreground">
             Classes
@@ -181,7 +181,7 @@ export default function ClassesPage() {
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="h-12 px-8 shadow-lg shadow-primary/20 uppercase tracking-[0.15em] font-normal text-xs rounded-xl">
               <Plus className="w-4 h-4 mr-2" />
               Create Class
             </Button>
@@ -265,13 +265,13 @@ export default function ClassesPage() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2">
-        <Card>
+        <Card className="bg-card/40 backdrop-blur-md border-primary/5 shadow-premium">
           <CardHeader className="pb-2">
             <CardDescription>Total Classes</CardDescription>
             <CardTitle className="text-3xl">{courses.length}</CardTitle>
           </CardHeader>
         </Card>
-        <Card>
+        <Card className="bg-card/40 backdrop-blur-md border-primary/5 shadow-premium">
           <CardHeader className="pb-2">
             <CardDescription>Active Classes</CardDescription>
             <CardTitle className="text-3xl text-success">
@@ -303,11 +303,11 @@ export default function ClassesPage() {
         </div>
       </div>
 
-      <Card>
+      <Card className="bg-card/40 backdrop-blur-md border-primary/5 shadow-premium rounded-[2.5rem] overflow-hidden">
         <CardContent className="p-0 overflow-hidden">
           <div className="hidden md:block">
             <Table>
-            <TableHeader className="bg-muted/30">
+            <TableHeader className="bg-muted/5 h-16 border-b border-primary/5">
               <TableRow>
                 <TableHead className="w-[150px] font-normal text-foreground uppercase tracking-widest text-[10px]">Room Number</TableHead>
                 <TableHead className="font-normal text-foreground uppercase tracking-widest text-[10px]">Class</TableHead>
@@ -344,7 +344,7 @@ export default function ClassesPage() {
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="font-medium text-sm text-editorial-meta">
+                    <TableCell className="font-normal text-[11px] text-muted-foreground uppercase tracking-widest">
                       {course.schedule}
                     </TableCell>
                     <TableCell className="font-serif font-normal text-base text-primary">
@@ -454,7 +454,7 @@ export default function ClassesPage() {
 
       {/* View Course Dialog */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-xl bg-card/90 backdrop-blur-xl border-primary/10">
           <DialogHeader>
             <DialogTitle className="font-serif text-2xl font-normal">Class Details</DialogTitle>
           </DialogHeader>
