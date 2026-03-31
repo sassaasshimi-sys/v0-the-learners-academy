@@ -52,9 +52,11 @@ const ACADEMY_SLOTS = [
 ]
 
 export default function SchedulePage() {
-  const { schedules, teachers, addSchedule, removeSchedule } = useData()
+  const { schedules, teachers, addSchedule, removeSchedule, updateSchedule } = useData()
   const [searchQuery, setSearchQuery] = useState('')
   const [isAddOpen, setIsAddOpen] = useState(false)
+  const [isEditOpen, setIsEditOpen] = useState(false)
+  const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(null)
 
   const filteredSchedules = schedules.filter(s =>
     s.classTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -82,7 +84,31 @@ export default function SchedulePage() {
       setIsAddOpen(false)
       toast.success('Schedule created successfully')
     } catch (error) {
-      // Error handled by context
+      toast.error('Failed to create schedule')
+    }
+  }
+
+  const handleEditSchedule = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (!selectedSchedule) return
+    const formData = new FormData(e.currentTarget)
+    const slotId = formData.get('slotId') as string
+    const slot = ACADEMY_SLOTS.find(s => s.id === slotId)
+    
+    const updates: Partial<Schedule> = {
+      classTitle: formData.get('className') as string,
+      teacherName: formData.get('teacherName') as string,
+      timing: slot?.time || selectedSchedule.timing,
+      slotId: slotId,
+      roomNumber: formData.get('roomNumber') as string,
+    }
+
+    try {
+      await updateSchedule(selectedSchedule.id, updates)
+      setIsEditOpen(false)
+      toast.success('Schedule updated successfully')
+    } catch (error) {
+      toast.error('Failed to update schedule')
     }
   }
 
@@ -189,7 +215,7 @@ export default function SchedulePage() {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {filteredSchedules.map((item) => (
-          <Card key={item.id} className="bg-card/40 backdrop-blur-md hover-lift border-primary/5 shadow-premium ring-1 ring-border group transition-all">
+          <Card key={item.id} className="bg-card/40 backdrop-blur-md hover-lift border-primary/5 shadow-premium ring-1 ring-border group transition-premium">
             <CardHeader className="pb-3 flex flex-row items-start justify-between">
               <div className="space-y-1">
                 <Badge variant="outline" className="text-[10px] tracking-widest uppercase font-normal text-primary border-primary/20 bg-primary/5">
@@ -201,7 +227,7 @@ export default function SchedulePage() {
                 </CardDescription>
               </div>
               <div className="flex gap-1 opacity-10 group-hover:opacity-100 transition-opacity">
-                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-muted group/edit">
+                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-muted group/edit" onClick={() => { setSelectedSchedule(item); setIsEditOpen(true); }}>
                   <Edit className="w-3.5 h-3.5" />
                 </Button>
                 <Button 
@@ -243,6 +269,61 @@ export default function SchedulePage() {
           </Card>
         ))}
       </div>
+
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent className="max-w-xl bg-card/90 backdrop-blur-xl border-primary/10">
+          <DialogHeader>
+            <DialogTitle className="font-serif text-3xl tracking-tight font-normal">Edit Schedule Options</DialogTitle>
+            <DialogDescription className="text-editorial-meta">
+              Change the teacher, course title, or timing.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedSchedule && (
+            <form onSubmit={handleEditSchedule}>
+              <FieldGroup className="py-6 space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <Field>
+                    <FieldLabel className="text-editorial-label">Course Module</FieldLabel>
+                    <Input name="className" defaultValue={selectedSchedule.classTitle} placeholder="e.g. EC Beginner 1" required className="bg-background/50 h-10" />
+                  </Field>
+                  <Field>
+                    <FieldLabel className="text-editorial-label">Faculty Name</FieldLabel>
+                    <Input name="teacherName" defaultValue={selectedSchedule.teacherName} placeholder="e.g. Tr. Sarah" required className="bg-background/50 h-10" />
+                  </Field>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <Field>
+                    <FieldLabel className="text-editorial-label">Time Slot Config</FieldLabel>
+                    <Select name="slotId" defaultValue={selectedSchedule.slotId} required>
+                      <SelectTrigger className="bg-background/50 h-10 text-editorial-meta">
+                        <SelectValue placeholder="Designated Slot" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {ACADEMY_SLOTS.map(slot => (
+                          <SelectItem key={slot.id} value={slot.id}>
+                            {slot.id}: {slot.time}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Field>
+                    <FieldLabel className="text-editorial-label">Designated Room</FieldLabel>
+                    <Input name="roomNumber" defaultValue={selectedSchedule.roomNumber} placeholder="e.g. Lab 2" required className="bg-background/50 h-10" />
+                  </Field>
+                </div>
+              </FieldGroup>
+              <DialogFooter className="pt-2">
+                <Button type="button" variant="ghost" onClick={() => setIsEditOpen(false)} className="text-muted-foreground hover:text-foreground">
+                  Cancel
+                </Button>
+                <Button type="submit" className="px-8 font-normal uppercase tracking-wide">Commit Changes</Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

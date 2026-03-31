@@ -320,13 +320,13 @@ export default function StudentsPage() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2">
-        <Card className="bg-card/40 backdrop-blur-md border-primary/5 shadow-premium">
+        <Card className="bg-card/40 backdrop-blur-md hover-lift transition-premium border-primary/5 shadow-premium">
           <CardHeader className="pb-2">
             <CardDescription>Total Students</CardDescription>
             <CardTitle className="text-3xl">{students.length}</CardTitle>
           </CardHeader>
         </Card>
-        <Card className="bg-card/40 backdrop-blur-md border-primary/5 shadow-premium">
+        <Card className="bg-card/40 backdrop-blur-md hover-lift transition-premium border-primary/5 shadow-premium">
           <CardHeader className="pb-2">
             <CardDescription>Active Students</CardDescription>
             <CardTitle className="text-3xl text-success">

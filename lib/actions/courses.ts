@@ -37,3 +37,16 @@ export async function updateCourseStatus(id: string, status: string) {
   revalidatePath('/')
   return result
 }
+
+export async function updateCourse(id: string, data: Partial<Course>) {
+  const result = await db.course.update({
+    where: { id },
+    data: {
+      ...data,
+      ...(data.startDate && { startDate: new Date(data.startDate) }),
+      ...(data.endDate && { endDate: new Date(data.endDate) })
+    } as any
+  })
+  revalidatePath('/')
+  return result
+}

@@ -204,13 +204,13 @@ export default function TeachersPage() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-3">
-        <Card className="bg-card/40 backdrop-blur-md border-primary/5 shadow-premium">
+        <Card className="bg-card/40 backdrop-blur-md hover-lift transition-premium border-primary/5 shadow-premium">
           <CardHeader className="pb-2">
             <CardDescription>Total Teachers</CardDescription>
             <CardTitle className="text-3xl">{teachers.length}</CardTitle>
           </CardHeader>
         </Card>
-        <Card className="bg-card/40 backdrop-blur-md border-primary/5 shadow-premium">
+        <Card className="bg-card/40 backdrop-blur-md hover-lift transition-premium border-primary/5 shadow-premium">
           <CardHeader className="pb-2">
             <CardDescription>Active Teachers</CardDescription>
             <CardTitle className="text-3xl text-success">
@@ -218,7 +218,7 @@ export default function TeachersPage() {
             </CardTitle>
           </CardHeader>
         </Card>
-        <Card className="bg-card/40 backdrop-blur-md border-primary/5 shadow-premium">
+        <Card className="bg-card/40 backdrop-blur-md hover-lift transition-premium border-primary/5 shadow-premium">
           <CardHeader className="pb-2">
             <CardDescription>Inactive Teachers</CardDescription>
             <CardTitle className="text-3xl text-muted-foreground">

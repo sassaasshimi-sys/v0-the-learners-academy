@@ -11,7 +11,7 @@ import type {
 // Server Actions
 import { getTeachers, addTeacher as dbAddTeacher, removeTeacher as dbRemoveTeacher, updateTeacherStatus as dbUpdateTeacherStatus } from '@/lib/actions/teachers'
 import { getStudents, enrollStudent as dbEnrollStudent, removeStudent as dbRemoveStudent, updateStudentStatus as dbUpdateStudentStatus, updateStudent as dbUpdateStudent, updateStudentSuccessMetrics as dbUpdateStudentSuccessMetrics } from '@/lib/actions/students'
-import { getCourses, addCourse as dbAddCourse, removeCourse as dbRemoveCourse, updateCourseStatus as dbUpdateCourseStatus } from '@/lib/actions/courses'
+import { getCourses, addCourse as dbAddCourse, removeCourse as dbRemoveCourse, updateCourseStatus as dbUpdateCourseStatus, updateCourse as dbUpdateCourse } from '@/lib/actions/courses'
 import { getQuestions, addQuestion as dbAddQuestion, deleteQuestion as dbDeleteQuestion, updateQuestion as dbUpdateQuestion } from '@/lib/actions/questions'
 import { getAssessments, publishAssessment as dbPublishAssessment, removeAssessment as dbRemoveAssessment } from '@/lib/actions/assessments'
 import { getSubmissions, submitTestResult as dbSubmitTestResult, gradeSubmission as dbGradeSubmission } from '@/lib/actions/submissions'
@@ -54,6 +54,7 @@ interface DataContextType {
   removeTeacher: (id: string) => Promise<void>
   addCourse: (course: Course) => Promise<void>
   updateCourseStatus: (id: string, status: Course['status']) => Promise<void>
+  updateCourse: (id: string, data: Partial<Course>) => Promise<void>
   removeCourse: (id: string) => Promise<void>
   addSchedule: (schedule: Schedule) => Promise<void>
   updateSchedule: (id: string, updates: Partial<Schedule>) => Promise<void>
@@ -214,6 +215,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
     await refresh()
   }, [refresh])
 
+  const updateCourse = useCallback(async (id: string, data: Partial<Course>) => {
+    await dbUpdateCourse(id, data)
+    await refresh()
+  }, [refresh])
+
   const updateCourseProgress = useCallback((courseId: string, progress: number) => {
     setCourses(prev => prev.map(c => c.id === courseId ? { ...c, progress } : c))
   }, [])
@@ -334,6 +340,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       removeTeacher,
       addCourse,
       updateCourseStatus,
+      updateCourse,
       removeCourse,
       addSchedule,
       updateSchedule,

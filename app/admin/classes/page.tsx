@@ -85,12 +85,13 @@ const CLASS_TIMES = [
 ]
 
 export default function ClassesPage() {
-  const { courses, teachers, addCourse, removeCourse, updateCourseStatus } = useData()
+  const { courses, teachers, addCourse, removeCourse, updateCourseStatus, updateCourse } = useData()
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null)
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
 
   const filteredCourses = courses.filter(course => {
     const matchesSearch = 
@@ -136,6 +137,31 @@ export default function ClassesPage() {
   const handleStatusChange = (course: Course, newStatus: Course['status']) => {
     updateCourseStatus(course.id, newStatus)
     toast.success(`Course ${newStatus}`)
+  }
+
+  const handleEditCourse = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (!selectedCourse) return
+    const formData = new FormData(e.currentTarget)
+    const teacherId = formData.get('teacherId') as string
+    const teacher = teachers.find(t => t.id === teacherId)
+    
+    const updates: Partial<Course> = {
+      title: formData.get('title') as string,
+      teacherId: teacherId,
+      teacherName: teacher?.name || selectedCourse.teacherName,
+      schedule: formData.get('schedule') as string,
+      roomNumber: formData.get('roomNumber') as string,
+      feeAmount: parseFloat(formData.get('feeAmount') as string) || 0,
+    }
+
+    try {
+      await updateCourse(selectedCourse.id, updates)
+      setIsEditDialogOpen(false)
+      toast.success('Class updated successfully')
+    } catch (error) {
+      toast.error('Failed to update class')
+    }
   }
 
   const handleDelete = (course: Course) => {
@@ -265,13 +291,13 @@ export default function ClassesPage() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2">
-        <Card className="bg-card/40 backdrop-blur-md border-primary/5 shadow-premium">
+        <Card className="bg-card/40 backdrop-blur-md hover-lift transition-premium border-primary/5 shadow-premium">
           <CardHeader className="pb-2">
             <CardDescription>Total Classes</CardDescription>
             <CardTitle className="text-3xl">{courses.length}</CardTitle>
           </CardHeader>
         </Card>
-        <Card className="bg-card/40 backdrop-blur-md border-primary/5 shadow-premium">
+        <Card className="bg-card/40 backdrop-blur-md hover-lift transition-premium border-primary/5 shadow-premium">
           <CardHeader className="pb-2">
             <CardDescription>Active Classes</CardDescription>
             <CardTitle className="text-3xl text-success">
@@ -283,15 +309,20 @@ export default function ClassesPage() {
 
       {/* Filters */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <Tabs value={statusFilter} onValueChange={setStatusFilter} className="w-full sm:w-auto">
-          <TabsList>
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="active">Active</TabsTrigger>
-            <TabsTrigger value="draft">Draft</TabsTrigger>
-            <TabsTrigger value="completed">Completed</TabsTrigger>
-            <TabsTrigger value="archived">Archived</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <div className="w-full sm:w-[200px]">
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="bg-background/50 h-10">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Classes</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="draft">Draft</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
+              <SelectItem value="archived">Archived</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
         <div className="relative w-full sm:w-72">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
@@ -367,7 +398,10 @@ export default function ClassesPage() {
                             <Eye className="w-4 h-4 mr-2" />
                             Session Details
                           </DropdownMenuItem>
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => {
+                            setSelectedCourse(course)
+                            setIsEditDialogOpen(true)
+                          }}>
                             <Edit className="w-4 h-4 mr-2" />
                             Edit Parameters
                           </DropdownMenuItem>
@@ -441,8 +475,8 @@ export default function ClassesPage() {
                     </div>
                   </div>
                   <div className="p-2 bg-muted/5 flex justify-end px-4 border-t">
-                    <Button variant="ghost" size="sm" className="h-9 w-full rounded-xl text-primary font-normal">
-                       <Eye className="w-3.5 h-3.5 ml-2" />
+                    <Button variant="ghost" size="sm" className="h-9 w-full rounded-xl text-primary font-normal" onClick={(e) => { e.stopPropagation(); setSelectedCourse(course); setIsEditDialogOpen(true); }}>
+                       <Edit className="w-3.5 h-3.5 ml-2" />
                     </Button>
                   </div>
                 </div>
@@ -502,6 +536,11 @@ export default function ClassesPage() {
                 </div>
                 <Progress value={(selectedCourse.enrolled / selectedCourse.capacity) * 100} className="h-3" />
               </div>
+              
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Fee Configured by Admin</p>
+                <p className="font-serif font-normal text-lg text-primary">Rs. {(selectedCourse.feeAmount || 0).toLocaleString()}</p>
+              </div>
 
               <div className="grid gap-4 grid-cols-2 pt-4 border-t">
                 <div>
@@ -520,6 +559,86 @@ export default function ClassesPage() {
                 </div>
               </div>
             </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Course Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-xl bg-card/90 backdrop-blur-xl border-primary/10">
+          <DialogHeader>
+            <DialogTitle className="font-serif text-3xl tracking-tight font-normal">Edit Registry Parameters</DialogTitle>
+            <DialogDescription className="text-editorial-meta">
+              Update details for this academic session.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedCourse && (
+            <form onSubmit={handleEditCourse}>
+              <FieldGroup className="py-6 space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <Field>
+                    <FieldLabel className="text-editorial-label">Academic Level</FieldLabel>
+                    <Select name="title" defaultValue={selectedCourse.title} required>
+                      <SelectTrigger className="bg-background/50 h-10 text-editorial-meta">
+                        <SelectValue placeholder="Select class level" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CLASS_LEVELS.map(level => (
+                          <SelectItem key={level} value={level}>{level}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Field>
+                    <FieldLabel className="text-editorial-label">Teacher Assignment</FieldLabel>
+                    <Select name="teacherId" defaultValue={selectedCourse.teacherId} required>
+                      <SelectTrigger className="bg-background/50 h-10 text-editorial-meta">
+                        <SelectValue placeholder="Assign teacher" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {teachers.map(teacher => (
+                          <SelectItem key={teacher.id} value={teacher.id}>{teacher.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <Field>
+                    <FieldLabel className="text-editorial-label">Session Timing</FieldLabel>
+                    <Select name="schedule" defaultValue={selectedCourse.schedule} required>
+                      <SelectTrigger className="bg-background/50 h-10 text-editorial-meta">
+                        <SelectValue placeholder="Starting time" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CLASS_TIMES.map(time => (
+                          <SelectItem key={time} value={time}>{time}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+
+                  <Field>
+                    <FieldLabel className="text-editorial-label">Room Allocation</FieldLabel>
+                    <Input name="roomNumber" defaultValue={selectedCourse.roomNumber || ''} placeholder="e.g. Room 302" required className="bg-background/50 h-10" />
+                  </Field>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <Field>
+                    <FieldLabel className="text-editorial-label">Tuition Fee (PKR)</FieldLabel>
+                    <Input name="feeAmount" type="number" defaultValue={selectedCourse.feeAmount || 0} placeholder="e.g. 5000" required className="bg-background/50 h-10 font-normal font-serif text-editorial-meta" />
+                  </Field>
+                </div>
+              </FieldGroup>
+              <DialogFooter className="pt-2">
+                <Button type="button" variant="ghost" onClick={() => setIsEditDialogOpen(false)} className="text-muted-foreground hover:text-foreground">
+                  Cancel
+                </Button>
+                <Button type="submit" className="px-8 font-normal uppercase tracking-wide">Save Alterations</Button>
+              </DialogFooter>
+            </form>
           )}
         </DialogContent>
       </Dialog>
