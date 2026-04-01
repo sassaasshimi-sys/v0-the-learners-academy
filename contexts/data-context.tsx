@@ -13,7 +13,7 @@ import { getTeachers, addTeacher as dbAddTeacher, removeTeacher as dbRemoveTeach
 import { getStudents, enrollStudent as dbEnrollStudent, removeStudent as dbRemoveStudent, updateStudentStatus as dbUpdateStudentStatus, updateStudent as dbUpdateStudent, updateStudentSuccessMetrics as dbUpdateStudentSuccessMetrics } from '@/lib/actions/students'
 import { getCourses, addCourse as dbAddCourse, removeCourse as dbRemoveCourse, updateCourseStatus as dbUpdateCourseStatus, updateCourse as dbUpdateCourse } from '@/lib/actions/courses'
 import { getQuestions, addQuestion as dbAddQuestion, deleteQuestion as dbDeleteQuestion, updateQuestion as dbUpdateQuestion } from '@/lib/actions/questions'
-import { getAssessments, publishAssessment as dbPublishAssessment, removeAssessment as dbRemoveAssessment } from '@/lib/actions/assessments'
+import { getAssessments, publishAssessment as dbPublishAssessment, removeAssessment as dbRemoveAssessment, updateAssessmentReviewAction } from '@/lib/actions/assessments'
 import { getSubmissions, submitTestResult as dbSubmitTestResult, gradeSubmission as dbGradeSubmission } from '@/lib/actions/submissions'
 import { getSchedules, addSchedule as dbAddSchedule, updateSchedule as dbUpdateSchedule, removeSchedule as dbRemoveSchedule } from '@/lib/actions/schedules'
 import { getFeePayments, recordPayment as dbRecordPayment, updateClassFee as dbUpdateClassFee, addFeeAccount as dbAddFeeAccount } from '@/lib/actions/fees'
@@ -65,8 +65,8 @@ interface DataContextType {
   addFeeAccount: (data: any) => Promise<void>
   updateClassFee: (id: string, amount: number) => Promise<void>
   updateTeacherReviewFlag: (id: string, flag: boolean) => void
-  approveAssessment: (id: string) => void
-  rejectAssessment: (id: string, feedback: string) => void
+  approveAssessment: (id: string) => Promise<void>
+  rejectAssessment: (id: string, feedback: string) => Promise<void>
   resetToDefaults: () => void
   refresh: () => Promise<void>
 }
@@ -263,17 +263,23 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setTeachers(prev => prev.map(t => t.id === id ? { ...t, requiresReview: flag } : t))
   }, [])
 
-  const approveAssessment = useCallback((id: string) => {
-    setAssessments(prev => prev.map(a =>
-      a.id === id ? { ...a, status: 'active' as const, adminFeedback: undefined } : a
-    ))
-  }, [])
+  const approveAssessment = useCallback(async (id: string) => {
+    try {
+      await updateAssessmentReviewAction(id, 'active')
+      await refresh()
+    } catch (err) {
+      toast.error("Failed to approve assessment")
+    }
+  }, [refresh])
 
-  const rejectAssessment = useCallback((id: string, feedback: string) => {
-    setAssessments(prev => prev.map(a =>
-      a.id === id ? { ...a, status: 'draft' as const, adminFeedback: feedback } : a
-    ))
-  }, [])
+  const rejectAssessment = useCallback(async (id: string, feedback: string) => {
+    try {
+      await updateAssessmentReviewAction(id, 'draft', feedback)
+      await refresh()
+    } catch (err) {
+      toast.error("Failed to send feedback")
+    }
+  }, [refresh])
 
   // --- Submissions ---
   const submitTestResult = useCallback(async (result: StudentTest) => {

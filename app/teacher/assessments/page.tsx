@@ -388,7 +388,7 @@ export default function AssessmentsPage() {
                                 checked={true}
                                 onCheckedChange={async (checked) => {
                                   const newStatus = checked ? 'active' : 'archived'
-                                  publishAssessment({ ...assessment, status: newStatus })
+                                  publishAssessment({ ...assessment, status: newStatus as any })
                                   const res = await toggleAssessmentStatusAction(assessment.id, newStatus)
                                   if (res.success) {
                                     toast.success(`Exam ${checked ? 'Activated' : 'Stopped'}`)
@@ -407,7 +407,7 @@ export default function AssessmentsPage() {
                                 checked={false}
                                 onCheckedChange={async (checked) => {
                                   const newStatus = checked ? 'active' : 'archived'
-                                  publishAssessment({ ...assessment, status: newStatus })
+                                  publishAssessment({ ...assessment, status: newStatus as any })
                                   const res = await toggleAssessmentStatusAction(assessment.id, newStatus)
                                   if (res.success) {
                                     toast.success(`Exam ${checked ? 'Activated' : 'Stopped'}`)
@@ -416,6 +416,16 @@ export default function AssessmentsPage() {
                                   }
                                 }}
                                 className="scale-75 data-[state=checked]:bg-primary"
+                              />
+                            </div>
+                          )}
+                          {assessment.status === 'pending_review' && (
+                            <div className="flex items-center gap-2 pr-2 border-r border-border/50 opacity-50 grayscale cursor-not-allowed" title="Awaiting Admin Review">
+                              <span className="text-[9px] uppercase tracking-widest font-bold text-muted-foreground">Locked</span>
+                              <Switch 
+                                checked={false}
+                                disabled
+                                className="scale-75"
                               />
                             </div>
                           )}

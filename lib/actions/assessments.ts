@@ -32,10 +32,25 @@ export async function publishAssessment(assessment: Omit<AssessmentTemplate, 'id
       nature: assessment.nature,
       totalMarks: assessment.totalMarks,
       durationMinutes: assessment.durationMinutes,
+      questionCount: assessment.questionCount || 0,
       status: assessment.status || 'active',
       accessCode: accessCode,
+      submittedByTeacherId: assessment.submittedByTeacherId,
+      submittedByTeacherName: assessment.submittedByTeacherName,
       createdAt: new Date()
     } 
+  })
+  revalidatePath('/')
+  return result
+}
+
+export async function updateAssessmentReviewAction(id: string, status: AssessmentTemplate['status'], feedback?: string) {
+  const result = await db.assessmentTemplate.update({
+    where: { id },
+    data: { 
+      status,
+      adminFeedback: feedback 
+    }
   })
   revalidatePath('/')
   return result

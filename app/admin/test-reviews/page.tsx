@@ -49,22 +49,30 @@ export default function TestReviewsPage() {
     return '—'
   }
 
-  const handleApprove = (id: string, title: string) => {
-    approveAssessment(id)
-    toast.success(`"${title}" approved and is now live`)
-    setExpandedRejectId(null)
+  const handleApprove = async (id: string, title: string) => {
+    try {
+      await approveAssessment(id)
+      toast.success(`"${title}" approved and is now live`)
+      setExpandedRejectId(null)
+    } catch (err) {
+      toast.error("Failed to sync approval")
+    }
   }
 
-  const handleReject = (id: string, title: string) => {
+  const handleReject = async (id: string, title: string) => {
     const feedback = feedbackMap[id]?.trim()
     if (!feedback) {
       toast.error('Please write feedback before sending for revision')
       return
     }
-    rejectAssessment(id, feedback)
-    toast.success(`Revision requested for "${title}"`)
-    setExpandedRejectId(null)
-    setFeedbackMap(prev => { const next = { ...prev }; delete next[id]; return next })
+    try {
+      await rejectAssessment(id, feedback)
+      toast.success(`Revision requested for "${title}"`)
+      setExpandedRejectId(null)
+      setFeedbackMap(prev => { const next = { ...prev }; delete next[id]; return next })
+    } catch (err) {
+      toast.error("Failed to sync feedback")
+    }
   }
 
   return (
