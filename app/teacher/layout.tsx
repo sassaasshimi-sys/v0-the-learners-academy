@@ -107,7 +107,7 @@ export default function TeacherLayout({
   // or refined in clerkMiddleware.
 
   return (
-    <SidebarProvider>
+    <SidebarProvider style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, var(--font-inter), Inter, sans-serif' }}>
       <Sidebar className="border-r border-white/5 bg-sidebar transition-premium">
         <TeacherSidebarHeader />
 

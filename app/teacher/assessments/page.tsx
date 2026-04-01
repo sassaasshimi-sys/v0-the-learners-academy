@@ -26,6 +26,7 @@ import { Label } from '@/components/ui/label'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { motion, AnimatePresence } from 'framer-motion'
+import { STAGGER_CONTAINER, STAGGER_ITEM } from '@/lib/premium-motion'
 import { toast } from 'sonner'
 import {
   Plus,
@@ -158,29 +159,32 @@ export default function AssessmentsPage() {
       {/* Page Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="font-serif text-3xl font-bold text-foreground">
+          <h1 className="font-serif text-3xl font-normal text-foreground">
             Assessments
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-1 text-editorial-meta opacity-70">
             Generate and manage exam papers for your terms
           </p>
         </div>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="hover-lift shadow-premium rounded-xl h-11 px-6">
               <Plus className="w-4 h-4 mr-2" />
-              {requiresReview ? 'Submit for Review' : 'Generate Test'}
+              <span className="text-[10px] uppercase tracking-widest font-normal">
+                {requiresReview ? 'Submit for Review' : 'Generate Test'}
+              </span>
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Generate New Test</DialogTitle>
-              <DialogDescription>
-                The system will automatically select questions from your Library.
+          <DialogContent className="max-w-lg border-primary/5 shadow-22xl p-0 overflow-hidden">
+            <DialogHeader className="p-8 bg-muted/5 border-b border-primary/5">
+              <DialogTitle className="font-serif text-2xl font-normal">Generate New Test</DialogTitle>
+              <DialogDescription className="text-editorial-meta text-xs">
+                The system will automatically select questions from your Library block.
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit(onSubmit)}>
-              <FieldGroup className="py-4 space-y-4">
+              <div className="p-8 space-y-6">
+                <FieldGroup className="space-y-4">
                 <Field>
                   <FieldLabel>Test Title</FieldLabel>
                   <Input {...register('title')} placeholder="e.g. Mid-term Assessment" />
@@ -269,9 +273,10 @@ export default function AssessmentsPage() {
                     </Button>
                   </div>
                   {errors.accessCode && <p className="text-[10px] text-destructive font-bold uppercase mt-1">{errors.accessCode.message}</p>}
-                </Field>
-              </FieldGroup>
-              <DialogFooter>
+                  </Field>
+                </FieldGroup>
+              </div>
+              <DialogFooter className="p-8 bg-muted/5 border-t border-primary/5 mt-0 flex flex-col sm:flex-row gap-3">
                 {/* Review notice for flagged teachers */}
                 {requiresReview && (
                   <div className="w-full mb-3 flex items-start gap-3 bg-warning/5 border border-warning/20 rounded-xl px-4 py-3">
@@ -302,16 +307,21 @@ export default function AssessmentsPage() {
       {/* List */}
       <div className="grid gap-6">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground opacity-40" />
           <Input
             placeholder="Search assessments..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 max-w-md"
+            className="pl-9 max-w-md bg-card/40 backdrop-blur-md border-primary/5 rounded-2xl h-12"
           />
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <motion.div 
+          className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+          variants={STAGGER_CONTAINER}
+          initial="hidden"
+          animate="show"
+        >
           {filteredAssessments.length === 0 ? (
             <div className="col-span-full py-12 text-center text-muted-foreground">
               No assessments found
@@ -320,30 +330,29 @@ export default function AssessmentsPage() {
             filteredAssessments.map((assessment) => (
               <motion.div
                 key={assessment.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+                variants={STAGGER_ITEM}
                 whileTap={{ scale: 0.98 }}
                 layout
               >
-                <Card className="hover-lift overflow-hidden border-none shadow-sm ring-1 ring-border h-full">
-                  <CardHeader className="pb-3 flex flex-row items-start justify-between space-y-0">
+                <Card className="hover-lift overflow-hidden border-primary/5 bg-card/40 backdrop-blur-md shadow-premium rounded-[2rem] h-full flex flex-col">
+                  <CardHeader className="pb-3 flex flex-row items-start justify-between space-y-0 p-6">
                     <div className="space-y-1">
-                      <Badge variant={assessment.phase === 'First Test' ? 'outline' : 'secondary'} className="text-[10px] uppercase tracking-widest font-bold border-primary/20 bg-primary/5 text-primary">
+                      <Badge variant={assessment.phase === 'First Test' ? 'outline' : 'secondary'} className="text-[10px] uppercase tracking-widest font-normal border-primary/20 bg-primary/5 text-primary">
                         {assessment.phase}
                       </Badge>
-                      <CardTitle className="font-serif text-xl tracking-tight leading-none pt-1">{assessment.title}</CardTitle>
+                      <CardTitle className="font-serif text-xl tracking-tight leading-none pt-1 font-normal group-hover:text-primary transition-colors">{assessment.title}</CardTitle>
                     </div>
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      className="h-9 w-9 text-destructive hover:bg-destructive/10 hover:text-destructive rounded-xl transition-premium"
+                      className="h-9 w-9 text-destructive hover:bg-destructive/10 hover:text-destructive rounded-xl transition-premium opacity-40 hover:opacity-100"
                       onClick={() => handleDelete(assessment.id)}
                     >
-                      <Trash2 className="w-4.5 h-4.5" />
+                      <Trash2 className="w-4 h-4" />
                     </Button>
                   </CardHeader>
-                  <CardContent className="space-y-5">
-                    <div className="grid grid-cols-2 gap-y-4 gap-x-2 text-[11px] uppercase tracking-wider font-bold text-muted-foreground/80">
+                  <CardContent className="space-y-6 flex-1 flex flex-col p-6 pt-0">
+                    <div className="grid grid-cols-2 gap-y-4 gap-x-2 text-[10px] uppercase tracking-widest font-normal text-muted-foreground opacity-70">
                       <div className="flex items-center gap-2">
                         <Users className="w-3.5 h-3.5 text-primary/60" />
                         <span className="truncate">{assessment.classLevels[0]}</span>
@@ -363,11 +372,11 @@ export default function AssessmentsPage() {
                     </div>
                     
                     {/* Status + Token strip */}
-                      <div className="flex items-center justify-between p-3 rounded-2xl bg-muted/30 border border-primary/5 group/token relative overflow-hidden">
-                        <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover/token:opacity-100 transition-opacity" />
+                      <div className="flex items-center justify-between p-4 rounded-[1.5rem] bg-muted/20 border border-primary/5 group/token relative overflow-hidden transition-premium">
+                        <div className="absolute inset-0 bg-primary/[0.02] opacity-0 group-hover/token:opacity-100 transition-opacity" />
                         <div className="relative z-10 flex flex-col">
-                          <span className="text-[9px] uppercase tracking-widest font-bold text-muted-foreground">Access Token</span>
-                          <span className="font-sans text-sm font-bold tracking-tighter text-primary">{assessment.accessCode}</span>
+                          <span className="text-[8px] uppercase tracking-widest font-normal text-muted-foreground opacity-60">Registry Token</span>
+                          <span className="font-sans text-sm font-normal tracking-wide text-primary">{assessment.accessCode}</span>
                         </div>
                         <div className="relative z-10 flex items-center gap-3">
                           {/* Status chip */}

@@ -19,7 +19,9 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import { motion, AnimatePresence } from 'framer-motion'
+import { STAGGER_CONTAINER, STAGGER_ITEM } from '@/lib/premium-motion'
 import { toast } from 'sonner'
 import { Plus, Search, Trash2, Edit, X, Library as LibraryIcon, Volume2, BookOpen } from 'lucide-react'
 import Image from 'next/image'
@@ -135,29 +137,31 @@ export default function QuestionLibraryPage() {
       {/* Header */}
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="font-serif">Assessment Library</h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Manage your question bank across 6 categories and 6 question types
+          <h1 className="font-serif text-3xl font-normal text-foreground">Assessment Library</h1>
+          <p className="text-muted-foreground mt-1 text-editorial-meta opacity-70">
+            Curate your institutional question bank across {CATEGORIES.length} academic categories.
           </p>
         </div>
 
         <Dialog open={isOpen} onOpenChange={(o) => { if (!o) handleClose(); else setIsOpen(true) }}>
           <DialogTrigger asChild>
-            <Button size="sm" className="gap-1.5 self-start">
-              <Plus className="w-3.5 h-3.5" /> Add Question
+            <Button className="hover-lift shadow-premium rounded-xl h-11 px-6">
+              <Plus className="w-4 h-4 mr-2" />
+              <span className="text-[10px] uppercase tracking-widest font-normal">Add Question</span>
             </Button>
           </DialogTrigger>
 
-          <DialogContent className="max-w-md max-h-[88vh] overflow-y-auto">
-            <DialogHeader className="pb-1">
-              <DialogTitle>Add to Library</DialogTitle>
-              <DialogDescription className="text-xs">
-                Fields adapt to the selected question type.
+          <DialogContent className="max-w-lg border-primary/5 shadow-22xl p-0 overflow-hidden">
+            <DialogHeader className="p-8 bg-muted/5 border-b border-primary/5 text-left items-start">
+              <DialogTitle className="font-serif text-2xl font-normal">Add to Library</DialogTitle>
+              <DialogDescription className="text-editorial-meta text-xs">
+                Fields adapt to the selected block type for institutional precision.
               </DialogDescription>
             </DialogHeader>
 
             <form onSubmit={handleSubmit(onSubmit)}>
-              <FieldGroup className="py-3 space-y-3">
+              <div className="p-8 space-y-6">
+                <FieldGroup className="space-y-4">
 
                 {/* Category + Phase row */}
                 <div className="grid grid-cols-2 gap-3">
@@ -324,15 +328,20 @@ export default function QuestionLibraryPage() {
                     ) : (
                       <Input {...register('correctAnswer')} className="h-8 text-xs" placeholder="Exact correct answer" />
                     )}
-                  </Field>
-                )}
+                </Field>
+              )}
 
-              </FieldGroup>
+                </FieldGroup>
+              </div>
 
-              <DialogFooter className="pt-2 gap-2">
-                <Button type="button" variant="outline" size="sm" onClick={handleClose}>Cancel</Button>
-                <Button type="submit" size="sm" disabled={isSubmitting}>
-                  {isSubmitting ? 'Adding...' : 'Add to Library'}
+              <DialogFooter className="p-8 bg-muted/5 border-t border-primary/5 mt-0 flex flex-col sm:flex-row gap-3">
+                <Button type="button" variant="outline" onClick={handleClose} className="rounded-xl px-6 h-11">
+                  <span className="text-[10px] uppercase tracking-widest font-normal">Cancel</span>
+                </Button>
+                <Button type="submit" disabled={isSubmitting} className="rounded-xl px-6 h-11 shadow-premium">
+                  <span className="text-[10px] uppercase tracking-widest font-normal">
+                    {isSubmitting ? 'Adding...' : 'Add to Library'}
+                  </span>
                 </Button>
               </DialogFooter>
             </form>
@@ -344,58 +353,64 @@ export default function QuestionLibraryPage() {
       <div className="grid gap-6 md:grid-cols-[1fr_200px]">
         <div className="space-y-4">
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as QuestionCategory)}>
-            <TabsList className="bg-muted p-1 w-full justify-start overflow-x-auto no-scrollbar h-9">
+            <TabsList className="bg-card/40 backdrop-blur-md border border-primary/5 p-1 w-full justify-start overflow-x-auto no-scrollbar h-12 rounded-2xl">
               {CATEGORIES.map(cat => (
-                <TabsTrigger key={cat} value={cat} className="flex-1 md:flex-none h-7 px-3 text-xs">{cat}</TabsTrigger>
+                <TabsTrigger key={cat} value={cat} className="flex-1 md:flex-none h-10 px-6 text-[10px] uppercase tracking-widest font-normal rounded-xl data-[state=active]:bg-card data-[state=active]:shadow-sm transition-premium">{cat}</TabsTrigger>
               ))}
             </TabsList>
 
-            <div className="mt-4">
-              <div className="relative mb-4">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/50" />
+            <div className="mt-6">
+              <div className="relative mb-6">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground opacity-40" />
                 <Input placeholder={`Search in ${activeTab}...`} value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)} className="pl-8 h-8 text-sm" />
+                  onChange={(e) => setSearchQuery(e.target.value)} className="pl-9 h-12 bg-card/40 backdrop-blur-md border-primary/5 rounded-2xl text-sm transition-premium focus:ring-1 focus:ring-primary/20" />
               </div>
 
-              <div className="grid gap-3">
+              <motion.div 
+                className="grid gap-4"
+                variants={STAGGER_CONTAINER}
+                initial="hidden"
+                animate="show"
+              >
                 {filteredQuestions.length === 0 ? (
-                  <Card className="border-dashed py-10">
+                  <Card className="border-dashed border-primary/10 py-16 bg-muted/5 rounded-[2rem]">
                     <div className="flex flex-col items-center justify-center text-center">
-                      <div className="bg-muted p-3 rounded-full mb-3">
-                        <LibraryIcon className="w-6 h-6 text-muted-foreground/40" />
+                      <div className="bg-primary/5 p-4 rounded-full mb-4">
+                        <LibraryIcon className="w-8 h-8 text-primary/30" />
                       </div>
-                      <p className="font-serif font-semibold">Empty Category</p>
-                      <p className="text-muted-foreground text-sm mt-1">No questions in {activeTab} yet.</p>
+                      <p className="font-serif text-lg font-normal">Empty Category</p>
+                      <p className="text-editorial-meta opacity-60 text-sm mt-1">No blocks found in the {activeTab} registry.</p>
                     </div>
                   </Card>
                 ) : (
                   filteredQuestions.map(q => (
-                    <Card key={q.id} className="overflow-hidden border-none shadow-sm ring-1 ring-border hover:ring-primary/20 transition-premium">
-                      <div className="px-4 py-3">
-                        <div className="flex justify-between items-start gap-3">
-                          <div className="space-y-2 flex-1 min-w-0">
+                    <motion.div key={q.id} variants={STAGGER_ITEM}>
+                      <Card className="overflow-hidden border-primary/5 bg-card/40 backdrop-blur-md shadow-premium rounded-[1.5rem] hover-lift transition-premium flex flex-col">
+                        <div className="p-6">
+                          <div className="flex justify-between items-start gap-6">
+                            <div className="space-y-3 flex-1 min-w-0">
                             {/* Badges */}
                             <div className="flex items-center gap-1.5 flex-wrap">
-                              <Badge variant="outline" className={`text-[9px] px-1.5 py-0 h-4 font-bold uppercase tracking-tight ${TYPE_BADGE_COLORS[q.type] || ''}`}>
+                              <Badge variant="outline" className={`text-[9px] px-2 h-5 font-normal uppercase tracking-widest border-none ${TYPE_BADGE_COLORS[q.type] || ''}`}>
                                 {q.type}
                               </Badge>
-                              <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 font-bold uppercase tracking-tight">
+                              <Badge variant="secondary" className="text-[9px] px-2 h-5 font-normal uppercase tracking-widest bg-muted/30">
                                 {q.phase}
                               </Badge>
                               {q.passageText && (
-                                <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 font-bold uppercase tracking-tight border-primary/15 text-primary/60 gap-0.5">
+                                <Badge variant="outline" className="text-[9px] px-2 h-5 font-normal uppercase tracking-widest border-primary/10 text-primary/60 gap-1">
                                   <BookOpen className="w-2.5 h-2.5" /> Passage
                                 </Badge>
                               )}
                               {q.audioUrl && (
-                                <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 font-bold uppercase tracking-tight border-primary/15 text-primary/60 gap-0.5">
+                                <Badge variant="outline" className="text-[9px] px-2 h-5 font-normal uppercase tracking-widest border-primary/10 text-primary/60 gap-1">
                                   <Volume2 className="w-2.5 h-2.5" /> Audio
                                 </Badge>
                               )}
                             </div>
 
                             {/* Content */}
-                            <p className="text-sm text-foreground leading-snug">{q.content}</p>
+                            <p className="text-base text-foreground/80 leading-relaxed font-serif font-normal">{q.content}</p>
 
                             {/* Match pairs preview */}
                             {q.type === 'Matching' && q.matchPairs && (
@@ -433,57 +448,49 @@ export default function QuestionLibraryPage() {
                           </div>
 
                           {/* Actions */}
-                          <div className="flex gap-0.5 shrink-0">
-                            <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-muted rounded-lg">
-                              <Edit className="w-3.5 h-3.5" />
+                          <div className="flex gap-1 shrink-0 opacity-40 group-hover:opacity-100 transition-opacity">
+                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-muted rounded-xl transition-premium">
+                              <Edit className="w-4 h-4" />
                             </Button>
                             <Button variant="ghost" size="icon"
-                              className="h-7 w-7 text-destructive hover:bg-destructive/10 hover:text-destructive rounded-lg"
+                              className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive rounded-xl transition-premium"
                               onClick={() => { deleteQuestion(q.id); toast.success('Question removed') }}>
-                              <Trash2 className="w-3.5 h-3.5" />
+                              <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
                         </div>
                       </div>
                     </Card>
+                    </motion.div>
                   ))
                 )}
-              </div>
+              </motion.div>
             </div>
           </Tabs>
         </div>
 
         {/* Stats sidebar */}
         <div className="space-y-4">
-          <Card className="border-none shadow-sm ring-1 ring-border">
-            <CardHeader className="pb-2 pt-4 px-4">
-              <CardTitle className="text-sm font-serif">Quick Stats</CardTitle>
+          <Card className="border-primary/5 bg-card/40 backdrop-blur-md shadow-premium rounded-[1.5rem] overflow-hidden">
+            <CardHeader className="p-6 border-b border-primary/5">
+              <CardTitle className="text-[10px] uppercase tracking-widest font-normal opacity-60">Block Registry Intelligence</CardTitle>
             </CardHeader>
-            <div className="px-4 pb-4 space-y-2">
-              <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground">Total Questions</span>
-                <span className="font-bold font-sans">{questions.length}</span>
+            <div className="p-6 space-y-4">
+              <div className="flex justify-between items-end">
+                <span className="text-[10px] uppercase tracking-widest font-normal opacity-50">Total Blocks</span>
+                <span className="text-3xl font-serif font-normal text-primary">{questions.length}</span>
               </div>
-              <div className="pt-2 border-t border-border/50 space-y-1.5">
-                <p className="text-editorial-label text-[10px]">By Type</p>
+              <div className="pt-4 border-t border-primary/5 space-y-2.5">
+                <p className="text-[8px] uppercase tracking-[0.2em] font-normal opacity-40">By Taxonomy</p>
                 {TYPE_OPTIONS.map(t => {
                   const count = questions.filter((q: Question) => q.type === t.value).length
                   return count > 0 ? (
-                    <div key={t.value} className="flex justify-between text-xs">
-                      <span className="text-muted-foreground truncate">{t.value}</span>
-                      <span className="font-bold font-sans ml-2 shrink-0">{count}</span>
+                    <div key={t.value} className="flex justify-between items-center group">
+                      <span className="text-xs text-muted-foreground font-normal transition-colors group-hover:text-foreground">{t.value}</span>
+                      <Badge variant="outline" className="h-4 px-1.5 text-[8px] border-primary/5 bg-primary/[0.02] font-normal">{count}</Badge>
                     </div>
                   ) : null
                 })}
-              </div>
-              <div className="pt-2 border-t border-border/50 space-y-1.5">
-                <p className="text-editorial-label text-[10px]">By Phase</p>
-                {['First Test', 'Last Test', 'Both'].map(p => (
-                  <div key={p} className="flex justify-between text-xs">
-                    <span className="text-muted-foreground">{p}</span>
-                    <span className="font-bold font-sans">{questions.filter((q: Question) => q.phase === p).length}</span>
-                  </div>
-                ))}
               </div>
             </div>
           </Card>

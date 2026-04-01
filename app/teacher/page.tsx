@@ -17,10 +17,12 @@ import {
   Library,
   TrendingUp
 } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { STAGGER_CONTAINER, STAGGER_ITEM } from '@/lib/premium-motion'
 import { useData } from '@/contexts/data-context'
 import { useAuth } from '@/contexts/auth-context'
 import { DashboardSkeleton } from '@/components/dashboard-skeleton'
+import { cn } from '@/lib/utils'
+import { motion } from 'framer-motion'
 
 export default function TeacherDashboard() {
   const { user } = useAuth()
@@ -85,31 +87,31 @@ export default function TeacherDashboard() {
       {/* Page Header */}
       <motion.div 
         className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.6 }}
+        variants={STAGGER_CONTAINER}
+        initial="hidden"
+        animate="show"
       >
-        <div>
-          <h1 className="font-serif text-4xl font-bold tracking-tight text-foreground">
+        <motion.div variants={STAGGER_ITEM}>
+          <h1 className="font-serif text-3xl tracking-tight text-foreground font-normal">
             Welcome, {user?.name?.split(' ')[0] || 'Teacher'}
           </h1>
-          <p className="text-editorial-meta text-lg mt-1">
+          <p className="text-editorial-meta text-lg mt-1 opacity-70">
             Orchestrating academic excellence through precision insights.
           </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" asChild className="hover-lift border-primary/20">
-            <Link href="/teacher/library" className="flex items-center">
+        </motion.div>
+        <motion.div variants={STAGGER_ITEM} className="flex gap-2">
+          <Button variant="outline" asChild className="hover-lift border-primary/20 bg-card/40 backdrop-blur-md rounded-xl h-11 px-6">
+            <Link href="/teacher/library" className="flex items-center text-[10px] uppercase tracking-widest font-normal">
               <Plus className="w-4 h-4 mr-2" />
               Build Block
             </Link>
           </Button>
-          <Button asChild className="hover-lift shadow-sm">
-            <Link href="/teacher/assessments">
+          <Button asChild className="hover-lift shadow-premium rounded-xl h-11 px-6">
+            <Link href="/teacher/assessments" className="text-[10px] uppercase tracking-widest font-normal">
               Initiate Test
             </Link>
           </Button>
-        </div>
+        </motion.div>
       </motion.div>
 
       {/* Stats Grid */}
@@ -117,24 +119,15 @@ export default function TeacherDashboard() {
         className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
         initial="hidden"
         animate="show"
-        variants={{
-          hidden: { opacity: 0 },
-          show: {
-            opacity: 1,
-            transition: { staggerChildren: 0.1 }
-          }
-        }}
+        variants={STAGGER_CONTAINER}
       >
         {stats.map((stat) => (
           <motion.div
             key={stat.title}
-            variants={{
-              hidden: { opacity: 0, scale: 0.95, y: 10 },
-              show: { opacity: 1, scale: 1, y: 0 }
-            }}
+            variants={STAGGER_ITEM}
           >
             <Link href={stat.href}>
-              <Card className="hover-lift cursor-pointer border-none shadow-sm ring-1 ring-border bg-card hover:ring-primary/40 transition-premium">
+              <Card className="hover-lift cursor-pointer transition-premium border-primary/5 bg-card/40 backdrop-blur-md shadow-premium rounded-[1.5rem]">
                 <CardHeader className="flex flex-row items-center justify-between pb-1 pt-4 px-4">
                   <CardTitle className="text-editorial-label">
                     {stat.title}
@@ -144,10 +137,10 @@ export default function TeacherDashboard() {
                   </div>
                 </CardHeader>
                 <CardContent className="px-4 pb-4">
-                  <div className="text-3xl font-serif font-bold tracking-tight">{stat.value}</div>
+                  <div className="text-3xl font-serif tracking-tight font-normal">{stat.value}</div>
                   <div className="flex items-center gap-1.5 mt-1">
                     <div className="h-1 w-1 rounded-full bg-primary/40" />
-                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium opacity-60">Institutional Data</span>
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-normal opacity-60">Institutional Data</span>
                   </div>
                 </CardContent>
               </Card>

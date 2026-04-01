@@ -32,6 +32,8 @@ import {
   TrendingUp,
   Award
 } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { STAGGER_CONTAINER, STAGGER_ITEM } from '@/lib/premium-motion'
 import { toast } from 'sonner'
 import { useData } from '@/contexts/data-context'
 import { useAuth } from '@/contexts/auth-context'
@@ -89,69 +91,87 @@ export default function ResultsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="font-serif">
+      <motion.div 
+        className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+        variants={STAGGER_CONTAINER}
+        initial="hidden"
+        animate="show"
+      >
+        <motion.div variants={STAGGER_ITEM}>
+          <h1 className="font-serif text-3xl font-normal text-foreground">
             Test Results
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-1 text-editorial-meta opacity-70">
             Track student performance across all test phases
           </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline">
+        </motion.div>
+        <motion.div variants={STAGGER_ITEM} className="flex items-center gap-2">
+          <Button variant="outline" className="hover-lift border-primary/20 bg-card/40 backdrop-blur-md rounded-xl h-11 px-6">
             <Award className="w-4 h-4 mr-2" />
-            Export Grades
+            <span className="text-[10px] uppercase tracking-widest font-normal">Export Grades</span>
           </Button>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription className="flex items-center gap-1">
-              <TrendingUp className="w-3 h-3" /> Average Score
-            </CardDescription>
-            <CardTitle className="text-2xl">{totalAvg > 0 ? `${totalAvg}%` : '--'}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Pending Grading</CardDescription>
-            <CardTitle className="text-2xl text-warning">{pendingCount > 0 ? pendingCount : '--'}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>First Test Avg</CardDescription>
-            <CardTitle className="text-2xl">{firstTestAvg > 0 ? `${firstTestAvg}%` : '--'}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Last Test Avg</CardDescription>
-            <CardTitle className="text-2xl">{lastTestAvg > 0 ? `${lastTestAvg}%` : '--'}</CardTitle>
-          </CardHeader>
-        </Card>
-      </div>
+      <motion.div 
+        className="grid gap-4 md:grid-cols-4"
+        variants={STAGGER_CONTAINER}
+        initial="hidden"
+        animate="show"
+      >
+        <motion.div variants={STAGGER_ITEM}>
+          <Card className="hover-lift transition-premium border-primary/5 bg-card/40 backdrop-blur-md shadow-premium rounded-[1.5rem]">
+            <CardHeader className="pb-2">
+              <CardDescription className="flex items-center gap-2 text-editorial-label text-[10px] uppercase tracking-widest font-normal opacity-60">
+                <TrendingUp className="w-3 h-3" /> Average Score
+              </CardDescription>
+              <CardTitle className="text-3xl font-serif font-normal">{totalAvg > 0 ? `${totalAvg}%` : '--'}</CardTitle>
+            </CardHeader>
+          </Card>
+        </motion.div>
+        <motion.div variants={STAGGER_ITEM}>
+          <Card className="hover-lift transition-premium border-primary/5 bg-card/40 backdrop-blur-md shadow-premium rounded-[1.5rem]">
+            <CardHeader className="pb-2">
+              <CardDescription className="text-editorial-label text-[10px] uppercase tracking-widest font-normal opacity-60">Pending Evaluation</CardDescription>
+              <CardTitle className="text-3xl font-serif font-normal text-warning">{pendingCount > 0 ? pendingCount : '--'}</CardTitle>
+            </CardHeader>
+          </Card>
+        </motion.div>
+        <motion.div variants={STAGGER_ITEM}>
+          <Card className="hover-lift transition-premium border-primary/5 bg-card/40 backdrop-blur-md shadow-premium rounded-[1.5rem]">
+            <CardHeader className="pb-2">
+              <CardDescription className="text-editorial-label text-[10px] uppercase tracking-widest font-normal opacity-60">First Test Avg</CardDescription>
+              <CardTitle className="text-3xl font-serif font-normal">{firstTestAvg > 0 ? `${firstTestAvg}%` : '--'}</CardTitle>
+            </CardHeader>
+          </Card>
+        </motion.div>
+        <motion.div variants={STAGGER_ITEM}>
+          <Card className="hover-lift transition-premium border-primary/5 bg-card/40 backdrop-blur-md shadow-premium rounded-[1.5rem]">
+            <CardHeader className="pb-2">
+              <CardDescription className="text-editorial-label text-[10px] uppercase tracking-widest font-normal opacity-60">Last Test Avg</CardDescription>
+              <CardTitle className="text-3xl font-serif font-normal">{lastTestAvg > 0 ? `${lastTestAvg}%` : '--'}</CardTitle>
+            </CardHeader>
+          </Card>
+        </motion.div>
+      </motion.div>
 
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="relative w-full md:w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/50" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground opacity-40 transition-premium" />
           <Input
-            placeholder="Search by student name..."
+            placeholder="Search student identity..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 bg-background/50 border-primary/10"
+            className="pl-9 h-12 bg-card/40 backdrop-blur-md border-primary/5 rounded-2xl text-sm transition-premium focus:ring-1 focus:ring-primary/20"
           />
         </div>
         <div className="flex items-center gap-3">
           <Select value={classFilter} onValueChange={setClassFilter}>
-            <SelectTrigger className="w-[200px] bg-background/50 border-primary/10">
-              <SelectValue placeholder="All My Classes" />
+            <SelectTrigger className="w-[200px] h-12 bg-card/40 backdrop-blur-md border-primary/5 rounded-2xl text-[10px] uppercase tracking-widest font-normal">
+              <SelectValue placeholder="All Classes" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All My Classes</SelectItem>
+              <SelectItem value="all">All Classes</SelectItem>
               {myCourses.map(course => (
                 <SelectItem key={course.id} value={course.id}>
                   {course.title}
@@ -160,29 +180,29 @@ export default function ResultsPage() {
             </SelectContent>
           </Select>
           <Select value={phaseFilter} onValueChange={setPhaseFilter}>
-            <SelectTrigger className="w-[180px] bg-background/50 border-primary/10">
+            <SelectTrigger className="w-[180px] h-12 bg-card/40 backdrop-blur-md border-primary/5 rounded-2xl text-[10px] uppercase tracking-widest font-normal">
               <SelectValue placeholder="All Phases" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Phases</SelectItem>
-              <SelectItem value="First Test">First Test (Mid)</SelectItem>
-              <SelectItem value="Last Test">Last Test (Final)</SelectItem>
+              <SelectItem value="First Test">Mid-Term</SelectItem>
+              <SelectItem value="Last Test">Final-Term</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
 
-      <Card>
+      <Card className="border-primary/5 shadow-premium rounded-[2.5rem] overflow-hidden bg-card/60 backdrop-blur-xl">
         <CardContent className="p-0">
-          <div className="rounded-xl border border-primary/5 overflow-hidden">
+          <div className="overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="bg-muted/30">
-                  <tr className="border-b border-primary/5">
-                    <th className="px-6 py-4 text-left text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">Student</th>
-                    <th className="px-6 py-4 text-left text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">Class</th>
-                    <th className="px-6 py-4 text-left text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">Test and Phase</th>
-                    <th className="px-6 py-4 text-left text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">Score</th>
+                <thead className="bg-muted/10 border-b border-primary/5 h-16">
+                  <tr className="border-none">
+                    <th className="px-8 py-4 text-left text-[10px] font-normal uppercase tracking-widest text-muted-foreground opacity-60">Student Profile</th>
+                    <th className="px-8 py-4 text-left text-[10px] font-normal uppercase tracking-widest text-muted-foreground opacity-60">Academic Class</th>
+                    <th className="px-8 py-4 text-left text-[10px] font-normal uppercase tracking-widest text-muted-foreground opacity-60">Assessment Phase</th>
+                    <th className="px-8 py-4 text-left text-[10px] font-normal uppercase tracking-widest text-muted-foreground opacity-60">Institutional Score</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-primary/5">
@@ -194,47 +214,47 @@ export default function ResultsPage() {
                     const absoluteScore = result.grade && assessment ? Math.round((result.grade / 100) * assessment.totalMarks) : null
 
                     return (
-                      <tr key={result.id} className="hover:bg-primary/[0.02] transition-colors group cursor-pointer" onClick={() => {
+                      <tr key={result.id} className="hover:bg-primary/[0.02] transition-premium group cursor-pointer h-24" onClick={() => {
                         setSelectedResult(result)
                         setIsGradeOpen(true)
                       }}>
-                        <td className="px-6 py-5">
+                        <td className="px-8 py-5">
                           <div className="flex flex-col">
-                            <span className="font-serif font-bold text-base text-foreground/80 group-hover:text-primary transition-colors">
+                            <span className="font-serif font-normal text-base text-foreground/80 group-hover:text-primary transition-colors">
                               {result.studentName || 'Student Registry'}
                             </span>
-                            <span className="text-[10px] text-muted-foreground/60 font-bold uppercase tracking-tighter">
+                            <span className="text-[10px] text-muted-foreground/60 font-normal uppercase tracking-widest">
                               {result.studentId}
                             </span>
                           </div>
                         </td>
-                        <td className="px-6 py-5">
+                        <td className="px-8 py-5">
                           <div className="flex flex-col">
-                            <span className="font-bold text-sm text-foreground/70">{studentCourse?.title || 'Registry Level'}</span>
-                            <span className="text-[10px] text-muted-foreground/50 tracking-wide font-medium">
+                            <span className="font-normal text-sm text-foreground/70">{studentCourse?.title || 'Registry Level'}</span>
+                            <span className="text-[10px] text-muted-foreground/50 tracking-widest font-normal uppercase">
                               {student?.classTiming || 'Timing TBC'}
                             </span>
                           </div>
                         </td>
-                        <td className="px-6 py-5 space-y-1">
-                          <p className="font-bold text-sm text-foreground/80">{assessment?.title}</p>
-                          <Badge variant="outline" className="text-[9px] h-4 px-1 py-0 uppercase tracking-widest font-bold text-primary/70 border-primary/10 bg-primary/5">
+                        <td className="px-8 py-5 space-y-2">
+                          <p className="font-normal text-sm text-foreground/80">{assessment?.title}</p>
+                          <Badge variant="outline" className="text-[9px] h-5 px-2 py-0 uppercase tracking-widest font-normal text-primary/70 border-primary/10 bg-primary/5">
                             {assessment?.phase}
                           </Badge>
                         </td>
-                        <td className="px-6 py-5">
+                        <td className="px-8 py-5">
                           {absoluteScore !== null ? (
                             <div className="flex flex-col">
-                              <span className="text-base font-bold text-foreground">
-                                {absoluteScore} <span className="text-muted-foreground/40 font-normal">/ {assessment?.totalMarks}</span>
+                              <span className="text-base font-normal text-foreground font-serif">
+                                {absoluteScore} <span className="text-muted-foreground/20 font-sans">/ {assessment?.totalMarks}</span>
                               </span>
-                              <span className="text-[10px] font-bold text-success/70 uppercase tracking-tight">
-                                {result.grade}% Overall
+                              <span className="text-[10px] font-normal text-success/70 uppercase tracking-widest mt-0.5">
+                                {result.grade}% Institutional Rank
                               </span>
                             </div>
                           ) : (
-                            <Badge variant="secondary" className="text-[10px] uppercase font-bold tracking-tight bg-warning/10 text-warning border-warning/20">
-                              Evaluation Pending
+                            <Badge variant="secondary" className="text-[10px] uppercase font-normal tracking-widest bg-warning/5 text-warning border-warning/20 h-6 px-3">
+                              Pending Evaluation
                             </Badge>
                           )}
                         </td>
@@ -256,70 +276,95 @@ export default function ResultsPage() {
       </Card>
 
       <Dialog open={isGradeOpen} onOpenChange={setIsGradeOpen}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle>Evaluate Test</DialogTitle>
-            <DialogDescription>
-              Review the student's randomized answers.
+        <DialogContent className="max-w-2xl border-primary/5 shadow-22xl p-0 overflow-hidden">
+          <DialogHeader className="p-8 bg-muted/5 border-b border-primary/5">
+            <DialogTitle className="font-serif text-2xl font-normal">Institutional Evaluation Audit</DialogTitle>
+            <DialogDescription className="text-editorial-meta text-xs">
+              Reviewing academic block responses and AI audit justifications.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="rounded-lg border bg-muted/50 p-4 space-y-4 max-h-[300px] overflow-y-auto">
-              {selectedResult?.randomizedQuestions?.map((q: any, i: number) => (
-                <div key={q.id} className="space-y-1.5 pb-3 border-b border-border/50 last:border-0">
-                  <p className="text-[10px] font-bold text-primary uppercase tracking-widest">Q{i+1}: {q.category}</p>
-                  <p className="text-xs font-medium text-foreground">{q.content}</p>
-                  <div className="p-2 rounded bg-background border text-xs">
-                    <span className="text-muted-foreground mr-2 font-bold uppercase text-[9px]">Answer:</span>
-                    {selectedResult?.answers?.[q.id] || 'No response provided.'}
+          <div className="p-8 space-y-8">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] uppercase tracking-widest font-normal opacity-40">Examination Record</span>
+                <Badge variant="outline" className="text-[9px] uppercase tracking-widest font-normal h-5 border-primary/10">{selectedResult?.id}</Badge>
+              </div>
+              <div className="rounded-[2rem] border border-primary/5 bg-card/40 p-1 overflow-hidden">
+                <div className="space-y-4 max-h-[40vh] overflow-y-auto p-7 premium-scrollbar">
+                  {selectedResult?.randomizedQuestions?.map((q: any, i: number) => (
+                    <div key={q.id} className="space-y-3 pb-6 border-b border-primary/5 last:border-0 last:pb-0">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-normal text-primary uppercase tracking-widest opacity-60">Taxonomy Block {i+1}: {q.category}</span>
+                        {q.correctAnswer && (
+                          <span className="text-[9px] text-success font-normal uppercase tracking-widest">Key: {q.correctAnswer}</span>
+                        )}
+                      </div>
+                      <p className="text-base font-serif font-normal text-foreground/80 leading-relaxed">{q.content}</p>
+                      <div className="p-4 rounded-2xl bg-muted/20 border border-primary/5 text-sm font-normal">
+                        <span className="text-muted-foreground/40 mr-3 text-[10px] uppercase tracking-widest">Entry:</span>
+                        {selectedResult?.answers?.[q.id] || 'No response captured.'}
+                      </div>
+                    </div>
+                  ))}
+                  
+                  <div className="bg-primary/[0.02] p-6 rounded-[1.5rem] border border-primary/10">
+                    <p className="text-[10px] font-normal text-primary uppercase tracking-widest mb-3 flex items-center gap-2">
+                      <AlertCircle className="w-3.5 h-3.5" /> AI Audit Justification
+                    </p>
+                    <p className="text-sm font-normal italic text-muted-foreground leading-relaxed">
+                      "{selectedResult?.aiJustification || 'No specific audit data available for this legacy registry entry.'}"
+                    </p>
                   </div>
                 </div>
-              ))}
-              
-              <div className="bg-primary/5 p-3 rounded border border-primary/10">
-                <p className="text-[10px] font-bold text-primary uppercase tracking-widest mb-1 flex items-center gap-1">
-                  <AlertCircle className="w-3 h-3" /> AI Audit Justification
-                </p>
-                <p className="text-xs italic text-muted-foreground">
-                  "{selectedResult?.aiJustification || 'No audit data available for this legacy record.'}"
-                </p>
               </div>
             </div>
             
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Override Score (%)</label>
-              <Input 
-                type="number" 
-                placeholder={selectedResult?.grade?.toString()} 
-                value={gradeInput}
-                onChange={(e) => setGradeInput(e.target.value)}
-                max="100" 
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Correction / Feedback</label>
-              <Textarea 
-                placeholder="Adjust feedback for the student..." 
-                value={feedbackInput}
-                onChange={(e) => setFeedbackInput(e.target.value)}
-                rows={3} 
-              />
+            <div className="grid grid-cols-1 md:grid-cols-[150px_1fr] gap-6">
+              <div className="space-y-3">
+                <label className="text-[10px] uppercase tracking-widest font-normal opacity-50">Manual Score (%)</label>
+                <Input 
+                  type="number" 
+                  placeholder={selectedResult?.grade?.toString()} 
+                  value={gradeInput}
+                  onChange={(e) => setGradeInput(e.target.value)}
+                  max="100" 
+                  className="h-12 bg-card border-primary/10 rounded-xl text-lg font-serif"
+                />
+              </div>
+              <div className="space-y-3">
+                <label className="text-[10px] uppercase tracking-widest font-normal opacity-50">Correction / Feedback</label>
+                <Textarea 
+                  placeholder="Record formal feedback for the student registry..." 
+                  value={feedbackInput}
+                  onChange={(e) => setFeedbackInput(e.target.value)}
+                  rows={2} 
+                  className="bg-card border-primary/10 rounded-xl resize-none text-sm p-4 h-12 min-h-12"
+                />
+              </div>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsGradeOpen(false)}>Cancel</Button>
-            <Button onClick={() => {
-              if (selectedResult) {
-                gradeSubmission(
-                  selectedResult.id, 
-                  parseInt(gradeInput) || selectedResult.grade || 0, 
-                  feedbackInput || selectedResult.feedback || ""
-                )
-                setIsGradeOpen(false)
-                setGradeInput('')
-                setFeedbackInput('')
-              }
-            }}>Publish Final Grade</Button>
+          <DialogFooter className="p-8 bg-muted/5 border-t border-primary/5 mt-0 flex flex-col sm:flex-row gap-3">
+            <Button variant="outline" onClick={() => setIsGradeOpen(false)} className="rounded-xl px-6 h-11 border-primary/10">
+              <span className="text-[10px] uppercase tracking-widest font-normal">Cancel</span>
+            </Button>
+            <Button 
+              className="rounded-xl px-6 h-11 shadow-premium bg-primary hover:bg-primary/90"
+              onClick={() => {
+                if (selectedResult) {
+                  gradeSubmission(
+                    selectedResult.id, 
+                    parseInt(gradeInput) || selectedResult.grade || 0, 
+                    feedbackInput || selectedResult.feedback || ""
+                  )
+                  setIsGradeOpen(false)
+                  setGradeInput('')
+                  setFeedbackInput('')
+                  toast.success("Grade Published Successfully")
+                }
+              }}
+            >
+              <span className="text-[10px] uppercase tracking-widest font-normal text-white">Publish Final Grade</span>
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
