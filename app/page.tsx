@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Logo } from '@/components/logo'
+import { ParticleField } from '@/components/particle-field'
 
 const PORTALS = [
   {
@@ -37,7 +38,8 @@ const PORTALS = [
 export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center py-12 px-4 lg:px-8 bg-linear-to-b from-background to-muted/30 relative overflow-hidden">
-      
+      <ParticleField />
+
       {/* Background Ornaments */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
