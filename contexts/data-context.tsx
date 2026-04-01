@@ -16,8 +16,8 @@ import { getQuestions, addQuestion as dbAddQuestion, deleteQuestion as dbDeleteQ
 import { getAssessments, publishAssessment as dbPublishAssessment, removeAssessment as dbRemoveAssessment } from '@/lib/actions/assessments'
 import { getSubmissions, submitTestResult as dbSubmitTestResult, gradeSubmission as dbGradeSubmission } from '@/lib/actions/submissions'
 import { getSchedules, addSchedule as dbAddSchedule, updateSchedule as dbUpdateSchedule, removeSchedule as dbRemoveSchedule } from '@/lib/actions/schedules'
-import { getEconomicStats, addExpenditure as dbAddExpenditure } from '@/lib/actions/economics'
 import { getFeePayments, recordPayment as dbRecordPayment, updateClassFee as dbUpdateClassFee, addFeeAccount as dbAddFeeAccount } from '@/lib/actions/fees'
+import { getInitialData } from '@/lib/actions/get-data'
 
 interface DataContextType {
   teachers: Teacher[]
@@ -95,6 +95,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [schedules, setSchedules] = useState<Schedule[]>([])
   const [questions, setQuestions] = useState<Question[]>([])
   const [assessments, setAssessments] = useState<AssessmentTemplate[]>([])
+  const [enrollments, setEnrollments] = useState<any[]>([])
   const [economics, setEconomics] = useState<any | null>(null)
   const [feePayments, setFeePayments] = useState<any[]>([])
   const [isInitialized, setIsInitialized] = useState(false)
@@ -129,6 +130,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       const sch = await safeFetch(getSchedules, 'schedules', [])
       const econ = await safeFetch(getEconomicStats, 'economics', null)
       const fees = await safeFetch(getFeePayments, 'feePayments', [])
+      const asgn = await safeFetch(getInitialData, 'initialData', { success: true, data: { assignments: [], enrollments: [] } })
 
       startTransition(() => {
         setTeachers(t.map((item: any) => ({ ...item, joinedAt: normalizeDate(item.joinedAt) })) as unknown as Teacher[])
@@ -144,6 +146,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
         setSchedules(sch as unknown as Schedule[])
         setEconomics(econ)
         setFeePayments(fees)
+        
+        // Update assignments and enrollments from the aggregated fetch
+        if (asgn.success && asgn.data) {
+          setAssignments(asgn.data.assignments as Assignment[])
+          setEnrollments(asgn.data.enrollments as any[])
+        }
         
         setIsInitialized(true)
         setIsLoading(false)
@@ -338,7 +346,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       assessments,
       economics,
       feePayments,
-      enrollments: [],
+      enrollments,
       isInitialized,
       isLoading,
       enrollStudent,

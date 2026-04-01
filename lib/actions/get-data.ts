@@ -11,7 +11,8 @@ export async function getInitialData() {
       submissions,
       schedules,
       questions,
-      assessments
+      assessments,
+      assignments
     ] = await Promise.all([
       db.teacher.findMany({ orderBy: { joinedAt: 'desc' } }),
       db.student.findMany({ orderBy: { enrolledAt: 'desc' } }),
@@ -19,8 +20,21 @@ export async function getInitialData() {
       db.submission.findMany({ orderBy: { submittedAt: 'desc' } }),
       db.schedule.findMany({ orderBy: { classTitle: 'asc' } }),
       db.question.findMany({ orderBy: { category: 'asc' } }),
-      db.assessmentTemplate.findMany({ orderBy: { createdAt: 'desc' } })
+      db.assessmentTemplate.findMany({ orderBy: { createdAt: 'desc' } }),
+      db.assignment.findMany({ orderBy: { createdAt: 'desc' } })
     ])
+
+    // Derive enrollments from students' enrolledCourses
+    const enrollments = students.flatMap(s => 
+      (s.enrolledCourses || []).map(courseId => ({
+        id: `${s.id}-${courseId}`,
+        studentId: s.id,
+        studentName: s.name,
+        courseId,
+        progress: s.progress || 0,
+        grade: s.grade || 'N/A'
+      }))
+    )
 
     return {
       success: true,
@@ -32,9 +46,8 @@ export async function getInitialData() {
         schedules,
         questions,
         assessments,
-        // Mock assignments for now as they are derived or separate
-        assignments: [], 
-        enrollments: [], 
+        assignments, 
+        enrollments, 
       }
     }
   } catch (error) {

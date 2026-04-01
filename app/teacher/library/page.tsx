@@ -151,7 +151,7 @@ export default function QuestionLibraryPage() {
             </Button>
           </DialogTrigger>
 
-          <DialogContent className="max-w-lg border-primary/5 shadow-22xl p-0 overflow-hidden">
+          <DialogContent className="max-w-xl border-primary/5 shadow-22xl p-0 overflow-hidden">
             <DialogHeader className="p-8 bg-muted/5 border-b border-primary/5 text-left items-start">
               <DialogTitle className="font-serif text-2xl font-normal">Add to Library</DialogTitle>
               <DialogDescription className="text-editorial-meta text-xs">
@@ -173,7 +173,7 @@ export default function QuestionLibraryPage() {
                         {CATEGORIES.map(c => <SelectItem key={c} value={c} className="text-xs">{c}</SelectItem>)}
                       </SelectContent>
                     </Select>
-                    {errors.category && <p className="text-[10px] text-destructive font-bold mt-0.5">{errors.category.message}</p>}
+                    {errors.category && <p className="text-[10px] text-destructive font-normal uppercase tracking-widest mt-1 opacity-80">{errors.category.message}</p>}
                   </Field>
                   <Field>
                     <FieldLabel className="text-xs">Phase</FieldLabel>

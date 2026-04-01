@@ -175,7 +175,7 @@ export default function AssessmentsPage() {
               </span>
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg border-primary/5 shadow-22xl p-0 overflow-hidden">
+          <DialogContent className="max-w-xl border-primary/5 shadow-22xl p-0 overflow-hidden">
             <DialogHeader className="p-8 bg-muted/5 border-b border-primary/5">
               <DialogTitle className="font-serif text-2xl font-normal">Generate New Test</DialogTitle>
               <DialogDescription className="text-editorial-meta text-xs">
@@ -188,7 +188,7 @@ export default function AssessmentsPage() {
                 <Field>
                   <FieldLabel>Test Title</FieldLabel>
                   <Input {...register('title')} placeholder="e.g. Mid-term Assessment" />
-                  {errors.title && <p className="text-[10px] text-destructive font-bold uppercase mt-1">{errors.title.message}</p>}
+                  {errors.title && <p className="text-[10px] text-destructive font-normal uppercase tracking-widest mt-1 opacity-80">{errors.title.message}</p>}
                 </Field>
                 <Field>
                   <FieldLabel>Test Phase</FieldLabel>

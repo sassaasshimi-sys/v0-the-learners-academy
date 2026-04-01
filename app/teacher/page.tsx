@@ -152,94 +152,121 @@ export default function TeacherDashboard() {
       {/* Main Content Grid */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Active Assessments */}
-        <Card className="border-none shadow-sm ring-1 ring-border">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle className="font-serif">Active Assessments</CardTitle>
-              <CardDescription>Track ongoing test participation</CardDescription>
-            </div>
-            <Button variant="ghost" size="sm" asChild className="text-primary hover:text-primary hover:bg-primary/5">
-              <Link href="/teacher/assessments">
-                View All
-                <ArrowRight className="w-4 h-4 ml-1" />
-              </Link>
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {activeTests.slice(0, 3).map((assignment) => (
-              <div key={assignment.id} className="p-4 rounded-xl border border-primary/5 hover:bg-muted/30 transition-premium group curso-pointer hover:shadow-sm">
-                <div className="flex items-start justify-between mb-2">
-                  <div>
-                    <p className="font-serif font-bold text-base group-hover:text-primary transition-colors">{assignment.title}</p>
-                    <p className="text-editorial-label text-[9px] mt-0.5 opacity-60">{assignment.courseName}</p>
-                  </div>
-                  <Badge variant="outline" className="text-[9px] tracking-[0.15em] uppercase font-bold text-success border-success/20 bg-success/5">
-                    Live
-                  </Badge>
-                </div>
-                <div className="space-y-2 mt-4">
-                  <div className="flex items-center justify-between text-[9px] text-muted-foreground uppercase tracking-[0.1em] font-bold opacity-70">
-                    <span>Registry Capture</span>
-                    <span>{assignment.submissionsCount}/{assignment.totalStudents}</span>
-                  </div>
-                  <Progress value={(assignment.submissionsCount / assignment.totalStudents) * 100} className="h-1" />
-                </div>
+        <motion.div variants={STAGGER_ITEM}>
+          <Card className="hover-lift transition-premium border-primary/5 bg-card/40 backdrop-blur-md shadow-premium rounded-[2rem] h-full flex flex-col overflow-hidden">
+            <CardHeader className="flex flex-row items-center justify-between p-6 pb-2">
+              <div>
+                <CardTitle className="font-serif text-2xl font-normal">Active Assessments</CardTitle>
+                <CardDescription className="text-editorial-meta opacity-60">Track ongoing test participation</CardDescription>
               </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        {/* Test Performance */}
-        <Card className="border-none shadow-sm ring-1 ring-border">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle className="font-serif text-lg">Class Performance</CardTitle>
-              <CardDescription>Overall student progress</CardDescription>
-            </div>
-            <TrendingUp className="w-5 h-5 text-primary" />
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-4">
-              {myCourses.map((course) => {
-                const courseEnrollments = enrollments.filter((e: any) => e.courseId === course.id)
-                const avgProgress = courseEnrollments.length > 0
-                  ? Math.round(courseEnrollments.reduce((acc: number, e: any) => acc + e.progress, 0) / courseEnrollments.length)
-                  : 0
-
-                return (
-                  <div key={course.id} className="space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="font-medium">{course.title}</span>
-                      <span className="text-muted-foreground">Avg. {avgProgress}%</span>
+              <Button variant="ghost" size="sm" asChild className="text-primary hover:bg-primary/10 rounded-xl transition-premium group">
+                <Link href="/teacher/assessments" className="flex items-center text-[10px] uppercase tracking-widest font-normal">
+                  View Registry
+                  <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </Button>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4 flex-1">
+              {activeTests.length === 0 ? (
+                <div className="py-8 text-center bg-muted/5 rounded-2xl border border-dashed border-primary/10">
+                  <p className="text-[10px] uppercase tracking-widest font-normal text-muted-foreground opacity-60">No Live Encounters</p>
+                </div>
+              ) : (
+                activeTests.slice(0, 3).map((assignment) => (
+                  <div key={assignment.id} className="p-4 rounded-2xl bg-muted/10 border border-primary/5 hover:bg-muted/20 transition-premium group cursor-pointer hover:shadow-premium">
+                    <div className="flex items-start justify-between mb-2">
+                      <div>
+                        <p className="font-serif text-lg font-normal group-hover:text-primary transition-colors">{assignment.title}</p>
+                        <p className="text-editorial-meta text-[10px] mt-0.5 opacity-60 uppercase tracking-widest">{assignment.courseName}</p>
+                      </div>
+                      <Badge variant="outline" className="text-[9px] tracking-widest uppercase font-normal text-primary border-primary/20 bg-primary/5">
+                        Registry Active
+                      </Badge>
                     </div>
-                    <Progress value={avgProgress} className="h-2" />
+                    <div className="space-y-2 mt-4">
+                      <div className="flex items-center justify-between text-[10px] text-muted-foreground uppercase tracking-widest font-normal opacity-60">
+                        <span>Capture Census</span>
+                        <span>{assignment.submissionsCount}/{assignment.totalStudents}</span>
+                      </div>
+                      <Progress value={(assignment.submissionsCount / (assignment.totalStudents || 1)) * 100} className="h-1 bg-primary/10 data-[state=checked]:bg-primary" />
+                    </div>
                   </div>
-                )
-              })}
-            </div>
-          </CardContent>
-        </Card>
+                ))
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Class Performance */}
+        <motion.div variants={STAGGER_ITEM}>
+          <Card className="hover-lift transition-premium border-primary/5 bg-card/40 backdrop-blur-md shadow-premium rounded-[2rem] h-full flex flex-col overflow-hidden">
+            <CardHeader className="flex flex-row items-center justify-between p-6 pb-2">
+              <div>
+                <CardTitle className="font-serif text-2xl font-normal">Class Performance</CardTitle>
+                <CardDescription className="text-editorial-meta opacity-60">Success metrics & average tracking</CardDescription>
+              </div>
+              <TrendingUp className="w-5 h-5 text-primary opacity-40" />
+            </CardHeader>
+            <CardContent className="p-6 space-y-6 flex-1">
+            {myCourses.length === 0 ? (
+                <div className="py-8 text-center bg-muted/5 rounded-2xl border border-dashed border-primary/10">
+                  <p className="text-[10px] uppercase tracking-widest font-normal text-muted-foreground opacity-60">No Academic Records</p>
+                </div>
+              ) : (
+                myCourses.map((course) => {
+                  const courseEnrollments = enrollments.filter((e: any) => e.courseId === course.id)
+                  const avgProgress = courseEnrollments.length > 0
+                    ? Math.round(courseEnrollments.reduce((acc: number, e: any) => acc + e.progress, 0) / courseEnrollments.length)
+                    : 0
+
+                  return (
+                    <div key={course.id} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-serif text-base font-normal">{course.title}</span>
+                        <span className="text-[10px] uppercase tracking-widest font-normal text-primary">Avg. {avgProgress}%</span>
+                      </div>
+                      <Progress value={avgProgress} className="h-1 bg-primary/10" />
+                    </div>
+                  )
+                })
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
 
       {/* Assessment Phases */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card className="border-l-4 border-l-primary/40">
-          <CardHeader>
-            <CardTitle className="text-sm font-bold uppercase tracking-widest text-primary">First Test Phase</CardTitle>
-            <CardContent className="p-0 pt-2">
-              <p className="text-sm text-muted-foreground">"Pulling 12 questions from Grammar, Reading, and Vocab for the current term's mid-assessments."</p>
-            </CardContent>
-          </CardHeader>
-        </Card>
-        <Card className="border-l-4 border-l-accent/40">
-          <CardHeader>
-            <CardTitle className="text-sm font-bold uppercase tracking-widest text-accent">Last Test Phase</CardTitle>
-            <CardContent className="p-0 pt-2">
-              <p className="text-sm text-muted-foreground">"Comprehensive final assessment encompassing all four skills and grammar fundamentals."</p>
-            </CardContent>
-          </CardHeader>
-        </Card>
-      </div>
+      <motion.div 
+        className="grid gap-6 md:grid-cols-2"
+        variants={STAGGER_CONTAINER}
+        initial="hidden"
+        animate="show"
+      >
+        <motion.div variants={STAGGER_ITEM}>
+          <Card className="hover-lift border-l-4 border-l-primary/40 bg-card/40 backdrop-blur-md border-primary/5 shadow-premium rounded-[1.5rem] overflow-hidden">
+            <CardHeader className="p-6">
+              <CardTitle className="text-[10px] font-normal uppercase tracking-widest text-primary mb-2">First Test Phase</CardTitle>
+              <CardContent className="p-0">
+                <p className="text-xs text-muted-foreground leading-relaxed opacity-70">
+                  Targeted registry block consisting of 12 queries filtered from core disciplines for mid-term academic vetting.
+                </p>
+              </CardContent>
+            </CardHeader>
+          </Card>
+        </motion.div>
+        <motion.div variants={STAGGER_ITEM}>
+          <Card className="hover-lift border-l-4 border-l-accent/40 bg-card/40 backdrop-blur-md border-primary/5 shadow-premium rounded-[1.5rem] overflow-hidden">
+            <CardHeader className="p-6">
+              <CardTitle className="text-[10px] font-normal uppercase tracking-widest text-accent mb-2">Last Test Phase</CardTitle>
+              <CardContent className="p-0">
+                <p className="text-xs text-muted-foreground leading-relaxed opacity-70">
+                  Summative evaluation registry encompassing comprehensive curriculum goals and advanced performance benchmarks.
+                </p>
+              </CardContent>
+            </CardHeader>
+          </Card>
+        </motion.div>
+      </motion.div>
     </div>
   )
 }
