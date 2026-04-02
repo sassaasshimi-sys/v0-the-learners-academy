@@ -639,15 +639,15 @@ export default function TeachersPage() {
                 </div>
               </div>
 
-              {/* Content Grid */}
-              <div className="p-8 space-y-8 -mt-6 bg-background rounded-t-[2.5rem] relative z-20 flex-1 overflow-y-auto">
+              {/* Content Grid Area - Scrolling only on content, header is fixed */}
+              <div className="flex-1 overflow-y-auto px-8 pb-8 -mt-4 bg-background rounded-t-[2.5rem] relative z-20 space-y-8 pt-4">
                 <div className="grid gap-8 md:grid-cols-2">
                   <div className="space-y-4">
                     <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-normal">Institutional Payload</p>
                     <div className="space-y-3">
                       <div className="flex items-center gap-3 text-sm p-3 bg-muted/20 rounded-xl">
                         <Mail className="w-4 h-4 text-primary opacity-60" />
-                        <span className="font-normal opacity-80">{selectedTeacher.email}</span>
+                        <span className="font-normal opacity-80 whitespace-nowrap overflow-hidden text-ellipsis">{selectedTeacher.email}</span>
                       </div>
                       <div className="flex items-center gap-3 text-sm p-3 bg-muted/20 rounded-xl">
                         <Phone className="w-4 h-4 text-primary opacity-60" />
@@ -670,20 +670,20 @@ export default function TeachersPage() {
 
                 <div className="pt-8 border-t border-border/50">
                   <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-normal mb-6">Performance Metrics</p>
-                  <div className="grid gap-4 grid-cols-3">
-                    <div className="bg-muted/10 p-6 rounded-2xl text-center shadow-inner-premium">
-                      <p className="text-4xl font-serif font-normal text-primary leading-none mb-2">{selectedTeacher.coursesCount}</p>
-                      <p className="text-[9px] uppercase tracking-[0.2em] opacity-40">Active Batches</p>
+                  <div className="grid gap-3 grid-cols-3">
+                    <div className="bg-muted/10 p-5 rounded-2xl text-center shadow-inner-premium flex flex-col justify-center">
+                      <p className="text-3xl font-serif font-normal text-primary leading-none mb-2">{selectedTeacher.coursesCount}</p>
+                      <p className="text-[8px] uppercase tracking-[0.2em] opacity-40">Active Batches</p>
                     </div>
-                    <div className="bg-muted/10 p-6 rounded-2xl text-center shadow-inner-premium">
-                      <p className="text-4xl font-serif font-normal text-primary leading-none mb-2">{selectedTeacher.studentsCount}</p>
-                      <p className="text-[9px] uppercase tracking-[0.2em] opacity-40">Enrolled Pupils</p>
+                    <div className="bg-muted/10 p-5 rounded-2xl text-center shadow-inner-premium flex flex-col justify-center">
+                      <p className="text-3xl font-serif font-normal text-primary leading-none mb-2">{selectedTeacher.studentsCount}</p>
+                      <p className="text-[8px] uppercase tracking-[0.2em] opacity-40">Enrolled Pupils</p>
                     </div>
-                    <div className="bg-muted/10 p-6 rounded-2xl text-center shadow-inner-premium">
-                      <p className="text-xl font-serif font-normal mt-3 leading-none mb-2">
+                    <div className="bg-muted/10 p-5 rounded-2xl text-center shadow-inner-premium flex flex-col justify-center items-center">
+                      <p className="text-base font-serif font-normal leading-none mb-2 uppercase">
                         {new Date(selectedTeacher.joinedAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
                       </p>
-                      <p className="text-[9px] uppercase tracking-[0.2em] opacity-40">Registration</p>
+                      <p className="text-[8px] uppercase tracking-[0.2em] opacity-40">Registration</p>
                     </div>
                   </div>
                 </div>
@@ -703,8 +703,8 @@ export default function TeachersPage() {
             </DialogDescription>
           </DialogHeader>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-6 overflow-y-auto flex-1 h-full pr-1">
-            <div className="space-y-6 md:col-span-1">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 py-6 overflow-y-auto flex-1 h-full pr-1 px-1">
+            <div className="space-y-6 md:col-span-4 flex flex-col">
               <Card className="bg-primary/5 border border-primary/10 shadow-inner-premium rounded-[2rem] overflow-hidden">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-normal text-muted-foreground uppercase tracking-widest flex items-center gap-2">
@@ -716,8 +716,8 @@ export default function TeachersPage() {
                   <div className="space-y-2">
                     <label className="text-[10px] uppercase tracking-widest text-muted-foreground">Compensation Model</label>
                     <Select value={compensationModel} onValueChange={(val: any) => setCompensationModel(val)}>
-                      <SelectTrigger className="h-10 bg-background/50 text-xs">
-                        <SelectValue />
+                      <SelectTrigger className="h-10 bg-background/50 text-xs w-full px-4 overflow-hidden">
+                        <SelectValue placeholder="Select model" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="fixed">Fixed Rate (Per Head)</SelectItem>
@@ -737,29 +737,27 @@ export default function TeachersPage() {
                   </div>
                   <div className="pt-4 mt-2 border-t border-primary/10">
                     <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Generated Payout</p>
-                    <p className="text-3xl font-serif text-primary tracking-tight font-normal">Rs. {computedSalary.toLocaleString()}</p>
-                    <p className="text-[9px] text-muted-foreground mt-1 leading-normal">
-                      *Calculated exclusively from {paidCount} students marked as fully or partially paid.
+                    <p className="text-2xl font-serif text-primary tracking-tight font-normal">Rs. {computedSalary.toLocaleString()}</p>
+                    <p className="text-[8px] text-muted-foreground mt-1 leading-normal opacity-70">
+                      *Refined from {paidCount} paid students.
                     </p>
                   </div>
                 </CardContent>
               </Card>
               
-              <div className="grid grid-cols-2 gap-2">
-                <div className="bg-success/5 border border-success/20 rounded-2xl p-4 text-center text-success">
-                  <CheckCircle className="w-5 h-5 mx-auto mb-1 opacity-70" />
-                  <p className="font-serif text-2xl">{paidCount}</p>
-                  <p className="text-[9px] uppercase tracking-widest">Paid Students</p>
+              <div className="grid grid-cols-2 gap-3 mt-auto">
+                <div className="bg-success/5 border border-success/20 rounded-2xl p-4 text-center text-success flex flex-col justify-center">
+                  <p className="font-serif text-2xl leading-none mb-1">{paidCount}</p>
+                  <p className="text-[8px] uppercase tracking-widest opacity-60">Paid Students</p>
                 </div>
-                <div className="bg-destructive/5 border border-destructive/20 rounded-2xl p-4 text-center text-destructive">
-                  <Clock className="w-5 h-5 mx-auto mb-1 opacity-70" />
-                  <p className="font-serif text-2xl">{unpaidCount}</p>
-                  <p className="text-[9px] uppercase tracking-widest">Unpaid & Due</p>
+                <div className="bg-destructive/5 border border-destructive/20 rounded-2xl p-4 text-center text-destructive flex flex-col justify-center">
+                  <p className="font-serif text-2xl leading-none mb-1">{unpaidCount}</p>
+                  <p className="text-[8px] uppercase tracking-widest opacity-60">Unpaid & Due</p>
                 </div>
               </div>
             </div>
 
-            <div className="md:col-span-2 bg-background/50 rounded-[2rem] border border-border/50 overflow-hidden flex flex-col h-full min-h-[400px] max-h-[70vh]">
+            <div className="md:col-span-8 bg-background/50 rounded-[2rem] border border-border/50 overflow-hidden flex flex-col h-full min-h-[400px]">
               <div className="p-4 bg-muted/20 border-b border-border/50 flex items-center justify-between sticky top-0">
                 <h4 className="font-normal uppercase tracking-widest text-xs">Assigned Batch Ledger</h4>
                 <Badge variant="outline" className="text-[10px] font-normal tracking-wider">Total: {roster.length} Students</Badge>
@@ -818,55 +816,57 @@ export default function TeachersPage() {
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleEditTeacher}>
-            <div className="flex gap-6 items-start py-4 px-1">
-              <div className="pt-2">
-                <Avatar className="h-16 w-16 ring-2 ring-primary/10 transition-premium shadow-lg">
-                  <AvatarFallback className="bg-primary/5 text-primary/40 font-serif">
-                    {selectedTeacher?.name.split(' ').map(n => n[0]).join('') || <User className="h-8 w-8" />}
-                  </AvatarFallback>
-                </Avatar>
+            <div className="max-h-[60vh] overflow-y-auto px-1">
+              <div className="flex gap-6 items-start py-4">
+                <div className="pt-2">
+                  <Avatar className="h-16 w-16 ring-2 ring-primary/10 transition-premium shadow-lg">
+                    <AvatarFallback className="bg-primary/5 text-primary/40 font-serif">
+                      {selectedTeacher?.name.split(' ').map(n => n[0]).join('') || <User className="h-8 w-8" />}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
+                <FieldGroup className="flex-1 space-y-3">
+                  <Field>
+                    <FieldLabel className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5 h-auto">Legal Identity</FieldLabel>
+                    <Input name="name" defaultValue={selectedTeacher?.name} required className="bg-background/50 h-10" placeholder="Full name as per registry" />
+                  </Field>
+                  <div className="grid grid-cols-2 gap-4">
+                    <Field>
+                      <FieldLabel className="text-[9px] uppercase tracking-widest text-muted-foreground mb-1 h-auto">Employee ID</FieldLabel>
+                      <Input name="employeeId" defaultValue={selectedTeacher?.employeeId} required className="bg-background/50 h-10 font-mono" />
+                    </Field>
+                    <Field>
+                      <FieldLabel className="text-[9px] uppercase tracking-widest text-muted-foreground mb-1 h-auto">Portal Access</FieldLabel>
+                      <SecureInput name="password" placeholder="••••••••" className="bg-background/50 h-10" />
+                    </Field>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <Field>
+                      <FieldLabel className="text-[9px] uppercase tracking-widest text-muted-foreground mb-1 h-auto">Registry Contact</FieldLabel>
+                      <Input name="phone" defaultValue={selectedTeacher?.phone} required className="bg-background/50 h-10" />
+                    </Field>
+                    <Field>
+                      <FieldLabel className="text-[9px] uppercase tracking-widest text-muted-foreground mb-1 h-auto">Institutional Mail</FieldLabel>
+                      <Input name="email" type="email" defaultValue={selectedTeacher?.email} required className="bg-background/50 h-10 text-[11px]" />
+                    </Field>
+                  </div>
+                  <Field>
+                    <FieldLabel className="text-[9px] uppercase tracking-widest text-muted-foreground mb-1 h-auto">Current Batch Level</FieldLabel>
+                    <Select name="assignedClass" defaultValue={selectedTeacher?.assignedClass || ''}>
+                      <SelectTrigger className="h-10 bg-background/50 font-normal">
+                        <SelectValue placeholder="No level assigned" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CLASS_LEVELS.map(level => (
+                          <SelectItem key={level} value={level}>{level}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                </FieldGroup>
               </div>
-              <FieldGroup className="flex-1 space-y-3">
-                <Field>
-                  <FieldLabel className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5 h-auto">Legal Identity</FieldLabel>
-                  <Input name="name" defaultValue={selectedTeacher?.name} required className="bg-background/50 h-10" placeholder="Full name as per registry" />
-                </Field>
-                <div className="grid grid-cols-2 gap-4">
-                  <Field>
-                    <FieldLabel className="text-[9px] uppercase tracking-widest text-muted-foreground mb-1 h-auto">Employee ID</FieldLabel>
-                    <Input name="employeeId" defaultValue={selectedTeacher?.employeeId} required className="bg-background/50 h-10 font-mono" />
-                  </Field>
-                  <Field>
-                    <FieldLabel className="text-[9px] uppercase tracking-widest text-muted-foreground mb-1 h-auto">Portal Access</FieldLabel>
-                    <SecureInput name="password" placeholder="••••••••" className="bg-background/50 h-10" />
-                  </Field>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <Field>
-                    <FieldLabel className="text-[9px] uppercase tracking-widest text-muted-foreground mb-1 h-auto">Registry Contact</FieldLabel>
-                    <Input name="phone" defaultValue={selectedTeacher?.phone} required className="bg-background/50 h-10" />
-                  </Field>
-                  <Field>
-                    <FieldLabel className="text-[9px] uppercase tracking-widest text-muted-foreground mb-1 h-auto">Institutional Mail</FieldLabel>
-                    <Input name="email" type="email" defaultValue={selectedTeacher?.email} required className="bg-background/50 h-10 text-[11px]" />
-                  </Field>
-                </div>
-                <Field>
-                  <FieldLabel className="text-[9px] uppercase tracking-widest text-muted-foreground mb-1 h-auto">Current Batch Level</FieldLabel>
-                  <Select name="assignedClass" defaultValue={selectedTeacher?.assignedClass || ''}>
-                    <SelectTrigger className="h-10 bg-background/50 font-normal">
-                      <SelectValue placeholder="No level assigned" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {CLASS_LEVELS.map(level => (
-                        <SelectItem key={level} value={level}>{level}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </Field>
-              </FieldGroup>
             </div>
-            <DialogFooter className="pt-2 mt-4 border-t border-border/50 pt-4">
+            <DialogFooter className="pt-2 mt-4 border-t border-border/50 pt-4 flex-shrink-0">
               <Button type="button" variant="ghost" onClick={() => setIsEditDialogOpen(false)} className="text-muted-foreground hover:text-foreground h-11 px-8 text-xs uppercase tracking-widest">
                 Cancel
               </Button>
