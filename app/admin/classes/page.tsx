@@ -108,7 +108,6 @@ export default function ClassesPage() {
     const teacher = teachers.find(t => t.id === teacherId)
     
     const newCourse: Course = {
-      id: `class-${Date.now()}`,
       title: formData.get('title') as string,
       description: 'Institutional English Class',
       level: 'beginner',

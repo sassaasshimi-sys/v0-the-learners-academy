@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import { SecureInput } from '@/components/ui/secure-input'
 import {
   Table,
   TableBody,
@@ -67,6 +68,7 @@ const studentSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   guardianName: z.string().min(2, 'Guardian name must be at least 2 characters'),
   studentId: z.string().min(3, 'Student ID must be at least 3 characters'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
   phone: z.string().min(5, 'Enter a valid phone number'),
   course: z.string().min(1, 'Please select a class'),
   timing: z.string().min(1, 'Please select a timing'),
@@ -138,12 +140,12 @@ export default function StudentsPage() {
 
   const onEnrollSubmit = async (data: StudentFormValues) => {
     const newStudent: Student = {
-      id: `student-${Date.now()}`,
       studentId: data.studentId,
       name: data.name,
       email: `${data.studentId.toLowerCase()}@learnersacademy.com`, 
       phone: data.phone,
       guardianName: data.guardianName,
+      password: data.password,
       enrolledCourses: [data.course],
       classTiming: data.timing,
       status: 'active',
@@ -264,11 +266,17 @@ export default function StudentsPage() {
                     {enrollForm.formState.errors.studentId && <p className="text-[10px] text-destructive font-normal uppercase mt-1">{enrollForm.formState.errors.studentId.message}</p>}
                   </Field>
                   <Field>
-                    <FieldLabel className="text-editorial-label">Phone Number</FieldLabel>
-                    <Input {...enrollForm.register('phone')} placeholder="+1 (555) 000-0000" className="bg-background/50 h-10" />
-                    {enrollForm.formState.errors.phone && <p className="text-[10px] text-destructive font-normal uppercase mt-1">{enrollForm.formState.errors.phone.message}</p>}
+                    <FieldLabel className="text-editorial-label">Portal Password</FieldLabel>
+                    <SecureInput {...enrollForm.register('password')} placeholder="••••••••" className="bg-background/50 h-10" />
+                    {enrollForm.formState.errors.password && <p className="text-[10px] text-destructive font-normal uppercase mt-1">{enrollForm.formState.errors.password.message}</p>}
                   </Field>
                 </div>
+
+                <Field>
+                  <FieldLabel className="text-editorial-label">Phone Number</FieldLabel>
+                  <Input {...enrollForm.register('phone')} placeholder="+1 (555) 000-0000" className="bg-background/50 h-10" />
+                  {enrollForm.formState.errors.phone && <p className="text-[10px] text-destructive font-normal uppercase mt-1">{enrollForm.formState.errors.phone.message}</p>}
+                </Field>
 
                 <div className="grid grid-cols-2 gap-4">
                   <Field>

@@ -32,6 +32,7 @@ export interface Student {
   progress: number
   grade?: string
   classTiming?: string
+  password?: string
 }
 
 export interface Course {

@@ -70,7 +70,6 @@ export default function SchedulePage() {
     const slot = ACADEMY_SLOTS.find(s => s.id === slotId)
     
     const newSchedule: Schedule = {
-      id: `sch-${Date.now()}`,
       classTitle: formData.get('className') as string,
       teacherName: formData.get('teacherName') as string,
       timing: slot?.time || 'Timing TBC',

@@ -105,7 +105,6 @@ export default function TeachersPage() {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
     const newTeacher: Teacher = {
-      id: `teacher-${Date.now()}`,
       name: formData.get('name') as string,
       email: (formData.get('email') as string).toLowerCase().trim(),
       phone: formData.get('phone') as string,
