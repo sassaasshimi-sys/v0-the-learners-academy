@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -36,6 +37,7 @@ import {
   ClipboardList,
   Edit,
   Trash2,
+  Library,
   FileText,
   Clock,
   ArrowRight,
@@ -79,6 +81,7 @@ const assessmentSchema = z.object({
 type AssessmentFormValues = z.infer<typeof assessmentSchema>
 
 export default function AssessmentsPage() {
+  const router = useRouter()
   const { user } = useAuth()
   const { 
     assessments, 
@@ -187,31 +190,47 @@ export default function AssessmentsPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-normal text-foreground">
-            Assessments
-          </h1>
-          <p className="text-muted-foreground mt-1 text-editorial-meta opacity-70">
-            Generate and manage exam papers for your terms
-          </p>
+      <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between px-2">
+        <div className="space-y-1">
+          <div className="flex items-center gap-4">
+             <div className="p-3 bg-primary/10 rounded-2xl border border-primary/20">
+                <FileText className="w-6 h-6 text-primary" />
+             </div>
+             <div>
+                <h1 className="text-4xl font-serif font-normal text-foreground leading-none">Examination Registry</h1>
+                <p className="mt-2 text-muted-foreground text-editorial-meta opacity-70">
+                    Audit and generate academic assessments for individual term cycles.
+                </p>
+             </div>
+          </div>
         </div>
-        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-          <DialogTrigger asChild>
-            <Button className="hover-lift shadow-premium rounded-xl h-11 px-6">
-              <Plus className="w-4 h-4 mr-2" />
-              <span className="text-[10px] uppercase tracking-widest font-normal">
-                {requiresReview ? 'Submit for Review' : 'Generate Test'}
-              </span>
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-xl">
-            <DialogHeader className="bg-muted/5 border-b border-primary/5">
-              <DialogTitle className="text-2xl font-normal">Generate New Test</DialogTitle>
-              <DialogDescription className="text-editorial-meta text-xs">
-                The system will automatically select questions from your Library block.
-              </DialogDescription>
-            </DialogHeader>
+
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="outline" 
+            onClick={() => router.push('/teacher/assessments/library')}
+            className="h-14 px-8 rounded-2xl border-primary/5 bg-card/60 backdrop-blur-md shadow-premium hover:bg-primary/5 transition-premium group"
+          >
+             <Library className="w-5 h-5 mr-3 text-primary group-hover:scale-110 transition-transform" />
+             <span className="text-[10px] uppercase tracking-widest font-bold">Access Design Library</span>
+          </Button>
+
+          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+            <DialogTrigger asChild>
+              <Button className="h-14 px-8 rounded-2xl bg-primary text-white shadow-premium hover:shadow-massive hover-lift transition-premium">
+                <Plus className="w-5 h-5 mr-3" />
+                <span className="text-[10px] uppercase tracking-widest font-bold">
+                  {requiresReview ? 'Submit for Review' : 'Generate New Test'}
+                </span>
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-xl">
+              <DialogHeader className="bg-muted/5 border-b border-primary/5 pb-6">
+                <DialogTitle className="text-3xl font-serif font-normal">Generate Examination</DialogTitle>
+                <DialogDescription className="text-editorial-meta text-xs">
+                  LA-Intelligence will automatically assemble this paper using blocks from your design library.
+                </DialogDescription>
+              </DialogHeader>
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="max-h-[min(600px,60vh)] overflow-y-auto space-y-4 premium-scrollbar">
                 <FieldGroup className="space-y-4">
