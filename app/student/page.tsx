@@ -19,6 +19,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Shield, Lock, GraduationCap, ArrowRight, CheckCircle2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useData } from '@/contexts/data-context'
+import { validateAccessToken } from '@/lib/actions/assessments'
 
 const CLASSES = [
   'Pre-Foundation', 'Foundation One', 'Foundation Two', 'Foundation Three',
@@ -57,22 +58,19 @@ export default function StudentAccessPage() {
   const handleAccess = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsVerifying(true)
-    const { validateAccessTokenAction } = require('@/lib/actions/student-actions')
-    
     const formData = new FormData(e.currentTarget)
     const tokenId = formData.get('accessToken') as string
     const studentId = formData.get('studentId') as string
     const selectedClass = formData.get('class') as string
 
     try {
-      // 1. Perform Secure Server-Side Validation vs live Neon DB
-      const result = await validateAccessTokenAction(tokenId, studentId, selectedClass)
+      const result = await validateAccessToken(tokenId, studentId, selectedClass)
       
-      if (!result.success || !result.data) {
-        toast.error(result.error || "Verification failed")
-        setIsVerifying(false)
-        return
-      }
+    if (!result.success || !result.data) {
+      toast.error(result.error || "Verification failed")
+      setIsVerifying(false)
+      return
+    }
 
       const { assessment, student: studentRecord } = result.data
 

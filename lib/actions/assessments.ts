@@ -86,3 +86,44 @@ export async function removeAssessment(id: string) {
   revalidatePath('/')
   return result
 }
+
+export async function validateAccessToken(token: string, studentId: string, className: string) {
+  try {
+    const assessment = await db.assessmentTemplate.findFirst({
+      where: { 
+        accessCode: token,
+        classLevels: { has: className },
+        status: 'active' 
+      }
+    })
+    
+    if (!assessment) {
+      return { 
+        success: false, 
+        error: 'Invalid or Inactive Token for this class. Please wait for your instructor to open the assessment.' 
+      }
+    }
+
+    const student = await db.student.findFirst({
+      where: { 
+        studentId: studentId,
+        status: 'active'
+      }
+    })
+
+    if (!student) {
+      return {
+        success: false,
+        error: `Academic ID "${studentId}" not found in institutional records.`
+      }
+    }
+
+    return { 
+      success: true, 
+      data: { assessment, student }
+    }
+  } catch (error) {
+    console.error('Failed to validate access token:', error)
+    return { success: false, error: error instanceof Error ? error.message : 'Database error' }
+  }
+}
