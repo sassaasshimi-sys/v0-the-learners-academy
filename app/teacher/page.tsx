@@ -28,22 +28,26 @@ export default function TeacherDashboard() {
   const { user } = useAuth()
   const { 
     courses, 
-    assignments, 
+    assessments, 
     submissions,
     questions,
-    enrollments,
+    students,
     isInitialized
   } = useData()
   
   const myCourses = courses.filter(c => c.teacherId === user?.id)
-  const myCourseIds = myCourses.map(c => c.id)
+  const myCourseTitles = myCourses.map(c => c.title)
  
-  const pendingSubmissions = submissions.filter(s => 
-    s.status === 'pending' && 
-    assignments.find(a => a.id === s.assignmentId && myCourseIds.includes(a.courseId))
+  const activeTests = assessments.filter(a => 
+    a.status === 'active' && 
+    (a.submittedByTeacherId === user?.id || (a.classLevels || []).some(level => myCourseTitles.includes(level)))
   )
- 
-  const activeTests = assignments.filter(a => a.status === 'active' && myCourseIds.includes(a.courseId))
+
+  const pendingSubmissions = submissions.filter(s => {
+    if (s.status !== 'pending') return false
+    const match = assessments.find(a => a.id === s.assignmentId)
+    return match && (match.submittedByTeacherId === user?.id || (match.classLevels || []).some(level => myCourseTitles.includes(level)))
+  })
  
   const stats = [
     {
@@ -172,26 +176,38 @@ export default function TeacherDashboard() {
                   <p className="text-[10px] uppercase tracking-widest font-normal text-muted-foreground opacity-60">No Live Encounters</p>
                 </div>
               ) : (
-                activeTests.slice(0, 3).map((assignment) => (
-                  <div key={assignment.id} className="p-4 rounded-2xl bg-muted/10 border border-primary/5 hover:bg-muted/20 transition-premium group cursor-pointer hover:shadow-premium">
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <p className="font-sans text-lg font-normal group-hover:text-primary transition-colors">{assignment.title}</p>
-                        <p className="text-editorial-meta text-[10px] mt-0.5 opacity-60 uppercase tracking-widest">{assignment.courseName}</p>
+                activeTests.slice(0, 3).map((assessment) => {
+                  const subCount = submissions.filter(s => s.assignmentId === assessment.id).length
+                  const enrolledCount = students.filter(s =>
+                    (s.enrolledCourses || []).some(cId =>
+                      myCourses.some(mc => mc.id === cId && (assessment.classLevels || []).includes(mc.title))
+                    )
+                  ).length
+                  const safeTotal = enrolledCount > 0 ? enrolledCount : 1
+
+                  return (
+                    <div key={assessment.id} className="p-4 rounded-2xl bg-muted/10 border border-primary/5 hover:bg-muted/20 transition-premium group cursor-pointer hover:shadow-premium">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <p className="font-sans text-lg font-normal group-hover:text-primary transition-colors">{assessment.title}</p>
+                          <p className="text-editorial-meta text-[10px] mt-0.5 opacity-60 uppercase tracking-widest">
+                            {(assessment.classLevels || []).join(', ') || assessment.nature}
+                          </p>
+                        </div>
+                        <Badge variant="outline" className="text-[9px] tracking-widest uppercase font-normal text-primary border-primary/20 bg-primary/5">
+                          Registry Active
+                        </Badge>
                       </div>
-                      <Badge variant="outline" className="text-[9px] tracking-widest uppercase font-normal text-primary border-primary/20 bg-primary/5">
-                        Registry Active
-                      </Badge>
-                    </div>
-                    <div className="space-y-2 mt-4">
-                      <div className="flex items-center justify-between text-[10px] text-muted-foreground uppercase tracking-widest font-normal opacity-60">
-                        <span>Capture Census</span>
-                        <span>{assignment.submissionsCount}/{assignment.totalStudents}</span>
+                      <div className="space-y-2 mt-4">
+                        <div className="flex items-center justify-between text-[10px] text-muted-foreground uppercase tracking-widest font-normal opacity-60">
+                          <span>Capture Census</span>
+                          <span>{subCount}/{enrolledCount}</span>
+                        </div>
+                        <Progress value={Math.min(100, (subCount / safeTotal) * 100)} className="h-1 bg-primary/10 data-[state=checked]:bg-primary" />
                       </div>
-                      <Progress value={(assignment.submissionsCount / (assignment.totalStudents || 1)) * 100} className="h-1 bg-primary/10 data-[state=checked]:bg-primary" />
                     </div>
-                  </div>
-                ))
+                  )
+                })
               )}
             </CardContent>
           </Card>
@@ -214,10 +230,27 @@ export default function TeacherDashboard() {
                 </div>
               ) : (
                 myCourses.map((course) => {
-                  const courseEnrollments = enrollments.filter((e: any) => e.courseId === course.id)
-                  const avgProgress = courseEnrollments.length > 0
-                    ? Math.round(courseEnrollments.reduce((acc: number, e: any) => acc + e.progress, 0) / courseEnrollments.length)
-                    : 0
+                  const courseStudents = students.filter(s => (s.enrolledCourses || []).includes(course.id))
+                  const courseStudentIds = courseStudents.map(s => s.id)
+                  
+                  const courseResults = submissions.filter(s => 
+                    s.grade !== undefined && s.grade !== null &&
+                    courseStudentIds.includes(s.studentId)
+                  )
+
+                  let avgProgress = 0
+                  if (courseResults.length > 0) {
+                    let totalPercentage = 0
+                    courseResults.forEach((r) => {
+                      const template = assessments.find(a => a.id === r.assignmentId)
+                      if (template && (template.totalMarks || 0) > 0) {
+                        totalPercentage += (r.grade! / template.totalMarks) * 100
+                      } else {
+                        totalPercentage += r.grade!
+                      }
+                    })
+                    avgProgress = Math.round(totalPercentage / courseResults.length)
+                  }
 
                   return (
                     <div key={course.id} className="space-y-2">
