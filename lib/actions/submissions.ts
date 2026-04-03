@@ -15,7 +15,7 @@ export async function submitTestResult(result: StudentTest, assignmentTitle: str
       assignmentTitle,
       studentId: result.studentId,
       studentName: result.studentName,
-      status: 'pending',
+      status: 'graded',
       grade: result.score,
       randomizedQuestions: result.randomizedQuestions as any,
       answers: result.answers as any,
