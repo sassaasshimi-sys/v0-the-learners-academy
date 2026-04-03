@@ -59,6 +59,7 @@ import {
 } from 'lucide-react'
 import { useData } from '@/contexts/data-context'
 import { cn } from '@/lib/utils'
+import { ACADEMY_LEVELS, SESSION_TIMINGS } from '@/lib/registry'
 import type { Student } from '@/lib/types'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -76,39 +77,8 @@ const studentSchema = z.object({
 
 type StudentFormValues = z.infer<typeof studentSchema>
 
-const ACADEMY_CLASSES = [
-  'Pre-Foundation',
-  'Foundation One',
-  'Foundation Two',
-  'Foundation Three',
-  'Beginners',
-  'Level One',
-  'Level Two',
-  'Level Three',
-  'Level Four',
-  'Level Five',
-  'Level Six',
-  'Level Advanced',
-  'Professional Advanced',
-  'Speaking Class',
-  'Grammar Speaking Class',
-  'IELTS Preparation Course'
-]
-
-const CLASS_TIMINGS = [
-  '09:00 AM - 10:00 AM',
-  '10:00 AM - 11:00 AM',
-  '11:00 AM - 12:00 PM',
-  '12:00 PM - 01:00 PM',
-  '01:00 PM - 02:00 PM',
-  '02:00 PM - 03:00 PM',
-  '03:00 PM - 04:00 PM',
-  '04:00 PM - 05:00 PM',
-  '05:00 PM - 06:00 PM',
-  '06:00 PM - 07:00 PM',
-  '07:00 PM - 08:00 PM',
-  '08:00 PM - 09:00 PM'
-]
+const ACADEMY_CLASSES = ACADEMY_LEVELS
+const CLASS_TIMINGS = SESSION_TIMINGS
 
 export default function StudentsPage() {
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)

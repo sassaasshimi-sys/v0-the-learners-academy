@@ -73,6 +73,7 @@ import {
 } from 'recharts'
 import { useData } from '@/contexts/data-context'
 import { STAGGER_CONTAINER, STAGGER_ITEM } from '@/lib/premium-motion'
+import { EXPENDITURE_CATEGORIES } from '@/lib/registry'
 import { format } from 'date-fns'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
@@ -251,7 +252,7 @@ export default function EconomicsPage() {
                       <SelectValue placeholder="Select classification..." />
                     </SelectTrigger>
                     <SelectContent className="rounded-2xl border-primary/5 p-1.5 focus:bg-card">
-                      {['Salaries', 'Supplies', 'Marketing', 'Infrastructure', 'Utilities', 'Other'].map(cat => (
+                      {EXPENDITURE_CATEGORIES.map(cat => (
                         <SelectItem key={cat} value={cat} className="rounded-xl py-3 cursor-pointer">{cat}</SelectItem>
                       ))}
                     </SelectContent>

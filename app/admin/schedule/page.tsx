@@ -33,23 +33,11 @@ import {
   Edit,
 } from 'lucide-react'
 import { useData } from '@/contexts/data-context'
+import { ACADEMY_LEVELS, SCHEDULE_SLOTS } from '@/lib/registry'
 import type { Schedule } from '@/lib/types'
 
-const CLASS_LEVELS = [
-  'Pre-Foundation', 'Foundation One', 'Foundation Two', 'Foundation Three',
-  'Beginners', 'Level One', 'Level Two', 'Level Three', 'Level Four', 'Level Five', 'Level Six',
-  'Level Advanced', 'Professional Advanced',
-  'Speaking Class', 'Grammar Speaking Class', 'IELTS Preparation Course'
-]
-
-const ACADEMY_SLOTS = [
-  { id: 'S-01', time: '03:00 PM - 04:00 PM' },
-  { id: 'S-02', time: '04:00 PM - 05:00 PM' },
-  { id: 'S-03', time: '05:00 PM - 06:00 PM' },
-  { id: 'S-04', time: '06:00 PM - 07:00 PM' },
-  { id: 'S-05', time: '07:00 PM - 08:00 PM' },
-  { id: 'S-06', time: '08:00 PM - 09:00 PM' },
-]
+const CLASS_LEVELS = ACADEMY_LEVELS
+const ACADEMY_SLOTS = SCHEDULE_SLOTS
 
 export default function SchedulePage() {
   const { schedules, teachers, addSchedule, removeSchedule, updateSchedule } = useData()

@@ -57,32 +57,11 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useData } from '@/contexts/data-context'
+import { ACADEMY_LEVELS, SESSION_TIMINGS } from '@/lib/registry'
 import type { Course } from '@/lib/types'
 
-const CLASS_LEVELS = [
-  'Pre-Foundation',
-  'Foundation One',
-  'Foundation Two',
-  'Foundation Three',
-  'Beginners',
-  'Level One',
-  'Level Two',
-  'Level Three',
-  'Level Four',
-  'Level Five',
-  'Level Six',
-  'Level Advanced',
-  'Professional Advanced',
-  'Speaking Class',
-  'Grammar Speaking Class',
-  'IELTS Preparation Course'
-]
-
-const CLASS_TIMES = [
-  '8:00 AM', '9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
-  '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM',
-  '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM'
-]
+const CLASS_LEVELS = ACADEMY_LEVELS
+const CLASS_TIMES = SESSION_TIMINGS
 
 export default function ClassesPage() {
   const { courses, teachers, addCourse, removeCourse, updateCourseStatus, updateCourse } = useData()

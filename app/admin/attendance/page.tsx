@@ -59,6 +59,7 @@ import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { useData } from '@/contexts/data-context'
 import { STAGGER_CONTAINER, STAGGER_ITEM } from '@/lib/premium-motion'
+import { ACADEMY_LEVELS, SESSION_TIMINGS } from '@/lib/registry'
 import { markAttendance, getTeacherAttendance, addAttendanceEvent } from '@/lib/actions/attendance'
 import { toast } from 'sonner'
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isToday, isWeekend, startOfWeek, endOfWeek, addWeeks, subWeeks, isSameDay } from 'date-fns'
@@ -71,19 +72,8 @@ import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterv
   - Institutional Professionalism
 */
 
-const ACADEMY_CLASSES = [
-  "Pre-Foundation", "Foundation One", "Foundation Two", "Foundation Three",
-  "Beginners", "Level One", "Level Two", "Level Three", "Level Four", "Level Five", "Level Six",
-  "Level Advanced", "Professional Advanced",
-  "Speaking Class", "Grammar Speaking Class", "IELTS Preparation Course"
-]
-
-const CLASS_TIMINGS = [
-  "08:00 AM - 09:00 AM", "09:00 AM - 10:00 AM", "10:00 AM - 11:00 AM", "11:00 AM - 12:00 PM",
-  "12:00 PM - 01:00 PM", "01:00 PM - 02:00 PM", "02:00 PM - 03:00 PM", "03:00 PM - 04:00 PM",
-  "04:00 PM - 05:00 PM", "05:00 PM - 06:00 PM", "06:00 PM - 07:00 PM", "07:00 PM - 08:00 PM",
-  "08:00 PM - 09:00 PM", "09:00 PM - 10:00 PM"
-]
+const ACADEMY_CLASSES = ACADEMY_LEVELS
+const CLASS_TIMINGS = SESSION_TIMINGS
 
 export default function AttendancePage() {
   const { teachers } = useData()
