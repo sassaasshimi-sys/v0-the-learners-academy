@@ -144,6 +144,7 @@ export interface AssessmentTemplate {
   classLevels: string[]
   nature: 'MCQ' | 'Subjective' | 'Mixed' | 'True/False' | 'Fill in the Blanks' | 'Writing' | 'Matching' | 'Reading' | 'Listening'
   totalMarks: number
+  markAllocation?: Record<string, number>
   durationMinutes: number
   questionCount: number
   createdAt: string

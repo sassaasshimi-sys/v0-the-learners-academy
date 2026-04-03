@@ -177,6 +177,7 @@ model AssessmentTemplate {
   classLevels            String[]
   nature                 String
   totalMarks             Int
+  markAllocation         Json?
   durationMinutes        Int
   createdAt              DateTime @default(now())
   status                 String   @default("active")

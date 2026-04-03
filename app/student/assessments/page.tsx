@@ -150,25 +150,36 @@ export default function StudentAssessmentsPage() {
   const finishTest = async (isAuto = false) => {
     setIsEvaluating(true)
 
-    const totalScorable = randomizedQuestions.length
-    const pointsPerQuestion = totalScorable > 0 ? (activeTest?.totalMarks || 100) / totalScorable : 0
     let totalScore = 0
 
     // 1. Auto-graded questions evaluation
     const autoGraded = randomizedQuestions.filter(q => (AUTO_GRADED_TYPES as readonly string[]).includes(q.type))
     const aiGraded   = randomizedQuestions.filter(q => (AI_GRADED_TYPES as readonly string[]).includes(q.type))
 
+    const getPointsForQuestion = (qType: string) => {
+      const allocationMap = activeTest?.markAllocation as Record<string, number> | undefined
+      if (allocationMap) {
+        const categoryTotalMarks = Number(allocationMap[qType]) || 0
+        const categoryQuestionsCount = randomizedQuestions.filter(rq => rq.type === qType).length
+        return categoryQuestionsCount > 0 ? categoryTotalMarks / categoryQuestionsCount : 0
+      }
+      // Fallback
+      const totalScorable = randomizedQuestions.length
+      return totalScorable > 0 ? (activeTest?.totalMarks || 100) / totalScorable : 0
+    }
+
     autoGraded.forEach(q => {
+      const points = getPointsForQuestion(q.type)
       if (q.type === 'Matching') {
         try {
           const studentPairs = JSON.parse(answers[q.id] || '{}')
           const allCorrect = (q.matchPairs || []).every(p => studentPairs[p.left] === p.right)
-          if (allCorrect) totalScore += pointsPerQuestion
+          if (allCorrect) totalScore += points
         } catch {}
       } else if (q.type === 'Fill in the Blanks') {
-        if (answers[q.id]?.toLowerCase().trim() === q.correctAnswer?.toLowerCase().trim()) totalScore += pointsPerQuestion
+        if (answers[q.id]?.toLowerCase().trim() === q.correctAnswer?.toLowerCase().trim()) totalScore += points
       } else {
-        if (answers[q.id] === q.correctAnswer) totalScore += pointsPerQuestion
+        if (answers[q.id] === q.correctAnswer) totalScore += points
       }
     })
 
@@ -179,20 +190,22 @@ export default function StudentAssessmentsPage() {
     let aiFeedbackChain = ""
     let aiJustificationChain = ""
 
-    audits.forEach(audit => {
-      totalScore += (audit.score * pointsPerQuestion)
+    audits.forEach((audit, index) => {
+      const q = aiGraded[index]
+      const points = getPointsForQuestion(q.type)
+      totalScore += (audit.score * points)
       aiFeedbackChain += audit.feedback + " "
       aiJustificationChain += audit.justification + " "
     })
 
-    const finalPercentage = Math.round(totalScore)
+    const finalCalculatedScore = Math.round(totalScore)
     
     // 3. Final State Update & Persistance
     setAiAuditResults({
       feedback: aiFeedbackChain || "Assessment complete. All questions were auto-graded.",
       justification: aiJustificationChain || "All criteria met.",
     })
-    setFinalScore(finalPercentage)
+    setFinalScore(finalCalculatedScore)
 
     // Stop evaluating and show results instantly
     setIsEvaluating(false)
@@ -213,7 +226,7 @@ export default function StudentAssessmentsPage() {
         status: 'Completed',
         randomizedQuestions,
         answers,
-        score: finalPercentage,
+        score: finalCalculatedScore,
         feedback: aiFeedbackChain,
       }).catch(console.error)
     }
@@ -522,7 +535,7 @@ export default function StudentAssessmentsPage() {
                   </div>
                   <div className="grid grid-cols-3 gap-3">
                     {[
-                      { label: 'Score', value: `${finalScore}%`, color: 'text-success' },
+                      { label: 'Score', value: `${finalScore} / ${activeTest?.totalMarks || 100}`, color: 'text-success' },
                       { label: 'Status', value: 'Completed', color: '' },
                       { label: 'Questions', value: String(randomizedQuestions.length), color: '' },
                     ].map(stat => (

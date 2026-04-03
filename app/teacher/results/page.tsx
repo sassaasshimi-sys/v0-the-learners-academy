@@ -59,8 +59,7 @@ export default function ResultsPage() {
     const assessment = assessments.find(a => a.id === result.assignmentId)
 
     // Check if this submission belongs to one of the teacher's assessments
-    // (assessment classLevels stores course titles, so we match against myCourses titles)
-    const isMyAssessment = assessment?.classLevels.some(level =>
+    const isMyAssessment = assessment?.submittedByTeacherId === user?.id || assessment?.classLevels.some(level =>
       myCourses.some(c => c.title === level)
     )
     if (!isMyAssessment) return false
@@ -77,7 +76,7 @@ export default function ResultsPage() {
   // Dynamic Statistics
   const allTeacherResults = submissions.filter(result => {
     const assessment = assessments.find(a => a.id === result.assignmentId)
-    return assessment?.classLevels.some(level => myCourses.some(c => c.title === level))
+    return assessment?.submittedByTeacherId === user?.id || assessment?.classLevels.some(level => myCourses.some(c => c.title === level))
   })
 
   // Pending Grading
@@ -85,13 +84,19 @@ export default function ResultsPage() {
   
   // Averages
   const gradedResults = allTeacherResults.filter(r => r.grade !== undefined && r.grade !== null) as (typeof allTeacherResults[0] & { grade: number })[]
-  const totalAvg = gradedResults.length > 0 ? Math.round(gradedResults.reduce((acc, r) => acc + r.grade, 0) / gradedResults.length) : 0
+  
+  const getPercentage = (r: typeof gradedResults[0]) => {
+    const a = assessments.find(a => a.id === r.assignmentId)
+    return a?.totalMarks ? Math.round((r.grade / a.totalMarks) * 100) : r.grade
+  }
+
+  const totalAvg = gradedResults.length > 0 ? Math.round(gradedResults.reduce((acc, r) => acc + getPercentage(r), 0) / gradedResults.length) : 0
 
   const firstTestResults = gradedResults.filter(r => assessments.find(a => a.id === r.assignmentId)?.phase === 'First Test')
-  const firstTestAvg = firstTestResults.length > 0 ? Math.round(firstTestResults.reduce((acc, r) => acc + r.grade, 0) / firstTestResults.length) : 0
+  const firstTestAvg = firstTestResults.length > 0 ? Math.round(firstTestResults.reduce((acc, r) => acc + getPercentage(r), 0) / firstTestResults.length) : 0
 
   const lastTestResults = gradedResults.filter(r => assessments.find(a => a.id === r.assignmentId)?.phase === 'Last Test')
-  const lastTestAvg = lastTestResults.length > 0 ? Math.round(lastTestResults.reduce((acc, r) => acc + r.grade, 0) / lastTestResults.length) : 0
+  const lastTestAvg = lastTestResults.length > 0 ? Math.round(lastTestResults.reduce((acc, r) => acc + getPercentage(r), 0) / lastTestResults.length) : 0
 
   return (
     <div className="space-y-6">
@@ -215,7 +220,9 @@ export default function ResultsPage() {
                     const assessment = assessments.find(a => a.id === result.assignmentId)
                     const studentCourse = myCourses.find(c => student?.enrolledCourses.includes(c.id))
                     
-                    const absoluteScore = result.grade && assessment ? Math.round((result.grade / 100) * assessment.totalMarks) : null
+                    const percent = (result.grade !== undefined && result.grade !== null) && assessment?.totalMarks 
+                      ? Math.round((result.grade / assessment.totalMarks) * 100) 
+                      : 0
 
                     return (
                       <tr key={result.id} className="hover:bg-primary/[0.02] transition-premium group cursor-pointer h-24" onClick={() => {
@@ -247,13 +254,13 @@ export default function ResultsPage() {
                           </Badge>
                         </td>
                         <td className="px-8 py-5">
-                          {absoluteScore !== null ? (
+                          {result.grade !== undefined && result.grade !== null ? (
                             <div className="flex flex-col">
                               <span className="text-base font-normal text-foreground font-sans">
-                                {absoluteScore} <span className="text-muted-foreground/20 font-sans">/ {assessment?.totalMarks}</span>
+                                {Math.round(result.grade)} <span className="text-muted-foreground/20 font-sans">/ {assessment?.totalMarks}</span>
                               </span>
                               <span className="text-[10px] font-normal text-success/70 uppercase tracking-widest mt-0.5">
-                                {result.grade}% Institutional Rank
+                                {percent}% Institutional Rank
                               </span>
                             </div>
                           ) : (

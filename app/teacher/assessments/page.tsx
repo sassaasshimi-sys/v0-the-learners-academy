@@ -62,6 +62,16 @@ const assessmentSchema = z.object({
   classLevel: z.string().min(1, 'Please select a class'),
   nature: z.enum(['MCQ', 'Subjective', 'Mixed', 'True/False', 'Fill in the Blanks', 'Writing', 'Matching', 'Reading', 'Listening']),
   totalMarks: z.coerce.number().min(1, 'Marks must be positive'),
+  markAllocation: z.object({
+    MCQ: z.coerce.number().min(0).default(0),
+    Subjective: z.coerce.number().min(0).default(0),
+    'True/False': z.coerce.number().min(0).default(0),
+    'Fill in the Blanks': z.coerce.number().min(0).default(0),
+    Writing: z.coerce.number().min(0).default(0),
+    Matching: z.coerce.number().min(0).default(0),
+    Reading: z.coerce.number().min(0).default(0),
+    Listening: z.coerce.number().min(0).default(0),
+  }).optional(),
   duration: z.coerce.number().min(1, 'Duration must be positive'),
   questionCount: z.coerce.number().min(1, 'Count must be at least 1').max(50, 'Max 50 questions'),
   accessCode: z.string().min(5, 'Access code is required').regex(/^[A-Z0-9-]+$/, 'Letters, numbers, and hyphens only'),
@@ -93,6 +103,7 @@ export default function AssessmentsPage() {
     handleSubmit,
     setValue,
     reset,
+    watch,
     formState: { errors, isSubmitting }
   } = useForm<AssessmentFormValues>({
     resolver: zodResolver(assessmentSchema),
@@ -102,8 +113,25 @@ export default function AssessmentsPage() {
       duration: 60,
       questionCount: 15,
       accessCode: generateSecureToken(),
+      markAllocation: {
+        MCQ: 0, Subjective: 0, 'True/False': 0, 'Fill in the Blanks': 0,
+        Writing: 0, Matching: 0, Reading: 0, Listening: 0
+      }
     }
   })
+
+  const watchNature = watch('nature');
+  const watchAlloc = watch('markAllocation');
+
+  // Auto-calculate total marks dynamically without user directly editing it if nature is specified
+  const computedTotal = (() => {
+    if (!watchAlloc) return 0;
+    if (watchNature === 'Mixed') {
+      return Object.values(watchAlloc).reduce((a, b) => (Number(a) || 0) + (Number(b) || 0), 0);
+    } else {
+      return Number(watchAlloc[watchNature as keyof typeof watchAlloc]) || 0;
+    }
+  })();
 
   const myClasses = mockCourses.filter(c => c.teacherId === user?.id)
 
@@ -124,7 +152,8 @@ export default function AssessmentsPage() {
       phase: data.phase,
       classLevels: [data.classLevel],
       nature: data.nature,
-      totalMarks: data.totalMarks,
+      totalMarks: computedTotal > 0 ? computedTotal : data.totalMarks,
+      markAllocation: data.markAllocation,
       durationMinutes: data.duration,
       questionCount: data.questionCount,
       createdAt: new Date().toISOString(),
@@ -244,11 +273,40 @@ export default function AssessmentsPage() {
                       {errors.questionCount && <p className="text-[10px] text-destructive font-normal uppercase tracking-widest mt-1 opacity-80">{errors.questionCount.message}</p>}
                     </Field>
                     <Field>
-                      <FieldLabel className="text-xs">Total Marks</FieldLabel>
-                      <Input {...register('totalMarks', { valueAsNumber: true })} type="number" className="h-9" />
-                      {errors.totalMarks && <p className="text-[10px] text-destructive font-normal uppercase tracking-widest mt-1 opacity-80">{errors.totalMarks.message}</p>}
+                      <FieldLabel className="text-xs">Auto-Calculated Total</FieldLabel>
+                      <div className="h-9 w-full rounded-md border border-input bg-muted/30 px-3 py-2 text-sm font-medium flex items-center justify-between shadow-inner">
+                        <span>{computedTotal}</span>
+                        <span className="text-[10px] uppercase text-muted-foreground opacity-60">Marks</span>
+                      </div>
+                      <input type="hidden" {...register('totalMarks', { valueAsNumber: true })} value={computedTotal} />
                     </Field>
                   </div>
+
+                  {/* Granular Mark Allocation Block */}
+                  <div className="rounded-xl border border-primary/10 bg-muted/10 p-4 space-y-3">
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-primary/60" />
+                      <h4 className="text-xs font-semibold uppercase tracking-widest">Mark Allocation Breakdown</h4>
+                    </div>
+                    {watchNature === 'Mixed' ? (
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-card p-3 rounded-lg shadow-sm border border-border/50">
+                        {['MCQ', 'Subjective', 'True/False', 'Fill in the Blanks', 'Writing', 'Matching', 'Reading', 'Listening'].map(type => (
+                          <div key={type} className="flex flex-col gap-1.5">
+                            <label className="text-[9px] uppercase tracking-widest font-bold text-muted-foreground truncate" title={type}>{type}</label>
+                            <Input {...register(`markAllocation.${type}` as any, { valueAsNumber: true })} type="number" min="0" className="h-8 text-xs font-medium" placeholder="0" />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-card p-3 rounded-lg shadow-sm border border-border/50">
+                        <div className="flex flex-col gap-1.5 col-span-2">
+                          <label className="text-[9px] uppercase tracking-widest font-bold text-muted-foreground">{watchNature} Marks</label>
+                          <Input {...register(`markAllocation.${watchNature}` as any, { valueAsNumber: true })} type="number" min="0" className="h-8 text-sm font-medium" placeholder={`Enter marks for ${watchNature}`} />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
                   
                   <Field>
                     <FieldLabel className="text-xs">Duration (Mins)</FieldLabel>
