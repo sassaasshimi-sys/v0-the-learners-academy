@@ -49,7 +49,6 @@ import {
 import { useAuth } from '@/contexts/auth-context'
 import { useData } from '@/contexts/data-context'
 import { generateSecureToken } from '@/lib/utils'
-import { toggleAssessmentStatusAction } from '@/lib/actions/teacher-actions'
 import { AssessmentSkeleton } from '@/components/dashboard-skeleton'
 import type { AssessmentTemplate } from '@/lib/types'
 import { useForm } from 'react-hook-form'
@@ -94,7 +93,6 @@ export default function AssessmentsPage() {
   // Find current teacher's requiresReview flag
   const currentTeacher = teachers.find(t => t.id === user?.id)
   const requiresReview = !!currentTeacher?.requiresReview
-  // toggleAssessmentStatusAction is imported at the top of the file
   const [searchQuery, setSearchQuery] = useState('')
   const [isCreateOpen, setIsCreateOpen] = useState(false)
 
@@ -389,7 +387,6 @@ export default function AssessmentsPage() {
               <motion.div
                 key={assessment.id}
                 variants={STAGGER_ITEM}
-                whileTap={{ scale: 0.98 }}
                 layout
               >
                 <Card className="hover-lift overflow-hidden border-primary/5 bg-card/40 backdrop-blur-md shadow-premium rounded-[2rem] h-full flex flex-col">
@@ -404,7 +401,10 @@ export default function AssessmentsPage() {
                       variant="ghost" 
                       size="icon" 
                       className="h-9 w-9 text-destructive hover:bg-destructive/10 hover:text-destructive rounded-xl transition-premium opacity-40 hover:opacity-100"
-                      onClick={() => handleDelete(assessment.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(assessment.id);
+                      }}
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
@@ -443,16 +443,12 @@ export default function AssessmentsPage() {
                               <span className="text-[9px] uppercase tracking-widest font-bold text-primary">Live</span>
                               <Switch 
                                 checked={true}
-                                onCheckedChange={async (checked) => {
+                                onCheckedChange={(checked) => {
                                   const newStatus = checked ? 'active' : 'archived'
+                                  toast.success(`Exam ${checked ? 'Activated' : 'Stopped'}`)
                                   publishAssessment({ ...assessment, status: newStatus as any })
-                                  const res = await toggleAssessmentStatusAction(assessment.id, newStatus)
-                                  if (res.success) {
-                                    toast.success(`Exam ${checked ? 'Activated' : 'Stopped'}`)
-                                  } else {
-                                    toast.error("Failed to update status")
-                                  }
                                 }}
+                                onClick={(e) => e.stopPropagation()}
                                 className="scale-75 data-[state=checked]:bg-primary"
                               />
                             </div>
@@ -462,16 +458,12 @@ export default function AssessmentsPage() {
                               <span className="text-[9px] uppercase tracking-widest font-bold text-muted-foreground">Stopped</span>
                               <Switch 
                                 checked={false}
-                                onCheckedChange={async (checked) => {
+                                onCheckedChange={(checked) => {
                                   const newStatus = checked ? 'active' : 'archived'
+                                  toast.success(`Exam ${checked ? 'Activated' : 'Stopped'}`)
                                   publishAssessment({ ...assessment, status: newStatus as any })
-                                  const res = await toggleAssessmentStatusAction(assessment.id, newStatus)
-                                  if (res.success) {
-                                    toast.success(`Exam ${checked ? 'Activated' : 'Stopped'}`)
-                                  } else {
-                                    toast.error("Failed to update status")
-                                  }
                                 }}
+                                onClick={(e) => e.stopPropagation()}
                                 className="scale-75 data-[state=checked]:bg-primary"
                               />
                             </div>
@@ -525,7 +517,14 @@ export default function AssessmentsPage() {
                       )}
                     
                     <div className="pt-2">
-                      <Button variant="outline" className="w-full group rounded-xl h-10 border-primary/10 hover:bg-primary/5 hover:text-primary transition-premium font-semibold">
+                      <Button 
+                        variant="outline" 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toast.info('Exam Preview Module is currently in beta. Coming soon!');
+                        }}
+                        className="w-full group rounded-xl h-10 border-primary/10 hover:bg-primary/5 hover:text-primary transition-premium font-semibold"
+                      >
                         Review Exam Paper
                         <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
                       </Button>
