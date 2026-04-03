@@ -46,7 +46,7 @@ import type { Course } from '@/lib/types'
 
 export default function TeacherClassesPage() {
   const { user } = useAuth()
-  const { courses: mockCourses, students: mockStudents, assignments: mockAssignments, enrollments: mockEnrollments } = useData()
+  const { courses: mockCourses, students: mockStudents, assessments: mockAssessments, submissions: mockSubmissions, enrollments: mockEnrollments } = useData()
   const myCourses = mockCourses.filter(c => c.teacherId === user?.id)
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null)
   const [isDetailOpen, setIsDetailOpen] = useState(false)
@@ -105,7 +105,7 @@ export default function TeacherClassesPage() {
           <CardHeader className="pb-2">
             <CardDescription className="text-editorial-label text-[10px] uppercase tracking-widest font-normal opacity-60">Total Enrolled Students</CardDescription>
             <CardTitle className="text-3xl font-sans font-normal">
-              {myCourses.reduce((acc, c) => acc + c.enrolled, 0)}
+              {mockStudents.filter(s => (s.enrolledCourses || []).some(courseId => myCourses.some(mc => mc.id === courseId))).length}
             </CardTitle>
           </CardHeader>
         </Card>
@@ -240,8 +240,10 @@ export default function TeacherClassesPage() {
                         <Users className="w-3 h-3 text-muted-foreground" />
                         <span className="text-[10px] uppercase tracking-widest font-normal opacity-60">Enrollment</span>
                       </div>
-                      <p className="text-2xl font-sans font-normal">{selectedCourse.enrolled}/{selectedCourse.capacity}</p>
-                      <Progress value={(selectedCourse.enrolled / selectedCourse.capacity) * 100} className="h-1 mt-3" />
+                      <p className="text-2xl font-sans font-normal">
+                        {mockStudents.filter(s => (s.enrolledCourses || []).includes(selectedCourse.id)).length}/{selectedCourse.capacity}
+                      </p>
+                      <Progress value={(mockStudents.filter(s => (s.enrolledCourses || []).includes(selectedCourse.id)).length / (selectedCourse.capacity || 1)) * 100} className="h-1 mt-3" />
                     </div>
                     <div className="p-6 rounded-2xl border border-primary/5 bg-card/40">
                       <div className="flex items-center gap-2 mb-2">
@@ -303,38 +305,44 @@ export default function TeacherClassesPage() {
 
                 <TabsContent value="assessments" className="mt-0">
                   <div className="space-y-3">
-                    {mockAssignments.filter(a => a.courseId === selectedCourse.id).map((assignment) => (
-                      <div key={assignment.id} className="p-5 rounded-2xl border border-primary/5 bg-card/40 hover:bg-muted/30 transition-premium group">
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-lg bg-primary/5 text-primary">
-                              <ClipboardList className="w-4 h-4" />
+                    {mockAssessments.filter(a => (a.classLevels || []).includes(selectedCourse.title)).map((assessment) => {
+                      const totalSubmissions = mockSubmissions.filter(s => s.assignmentId === assessment.id).length;
+                      const rosterCount = mockStudents.filter(s => (s.enrolledCourses || []).includes(selectedCourse.id)).length;
+                      const safeTotal = rosterCount > 0 ? rosterCount : 1;
+
+                      return (
+                        <div key={assessment.id} className="p-5 rounded-2xl border border-primary/5 bg-card/40 hover:bg-muted/30 transition-premium group">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 rounded-lg bg-primary/5 text-primary">
+                                <ClipboardList className="w-4 h-4" />
+                              </div>
+                              <div>
+                                <p className="font-sans font-normal text-lg group-hover:text-primary transition-colors">{assessment.title}</p>
+                                <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-normal opacity-50">Phase: {assessment.phase}</p>
+                              </div>
                             </div>
-                            <div>
-                              <p className="font-sans font-normal text-lg group-hover:text-primary transition-colors">{assignment.title}</p>
-                              <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-normal opacity-50">Due: {new Date(assignment.dueDate).toLocaleDateString()}</p>
+                            <Badge 
+                              variant={assessment.status === 'active' ? 'default' : 'secondary'}
+                              className={`text-[9px] uppercase tracking-widest font-normal h-5 ${assessment.status === 'active' ? 'bg-success hover:bg-success/90' : ''}`}
+                            >
+                              {assessment.status}
+                            </Badge>
+                          </div>
+                          <p className="text-editorial-meta text-sm opacity-70 mb-5">{assessment.nature} Assessment</p>
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between text-[9px] uppercase tracking-widest font-normal opacity-50">
+                              <span>Capture Status</span>
+                              <span>{totalSubmissions}/{rosterCount} Registry Entries</span>
                             </div>
+                            <Progress 
+                              value={(totalSubmissions / safeTotal) * 100} 
+                              className="h-1 shadow-sm" 
+                            />
                           </div>
-                          <Badge 
-                            variant={assignment.status === 'active' ? 'default' : 'secondary'}
-                            className={`text-[9px] uppercase tracking-widest font-normal h-5 ${assignment.status === 'active' ? 'bg-success hover:bg-success/90' : ''}`}
-                          >
-                            {assignment.status}
-                          </Badge>
                         </div>
-                        <p className="text-editorial-meta text-sm opacity-70 mb-5">{assignment.description}</p>
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between text-[9px] uppercase tracking-widest font-normal opacity-50">
-                            <span>Capture Status</span>
-                            <span>{assignment.submissionsCount}/{assignment.totalStudents} Registry Entries</span>
-                          </div>
-                          <Progress 
-                            value={(assignment.submissionsCount / assignment.totalStudents) * 100} 
-                            className="h-1 shadow-sm" 
-                          />
-                        </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 </TabsContent>
               </div>
