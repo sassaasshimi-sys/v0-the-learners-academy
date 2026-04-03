@@ -54,7 +54,10 @@ import {
   Clock,
   Calendar,
   BookOpen,
+  Layers,
+  ArrowRight,
 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { useData } from '@/contexts/data-context'
 import { ACADEMY_LEVELS, SESSION_TIMINGS } from '@/lib/registry'
@@ -64,7 +67,8 @@ const CLASS_LEVELS = ACADEMY_LEVELS
 const CLASS_TIMES = SESSION_TIMINGS
 
 export default function ClassesPage() {
-  const { courses, teachers, addCourse, removeCourse, updateCourseStatus, updateCourse } = useData()
+  const router = useRouter()
+  const { courses, teachers, addCourse, removeCourse, updateCourseStatus, updateCourse, isInitialized } = useData()
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
@@ -171,6 +175,16 @@ export default function ClassesPage() {
     }
   }
 
+  if (!isInitialized) return (
+    <div className="space-y-8 animate-pulse p-4">
+      <div className="h-12 w-1/3 bg-primary/5 rounded-2xl" />
+      <div className="grid gap-4 md:grid-cols-2">
+         {[1,2].map(i => <div key={i} className="h-32 bg-card rounded-[2rem] border border-primary/5" />)}
+      </div>
+      <div className="h-[400px] w-full bg-card rounded-[2.5rem] border border-primary/5" />
+    </div>
+  )
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -183,13 +197,23 @@ export default function ClassesPage() {
             Manage explicit class batches, active sessions, and room schedules.
           </p>
         </div>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="h-12 px-8 shadow-lg shadow-primary/20 uppercase tracking-[0.15em] font-normal text-xs rounded-xl">
-              <Plus className="w-4 h-4 mr-2" />
-              Create Class
-            </Button>
-          </DialogTrigger>
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="outline"
+            onClick={() => router.push('/admin/classes/schedule')}
+            className="h-14 px-8 rounded-2xl border-primary/5 bg-card/60 backdrop-blur-md shadow-premium hover:bg-primary/5 transition-premium group"
+          >
+             <Layers className="w-5 h-5 mr-3 text-primary group-hover:scale-110 transition-transform" />
+             <span className="text-[10px] uppercase tracking-widest font-bold">Global Schedule Audit</span>
+          </Button>
+
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="h-14 px-8 rounded-2xl bg-primary text-white shadow-premium hover:shadow-massive hover-lift transition-premium">
+                <Plus className="w-5 h-5 mr-3" />
+                <span className="text-[10px] uppercase tracking-widest font-bold">Create New Batch</span>
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-xl">
             <DialogHeader>
               <DialogTitle className="font-serif text-3xl tracking-tight font-normal">Class Registry</DialogTitle>
