@@ -38,6 +38,7 @@ import { STAGGER_CONTAINER, STAGGER_ITEM } from '@/lib/premium-motion'
 import { toast } from 'sonner'
 import { useData } from '@/contexts/data-context'
 import { useAuth } from '@/contexts/auth-context'
+import { useRouter } from 'next/navigation'
 
 export default function ResultsPage() {
   const router = useRouter()

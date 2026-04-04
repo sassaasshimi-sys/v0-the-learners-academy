@@ -91,6 +91,7 @@ export default function AssessmentGeneratorPage() {
     resolver: zodResolver(assessmentSchema),
     defaultValues: {
       nature: 'Mixed',
+      phase: 'First Test',
       totalMarks: 100,
       duration: 60,
       questionCount: 15,

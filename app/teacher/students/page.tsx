@@ -26,7 +26,8 @@ import { motion, AnimatePresence } from "framer-motion"
 import { STAGGER_CONTAINER, STAGGER_ITEM } from "@/lib/premium-motion"
 import { Progress } from "@/components/ui/progress"
 import { DashboardSkeleton } from "@/components/dashboard-skeleton"
-import { Search, Users, TrendingUp, Award, Mail, Phone, Calendar, ArrowRight } from "lucide-react"
+import { Search, Users, TrendingUp, Award, Mail, Phone, Calendar, ArrowRight, Filter } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 export default function TeacherStudentsPage() {
   const router = useRouter()
@@ -249,6 +250,5 @@ export default function TeacherStudentsPage() {
     </div>
   )
 }
-import { Filter } from "lucide-react"
 
 
