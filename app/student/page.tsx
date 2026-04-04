@@ -79,6 +79,7 @@ export default function StudentAccessPage() {
 
       // 4. Save the current assessment context for the session
       sessionStorage.setItem('current_assessment_code', assessment.accessCode)
+      sessionStorage.setItem('current_assessment_data', JSON.stringify(assessment))
       
       toast.success('Access Granted. Entering Assessment Portal...')
       router.push('/student/assessments')

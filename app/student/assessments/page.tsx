@@ -28,11 +28,23 @@ export default function StudentAssessmentsPage() {
   const { assessments: mockAssessments, questions: mockQuestions, submitTestResult } = useData()
 
   const [sessionToken, setSessionToken] = useState<string | null>(null)
-  useEffect(() => { setSessionToken(sessionStorage.getItem('current_assessment_code')) }, [])
+  const [storedAssessment, setStoredAssessment] = useState<AssessmentTemplate | null>(null)
 
-  const availableAssessments = mockAssessments.filter(a =>
-    a.accessCode === sessionToken && a.status === 'active'
-  )
+  useEffect(() => { 
+    setSessionToken(sessionStorage.getItem('current_assessment_code'))
+    const storedData = sessionStorage.getItem('current_assessment_data')
+    if (storedData) {
+      try {
+        setStoredAssessment(JSON.parse(storedData))
+      } catch (e) {
+        console.error("Failed to parse assessment session data", e)
+      }
+    }
+  }, [])
+
+  const availableAssessments = storedAssessment 
+    ? [storedAssessment]
+    : mockAssessments.filter(a => a.accessCode === sessionToken && a.status === 'active')
 
   const [activeTest, setActiveTest]           = useState<AssessmentTemplate | null>(null)
   const [isTestEngineOpen, setIsTestEngineOpen] = useState(false)
