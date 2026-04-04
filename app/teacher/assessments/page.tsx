@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -81,7 +82,6 @@ export default function AssessmentsPage() {
   if (!isInitialized) return <AssessmentSkeleton />
 
   return (
-    <div className="space-y-6">
     <div className="space-y-6">
       {/* Page Header */}
       <motion.div 

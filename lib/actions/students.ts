@@ -2,7 +2,7 @@
 
 import db from '@/lib/db'
 import { revalidatePath } from 'next/cache'
-import type { Student } from '@/lib/types'
+import type { Student, Question } from '@/lib/types'
 
 export async function getStudents() {
   try {
@@ -48,10 +48,57 @@ export async function enrollStudent(student: any) {
   }
 }
 
+export async function deleteQuestion(id: string) {
+  try {
+    const result = await db.question.delete({ where: { id } })
+    revalidatePath('/')
+    return { success: true, data: result }
+  } catch (error) {
+    console.error('FAILED_TO_DELETE_QUESTION:', error)
+    return { success: false, error: 'Failed to purge block from library' }
+  }
+}
+
+export async function updateQuestion(id: string, data: Partial<Question>) {
+  try {
+    const result = await db.question.update({ where: { id }, data: data as any })
+    revalidatePath('/')
+    return { success: true, data: result }
+  } catch (error) {
+    console.error('FAILED_TO_UPDATE_QUESTION:', error)
+    return { success: false, error: 'Curriculum update failed' }
+  }
+}
+
 export async function removeStudent(id: string) {
   const result = await db.student.delete({ where: { id } })
   revalidatePath('/')
   return result
+}
+
+export async function addQuestion(question: Omit<Question, 'id'>) {
+  try {
+    const result = await db.question.create({
+      data: {
+        category: question.category,
+        type: question.type,
+        content: question.content,
+        options: question.options || [],
+        correctAnswer: question.correctAnswer || '',
+        imageUrl: question.imageUrl,
+        phase: question.phase,
+        passageText: question.passageText,
+        audioUrl: question.audioUrl,
+        matchPairs: question.matchPairs as any,
+        isApproved: question.isApproved ?? false
+      }
+    })
+    revalidatePath('/')
+    return { success: true, data: result }
+  } catch (error) {
+    console.error('FAILED_TO_ADD_QUESTION:', error)
+    return { success: false, error: 'Database operation failed' }
+  }
 }
 
 export async function updateStudentStatus(id: string, status: string) {
@@ -77,16 +124,35 @@ export async function updateStudent(id: string, data: Partial<Student>) {
   }
 }
 
-export async function updateStudentSuccessMetrics(id: string, progress: number, grade?: string) {
+export async function updateStudentSuccessMetrics(id: string, progress: number, teacherId: string, grade?: string) {
   try {
+    // Audit check: Verify if the student is actually in at least one of this teacher's courses
+    // This prevents one teacher from accidentally impacting a student they don't teach
+    const teacherCourses = await db.course.findMany({
+      where: { teacherId },
+      select: { id: true }
+    })
+    const courseIds = teacherCourses.map(c => c.id)
+
+    const student = await db.student.findUnique({
+      where: { id },
+      select: { enrolledCourses: true }
+    })
+
+    const isAuthorized = student?.enrolledCourses.some(cId => courseIds.includes(cId))
+    
+    if (!isAuthorized) {
+      return { success: false, error: 'Unauthorized: Student is not enrolled in your registry' }
+    }
+
     const result = await db.student.update({
       where: { id },
       data: { progress, grade }
     })
     revalidatePath('/')
-    return result
+    return { success: true, data: result }
   } catch (error) {
     console.error('DATABASE_ERROR [updateStudentSuccessMetrics]:', error)
-    throw new Error('Failed to update student metrics')
+    return { success: false, error: 'Failed to synchronize institutional metrics' }
   }
 }

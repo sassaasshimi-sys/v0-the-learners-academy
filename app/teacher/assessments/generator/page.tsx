@@ -398,7 +398,9 @@ export default function AssessmentGeneratorPage() {
                             "Alert: Insufficient blocks in registry to meet target." : 
                             "Block density is optimal for target synthesis."}
                       </p>
-                                <div className="space-y-4 pt-6 border-t border-primary/5">
+                   </div>
+
+                   <div className="space-y-4 pt-6 border-t border-primary/5">
                       <h4 className="text-xs uppercase tracking-widest font-normal opacity-40">Block Nature Density</h4>
                       <div className="grid gap-2">
                          {['MCQ', 'Subjective', 'Reading', 'Listening', 'Writing'].map(type => (
@@ -425,7 +427,7 @@ export default function AssessmentGeneratorPage() {
                       </div>
                    </div>
                 </CardContent>
-            </Card>       </Card>
+            </Card>
 
             <Card className="border-primary/5 bg-primary/5 border border-primary/10 rounded-2xl overflow-hidden p-6 space-y-4">
                 <div className="flex items-center gap-3">

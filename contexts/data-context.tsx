@@ -117,16 +117,20 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [isPending, startTransition] = useTransition()
 
   const refresh = useCallback(async () => {
+    // Basic guard: Prevent duplicate concurrent refreshes
+    if (isLoading && isInitialized) return;
+    
     setIsLoading(true)
     const normalizeDate = (d: any) => (d instanceof Date ? d.toISOString() : d)
 
     try {
+      console.log("[DataProvider] Syncing with institutional registry...")
       setHasError(false)
-      // Parallel fetch: eliminates sequential round-trip penalty
+      
       const [initRes, econData] = await Promise.all([
         getInitialData(),
         getEconomicStats().catch(err => {
-          console.error("Failed to fetch secondary economics:", err)
+          console.error("FAILED_TO_FETCH_SECONDARY_ECONOMICS:", err)
           return null
         })
       ])
@@ -142,19 +146,28 @@ export function DataProvider({ children }: { children: ReactNode }) {
       } = initRes.data
 
       startTransition(() => {
-        setTeachers(t.map((item: any) => ({ ...item, joinedAt: normalizeDate(item.joinedAt) })) as unknown as Teacher[])
-        setStudents(s.map((item: any) => ({ ...item, enrolledAt: normalizeDate(item.enrolledAt) })) as unknown as Student[])
-        setCourses(c.map((item: any) => ({ 
+        setTeachers((t || []).map((item: any) => ({ ...item, joinedAt: normalizeDate(item.joinedAt) })) as unknown as Teacher[])
+        setStudents((s || []).map((item: any) => ({ ...item, enrolledAt: normalizeDate(item.enrolledAt) })) as unknown as Student[])
+        
+        const normalizedCourses = (c || []).map((item: any) => ({ 
           ...item, 
           startDate: normalizeDate(item.startDate),
           endDate: normalizeDate(item.endDate)
-        })) as unknown as Course[])
+        })) as unknown as Course[]
+        setCourses(normalizedCourses)
+        
         setQuestions(q as unknown as Question[])
         setAssessments(a as unknown as AssessmentTemplate[])
-        setSubmissions(sub.map((item: any) => ({ ...item, submittedAt: normalizeDate(item.submittedAt) })) as unknown as Submission[])
+        setSubmissions((sub || []).map((item: any) => ({ ...item, submittedAt: normalizeDate(item.submittedAt) })) as unknown as Submission[])
         setSchedules(sch as unknown as Schedule[])
         setAssignments(asgn as Assignment[])
-        setEnrollments(enr as any[])
+        
+        // Advanced Mapping: Link enrollments to course objects by ID
+        const normalizedEnrollments = (enr || []).map((en: any) => ({
+          ...en,
+          course: normalizedCourses.find(nc => nc.id === en.courseId)
+        }))
+        setEnrollments(normalizedEnrollments)
         
         if (econData) {
           setEconomics(econData)
@@ -163,14 +176,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
       })
     } catch (err) {
       console.error('CRITICAL_INITIALIZATION_ERROR:', err)
+      // Only set hasError if the entire fetch fails (initRes.success was false)
       setHasError(true)
-      toast.error("Cloud connection unstable. Using local bridge.")
+      toast.error("Institutional link disrupted. Attempting recovery...")
     } finally {
-      // Ensure the UI flag is always flipped to clear the skeleton
       setIsInitialized(true)
       setIsLoading(false)
     }
-  }, [])
+  }, [isLoading, isInitialized])
 
   useEffect(() => {
     refresh()
@@ -185,13 +198,25 @@ export function DataProvider({ children }: { children: ReactNode }) {
     errorMsg?: string
   ) => {
     try {
-      await action()
+      const result = await action()
+      
+      // Standardized response handling
+      if (result && typeof result === 'object' && 'success' in result) {
+        if (!result.success) {
+          throw new Error(result.error || 'Operation failed')
+        }
+      }
+
       await refresh()
       if (successMsg) toast.success(successMsg)
+      return result
     } catch (err) {
-      console.error('ACTION_ERROR:', err)
-      toast.error(errorMsg || (err instanceof Error ? err.message : 'Database operation failed'))
+      console.error('[DataProvider] ACTION_ERROR:', err)
+      const message = err instanceof Error ? err.message : 'Institutional record sync failed'
+      toast.error(errorMsg || message)
+      // Standard recovery: sync state anyway to ensure UI isn't stale
       await refresh()
+      throw err
     }
   }, [refresh])
 
