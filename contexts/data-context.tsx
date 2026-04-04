@@ -99,7 +99,6 @@ function computeStats(teachers: Teacher[], students: Student[], courses: Course[
 }
 
 export function DataProvider({ children }: { children: ReactNode }) {
-  const [mounted, setMounted] = useState(false)
   const [teachers, setTeachers] = useState<Teacher[]>([])
   const [students, setStudents] = useState<Student[]>([])
   const [courses, setCourses] = useState<Course[]>([])
@@ -115,21 +114,19 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
   const [isPending, startTransition] = useTransition()
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
   const refresh = useCallback(async () => {
     setIsLoading(true)
     const normalizeDate = (d: any) => (d instanceof Date ? d.toISOString() : d)
 
     try {
-      // 1. Single consolidated fetch for core data
-      const initRes = await getInitialData()
-      const econData = await getEconomicStats().catch(err => {
-        console.error("Failed to fetch secondary economics:", err)
-        return null
-      })
+      // Parallel fetch: eliminates sequential round-trip penalty
+      const [initRes, econData] = await Promise.all([
+        getInitialData(),
+        getEconomicStats().catch(err => {
+          console.error("Failed to fetch secondary economics:", err)
+          return null
+        })
+      ])
 
       if (!initRes.success || !initRes.data) {
         throw new Error(initRes.error || "Initialization failed")
@@ -344,7 +341,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     toast.info('Reset is not available in database mode')
   }, [])
 
-  if (!mounted) return <div id="data-hydrating" />
+
 
   return (
     <DataContext.Provider value={{

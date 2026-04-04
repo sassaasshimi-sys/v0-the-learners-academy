@@ -49,8 +49,8 @@ export default function RootLayout({
             </div>
           </DataProvider>
         </AuthProvider>
-        {/* <Toaster position="top-right" richColors /> */}
-        {/* <Analytics /> */}
+        <Toaster position="top-right" richColors />
+        <Analytics />
         {/* Simple Diagnostic Overlay for fatal JS crashes */}
         {/* <script dangerouslySetInnerHTML={{ __html: `
           window.onerror = function(msg, url, lineNo, columnNo, error) {
