@@ -66,30 +66,11 @@ import type { Teacher } from '@/lib/types'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
-const CLASS_LEVELS = [
-  'Pre-Foundation',
-  'Foundation One',
-  'Foundation Two',
-  'Foundation Three',
-  'Beginners',
-  'Level One',
-  'Level Two',
-  'Level Three',
-  'Level Four',
-  'Level Five',
-  'Level Six',
-  'Level Advanced',
-  'Professional Advanced',
-  'Speaking Class',
-  'Grammar Speaking Class',
-  'IELTS Preparation Course'
-]
 
 export default function TeachersPage() {
   const router = useRouter()
   const { teachers, addTeacher, removeTeacher, updateTeacherStatus, updateTeacher, courses, students, feePayments, updateTeacherReviewFlag } = useData()
   const [searchQuery, setSearchQuery] = useState('')
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null)
   const [isFinanceViewOpen, setIsFinanceViewOpen] = useState(false)
@@ -102,32 +83,6 @@ export default function TeachersPage() {
     teacher.employeeId.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (teacher.assignedClass && teacher.assignedClass.toLowerCase().includes(searchQuery.toLowerCase()))
   )
-
-  const handleAddTeacher = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
-    const newTeacher: Teacher = {
-      name: formData.get('name') as string,
-      email: (formData.get('email') as string).toLowerCase().trim(),
-      phone: formData.get('phone') as string,
-      employeeId: formData.get('employeeId') as string,
-      employeePassword: formData.get('password') as string, // Added this line
-      subjects: [], 
-      qualifications: [],
-      status: 'active',
-      joinedAt: new Date().toISOString(),
-      coursesCount: 0,
-      studentsCount: 0,
-    }
-    
-    try {
-      await addTeacher(newTeacher)
-      setIsAddDialogOpen(false)
-      toast.success('Teacher added successfully')
-    } catch (error) {
-      // Error handled by context toast
-    }
-  }
 
   const handleToggleStatus = (teacher: Teacher) => {
     updateTeacherStatus(teacher.id, teacher.status === 'active' ? 'inactive' : 'active')
@@ -222,66 +177,12 @@ export default function TeachersPage() {
             Manage your teaching staff and assignments
           </p>
         </div>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="h-12 px-8 shadow-lg shadow-primary/20 uppercase tracking-[0.15em] font-normal text-xs rounded-xl">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Teacher
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle className="font-serif text-2xl">Add New Teacher</DialogTitle>
-              <DialogDescription className="text-editorial-meta">
-                Register a new academic professional to the academy registry.
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleAddTeacher}>
-              <div className="flex gap-6 items-start">
-                <div className="pt-2">
-                  <Avatar className="h-16 w-16 ring-2 ring-primary/10 transition-premium">
-                    <AvatarFallback className="bg-primary/5 text-primary/40">
-                      <User className="h-8 w-8" />
-                    </AvatarFallback>
-                  </Avatar>
-                </div>
-                <FieldGroup className="flex-1 space-y-4">
-                  <Field>
-                    <FieldLabel className="text-editorial-label">Teacher Full Name</FieldLabel>
-                    <Input name="name" placeholder="Enter teacher's full name" required className="bg-background/50" />
-                  </Field>
-                  <div className="grid grid-cols-2 gap-4">
-                    <Field>
-                      <FieldLabel className="text-editorial-label">Employee ID</FieldLabel>
-                      <Input name="employeeId" placeholder="e.g. EMP-101" required className="bg-background/50" />
-                    </Field>
-                    <Field>
-                      <FieldLabel className="text-editorial-label">Portal Password</FieldLabel>
-                      <SecureInput name="password" placeholder="••••••••" required className="bg-background/50" />
-                      <p className="text-[9px] text-muted-foreground mt-1 opacity-70">Institutional policy: Minimum 8 characters.</p>
-                    </Field>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <Field>
-                      <FieldLabel className="text-editorial-label">Phone Number</FieldLabel>
-                      <Input name="phone" placeholder="+92 300 1234567" required className="bg-background/50" />
-                    </Field>
-                    <Field>
-                      <FieldLabel className="text-editorial-label">Academic Email</FieldLabel>
-                      <Input name="email" type="email" placeholder="teacher@academy.com" required className="bg-background/50 text-[10px]" />
-                    </Field>
-                  </div>
-                </FieldGroup>
-              </div>
-              <DialogFooter className="pt-2">
-                <Button type="button" variant="ghost" onClick={() => setIsAddDialogOpen(false)} className="text-muted-foreground hover:text-foreground">
-                  Cancel
-                </Button>
-                <Button type="submit" className="px-8 font-normal uppercase tracking-wide">Add Professional</Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <Button asChild className="h-12 px-8 shadow-lg shadow-primary/20 uppercase tracking-[0.15em] font-normal text-xs rounded-xl">
+          <Link href="/admin/teachers/registration">
+            <Plus className="w-4 h-4 mr-2" />
+            Add Teacher
+          </Link>
+        </Button>
       </div>
 
       {/* Stats Cards */}
