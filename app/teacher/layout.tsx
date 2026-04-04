@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { Logo } from '@/components/logo'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   Sidebar,
   SidebarContent,
@@ -144,7 +145,7 @@ export default function TeacherLayout({
                     (item.href !== '/teacher' && pathname.startsWith(item.href))
                   
                   const hasSubItems = item.items && item.items.length > 0
-                  const isInitiallyOpen = hasSubItems && pathname.startsWith(item.href)
+                  const isInitiallyOpen = hasSubItems && (pathname === item.href || pathname.startsWith(item.href))
 
                   if (!hasSubItems) {
                     return (
@@ -180,6 +181,7 @@ export default function TeacherLayout({
                         <CollapsibleTrigger asChild>
                           <SidebarMenuButton 
                              isActive={isActive} 
+                             asChild
                              tooltip={item.title}
                              className={cn(
                                "transition-premium h-11 px-4 rounded-xl",
@@ -193,31 +195,45 @@ export default function TeacherLayout({
                             </Link>
                           </SidebarMenuButton>
                         </CollapsibleTrigger>
-                        <CollapsibleContent className="animate-in fade-in slide-in-from-top-1 duration-300 overflow-hidden">
-                          <SidebarMenuSub className="ml-4 mt-1 border-l border-white/5 space-y-1">
-                            {item.items?.map((subItem) => {
-                               const isSubActive = pathname === subItem.href
-                               return (
-                                 <SidebarMenuSubItem key={subItem.href}>
-                                   <SidebarMenuSubButton 
-                                      asChild 
-                                      isActive={isSubActive}
-                                      className={cn(
-                                        "h-9 px-4 rounded-lg transition-all text-[11px] tracking-tight",
-                                        isSubActive 
-                                          ? "text-primary bg-primary/5 font-bold" 
-                                          : "text-muted-foreground/60 hover:text-primary hover:bg-primary/5 font-normal"
-                                      )}
-                                    >
-                                     <Link href={subItem.href} className="flex items-center gap-3">
-                                       {subItem.icon && <subItem.icon className="w-3.5 h-3.5" />}
-                                       <span>{subItem.title}</span>
-                                     </Link>
-                                   </SidebarMenuSubButton>
-                                 </SidebarMenuSubItem>
-                               )
-                            })}
-                          </SidebarMenuSub>
+                        <CollapsibleContent asChild>
+                          <motion.div
+                            initial={false}
+                            animate="visible"
+                            variants={{
+                              visible: { 
+                                height: "auto", 
+                                opacity: 1, 
+                                transition: { height: { duration: 0.3 }, opacity: { duration: 0.2, delay: 0.1 } } 
+                              },
+                              hidden: { height: 0, opacity: 0 }
+                            }}
+                            className="overflow-hidden"
+                          >
+                            <SidebarMenuSub className="ml-4 mt-1 border-l border-white/5 space-y-1">
+                              {item.items?.map((subItem) => {
+                                 const isSubActive = pathname === subItem.href
+                                 return (
+                                   <SidebarMenuSubItem key={subItem.href}>
+                                     <SidebarMenuSubButton 
+                                        asChild 
+                                        isActive={isSubActive}
+                                        className={cn(
+                                          "h-9 px-4 rounded-lg transition-all text-[11px] tracking-tight",
+                                          isSubActive 
+                                            ? "text-primary bg-primary/5 font-bold" 
+                                            : "text-muted-foreground/60 hover:text-primary hover:bg-primary/5 font-normal"
+                                        )}
+                                      >
+                                       <Link href={subItem.href} className="flex items-center gap-3">
+                                         {subItem.icon && <subItem.icon className="w-3.5 h-3.5" />}
+                                         <span>{subItem.title}</span>
+                                       </Link>
+                                     </SidebarMenuSubButton>
+                                   </SidebarMenuSubItem>
+                                 )
+                              })}
+                            </SidebarMenuSub>
+                          </motion.div>
                         </CollapsibleContent>
                       </SidebarMenuItem>
                     </Collapsible>
