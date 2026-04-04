@@ -96,25 +96,25 @@ export default function TeacherClassesPage() {
     <div className="space-y-6">
       {/* Page Header */}
       <div>
-        <h1 className="text-3xl font-normal text-foreground">
+        <h1 className="text-3xl font-serif tracking-tight text-foreground font-normal">
           My Classes
         </h1>
-        <p className="text-muted-foreground mt-1 text-editorial-meta opacity-70">
+        <p className="text-muted-foreground mt-1 text-sm opacity-70">
           Manage your assigned classes and view enrolled students
         </p>
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card className="hover-lift transition-premium border-primary/5 bg-card/40 backdrop-blur-md shadow-premium rounded-[1.5rem]">
-          <CardHeader className="pb-2">
-            <CardDescription className="text-editorial-label text-[10px] uppercase tracking-widest font-normal opacity-60">Total Assigned Classes</CardDescription>
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card className="hover-lift transition-premium border-primary/5 bg-card/40 backdrop-blur-md shadow-premium rounded-2xl">
+          <CardHeader className="p-6 pb-2">
+            <CardDescription className="text-xs uppercase tracking-widest font-normal opacity-60">Total Assigned Classes</CardDescription>
             <CardTitle className="text-3xl font-sans font-normal">{myCourses.length}</CardTitle>
           </CardHeader>
         </Card>
-        <Card className="hover-lift transition-premium border-primary/5 bg-card/40 backdrop-blur-md shadow-premium rounded-[1.5rem]">
-          <CardHeader className="pb-2">
-            <CardDescription className="text-editorial-label text-[10px] uppercase tracking-widest font-normal opacity-60">Total Enrolled Students</CardDescription>
+        <Card className="hover-lift transition-premium border-primary/5 bg-card/40 backdrop-blur-md shadow-premium rounded-2xl">
+          <CardHeader className="p-6 pb-2">
+            <CardDescription className="text-xs uppercase tracking-widest font-normal opacity-60">Total Enrolled Students</CardDescription>
             <CardTitle className="text-3xl font-sans font-normal">
               {mockStudents.filter(s => (s.enrolledCourses || []).some(courseId => myCourses.some(mc => mc.id === courseId))).length}
             </CardTitle>
@@ -123,18 +123,18 @@ export default function TeacherClassesPage() {
       </div>
 
       {/* Student Registry Table */}
-      <Card className="border-primary/5 shadow-premium rounded-[2.5rem] overflow-hidden bg-card/60 backdrop-blur-xl">
-        <CardHeader className="border-b border-primary/5 p-8">
+      <Card className="border-primary/5 shadow-premium rounded-2xl overflow-hidden bg-card/40 backdrop-blur-xl">
+        <CardHeader className="border-b border-primary/5 p-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <CardTitle className="text-2xl font-normal">Student Registry</CardTitle>
-              <CardDescription className="text-editorial-meta opacity-70">
+              <CardTitle className="text-xl font-serif font-normal">Student Registry</CardTitle>
+              <CardDescription className="text-xs opacity-70">
                 Active roster management for your assigned academic sessions.
               </CardDescription>
             </div>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               <Select value={classFilter} onValueChange={setClassFilter}>
-                <SelectTrigger className="w-[200px] bg-background/50">
+                <SelectTrigger className="w-[200px] h-10 bg-background/50 rounded-xl text-xs uppercase tracking-widest">
                   <SelectValue placeholder="All My Classes" />
                 </SelectTrigger>
                 <SelectContent>
@@ -152,21 +152,21 @@ export default function TeacherClassesPage() {
                   placeholder="Search by ID or Name..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 bg-background/50 border-primary/10"
+                  className="h-10 pl-9 bg-background/50 border-primary/10 rounded-xl text-sm"
                 />
               </div>
             </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="rounded-xl border border-primary/5 overflow-hidden">
+        <CardContent className="p-0">
+          <div className="overflow-hidden">
             <Table>
-              <TableHeader className="bg-muted/10 border-b border-primary/5 h-16">
+              <TableHeader className="bg-muted/10 border-b border-primary/5 h-14">
                 <TableRow className="hover:bg-transparent border-none">
-                  <TableHead className="text-[10px] font-normal uppercase tracking-widest text-muted-foreground opacity-60 py-4 px-8">Student ID</TableHead>
-                  <TableHead className="text-[10px] font-normal uppercase tracking-widest text-muted-foreground opacity-60 py-4 px-8">Student Name</TableHead>
-                  <TableHead className="text-[10px] font-normal uppercase tracking-widest text-muted-foreground opacity-60 py-4 px-8">Guardian Name</TableHead>
-                  <TableHead className="text-[10px] font-normal uppercase tracking-widest text-muted-foreground opacity-60 py-4 px-8">Assigned Class</TableHead>
+                  <TableHead className="text-xs font-normal uppercase tracking-widest text-muted-foreground opacity-60 py-4 px-6">Student ID</TableHead>
+                  <TableHead className="text-xs font-normal uppercase tracking-widest text-muted-foreground opacity-60 py-4 px-6">Student Name</TableHead>
+                  <TableHead className="text-xs font-normal uppercase tracking-widest text-muted-foreground opacity-60 py-4 px-6">Guardian Name</TableHead>
+                  <TableHead className="text-xs font-normal uppercase tracking-widest text-muted-foreground opacity-60 py-4 px-6 text-right">Assigned Class</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -180,20 +180,20 @@ export default function TeacherClassesPage() {
                   filteredStudents.map((student) => {
                     const studentCourse = myCourses.find(c => student.enrolledCourses.includes(c.id))
                     return (
-                      <TableRow key={student.id} className="hover:bg-primary/[0.02] border-primary/5 transition-premium group h-20">
-                        <TableCell className="font-normal text-primary tracking-tighter py-4 px-8">
+                      <TableRow key={student.id} className="hover:bg-primary/[0.02] border-primary/5 transition-premium group h-16">
+                        <TableCell className="font-normal text-primary tracking-tighter py-4 px-6">
                           {student.studentId || 'N/A'}
                         </TableCell>
-                        <TableCell className="py-4 px-8">
-                          <p className="font-sans font-normal text-base text-foreground/80 group-hover:text-primary transition-colors">
+                        <TableCell className="py-4 px-6">
+                          <p className="font-sans font-medium text-sm text-foreground/80 group-hover:text-primary transition-colors">
                             {student.name}
                           </p>
                         </TableCell>
-                        <TableCell className="text-muted-foreground font-normal py-4 px-8">
+                        <TableCell className="text-muted-foreground font-normal text-sm py-4 px-6">
                           {student.guardianName || 'Registry Record TBC'}
                         </TableCell>
-                        <TableCell className="py-4 px-8">
-                          <div className="flex flex-col">
+                        <TableCell className="py-4 px-6 text-right">
+                          <div className="flex flex-col items-end">
                             <span className="font-normal text-sm text-foreground/70">{studentCourse?.title || 'Course Registry'}</span>
                             <span className="text-[10px] text-muted-foreground/60 tracking-widest font-normal uppercase">
                               {student.classTiming || 'Session TBC'}
@@ -211,23 +211,23 @@ export default function TeacherClassesPage() {
       </Card>
 
       {/* Course Detail Dialog */}
-      <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader className="bg-muted/5 border-b border-primary/5">
-            <DialogTitle className="text-2xl font-normal">Class Registry Intelligence</DialogTitle>
-            <DialogDescription className="text-editorial-meta text-xs">
+    <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
+        <DialogContent className="max-w-3xl p-0 overflow-hidden rounded-2xl border-primary/5 shadow-premium">
+          <DialogHeader className="bg-muted/5 border-b border-primary/5 p-6">
+            <DialogTitle className="text-xl font-serif font-normal">Class Registry Intelligence</DialogTitle>
+            <DialogDescription className="text-xs opacity-60">
               Granular view of academic enrollment and term performance.
             </DialogDescription>
           </DialogHeader>
           {selectedCourse && (
             <Tabs defaultValue="overview" className="mt-0">
-              <TabsList className="w-full h-14 bg-muted/5 border-b border-primary/5 rounded-none p-1">
-                <TabsTrigger value="overview" className="flex-1 rounded-xl data-[state=active]:bg-card data-[state=active]:shadow-sm text-[10px] uppercase tracking-widest font-normal">Overview</TabsTrigger>
-                <TabsTrigger value="students" className="flex-1 rounded-xl data-[state=active]:bg-card data-[state=active]:shadow-sm text-[10px] uppercase tracking-widest font-normal">Students</TabsTrigger>
-                <TabsTrigger value="assessments" className="flex-1 rounded-xl data-[state=active]:bg-card data-[state=active]:shadow-sm text-[10px] uppercase tracking-widest font-normal">Assessments</TabsTrigger>
+              <TabsList className="w-full h-12 bg-muted/5 border-b border-primary/5 rounded-none p-1">
+                <TabsTrigger value="overview" className="flex-1 rounded-xl data-[state=active]:bg-card data-[state=active]:shadow-sm text-xs uppercase tracking-widest font-normal">Overview</TabsTrigger>
+                <TabsTrigger value="students" className="flex-1 rounded-xl data-[state=active]:bg-card data-[state=active]:shadow-sm text-xs uppercase tracking-widest font-normal">Students</TabsTrigger>
+                <TabsTrigger value="assessments" className="flex-1 rounded-xl data-[state=active]:bg-card data-[state=active]:shadow-sm text-xs uppercase tracking-widest font-normal">Assessments</TabsTrigger>
               </TabsList>
 
-              <div className="p-8">
+              <div className="p-6">
                 <TabsContent value="overview" className="space-y-6 mt-0">
                   <div>
                     <div className="flex items-center gap-2 mb-2">
@@ -249,9 +249,9 @@ export default function TeacherClassesPage() {
                     <div className="p-6 rounded-2xl border border-primary/5 bg-card/40">
                       <div className="flex items-center gap-2 mb-2">
                         <Users className="w-3 h-3 text-muted-foreground" />
-                        <span className="text-[10px] uppercase tracking-widest font-normal opacity-60">Enrollment</span>
+                        <span className="text-xs uppercase tracking-widest font-normal opacity-60">Enrollment</span>
                       </div>
-                      <p className="text-2xl font-sans font-normal">
+                      <p className="text-3xl font-sans font-normal">
                         {mockStudents.filter(s => (s.enrolledCourses || []).includes(selectedCourse.id)).length}/{selectedCourse.capacity}
                       </p>
                       <Progress value={(mockStudents.filter(s => (s.enrolledCourses || []).includes(selectedCourse.id)).length / (selectedCourse.capacity || 1)) * 100} className="h-1 mt-3" />
@@ -259,18 +259,18 @@ export default function TeacherClassesPage() {
                     <div className="p-6 rounded-2xl border border-primary/5 bg-card/40">
                       <div className="flex items-center gap-2 mb-2">
                         <Clock className="w-3 h-3 text-muted-foreground" />
-                        <span className="text-[10px] uppercase tracking-widest font-normal opacity-60">Duration</span>
+                        <span className="text-xs uppercase tracking-widest font-normal opacity-60">Duration</span>
                       </div>
-                      <p className="text-2xl font-sans font-normal">{selectedCourse.duration}</p>
+                      <p className="text-3xl font-sans font-normal">{selectedCourse.duration}</p>
                     </div>
                   </div>
 
                   <div className="p-6 rounded-2xl border border-primary/5 bg-card/40">
                     <div className="flex items-center gap-2 mb-2">
                       <Calendar className="w-3 h-3 text-muted-foreground" />
-                      <span className="text-[10px] uppercase tracking-widest font-normal opacity-60">Schedule</span>
+                      <span className="text-xs uppercase tracking-widest font-normal opacity-60">Schedule</span>
                     </div>
-                    <p className="font-sans font-normal text-lg">{selectedCourse.schedule}</p>
+                    <p className="font-sans font-normal text-base">{selectedCourse.schedule}</p>
                     <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-widest font-normal opacity-50">
                       Term: {new Date(selectedCourse.startDate).toLocaleDateString()} — {new Date(selectedCourse.endDate).toLocaleDateString()}
                     </p>
@@ -284,7 +284,7 @@ export default function TeacherClassesPage() {
                       const progress = enrollment?.progress || 0
                       
                       return (
-                        <div key={student.id} className="flex items-center justify-between p-4 rounded-2xl border border-primary/5 bg-card/40 hover:bg-muted/30 transition-premium group">
+                        <div key={student.id} className="flex items-center justify-between p-4 rounded-xl border border-primary/5 bg-card/40 hover:bg-muted/30 transition-premium group">
                           <div className="flex items-center gap-4">
                             <Avatar className="h-10 w-10 border border-primary/10">
                               <AvatarFallback className="bg-primary/5 text-primary text-xs font-normal">
@@ -292,7 +292,7 @@ export default function TeacherClassesPage() {
                               </AvatarFallback>
                             </Avatar>
                             <div>
-                              <p className="font-sans font-normal text-base text-foreground/80 group-hover:text-primary transition-colors">{student.name}</p>
+                              <p className="font-sans font-medium text-sm text-foreground/80 group-hover:text-primary transition-colors">{student.name}</p>
                               <p className="text-[10px] text-muted-foreground font-normal tracking-widest uppercase opacity-60">{student.email}</p>
                             </div>
                           </div>
@@ -312,7 +312,7 @@ export default function TeacherClassesPage() {
                                 <Button 
                                   variant="outline" 
                                   size="sm"
-                                  className="h-7 px-3 text-[9px] uppercase tracking-widest bg-primary/5 border-primary/10 hover:bg-primary/20 text-primary transition-premium rounded-lg"
+                                  className="h-8 px-4 text-xs uppercase tracking-widest bg-primary/5 border-primary/10 hover:bg-primary/20 text-primary transition-premium rounded-xl"
                                   onClick={() => {
                                     setEvalStudent(student)
                                     setEvalScores({ attendance: 60, participation: 20, discipline: 10, extra: 10 })
@@ -379,7 +379,7 @@ export default function TeacherClassesPage() {
 
       {/* Student Term Dossier Dialog */}
       <Dialog open={!!evalStudent} onOpenChange={(open) => !open && setEvalStudent(null)}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-2xl border-primary/5 shadow-premium">
           {evalStudent && selectedCourse && (() => {
             const studentMidterms = mockSubmissions.filter(s => s.studentId === evalStudent.id && mockAssessments.find(a => a.id === s.assignmentId && a.phase === 'First Test' && (a.classLevels || []).includes(selectedCourse.title)))
             const midtermScore = studentMidterms.length > 0 && studentMidterms[0].grade ? studentMidterms[0].grade : 0 
@@ -403,15 +403,15 @@ export default function TeacherClassesPage() {
 
             return (
               <div className="flex flex-col h-full">
-                <DialogHeader className="pb-6 border-b border-primary/5">
+                <DialogHeader className="p-6 border-b border-primary/5">
                   <div className="flex items-start justify-between">
                     <div>
                       <DialogTitle className="font-serif text-3xl font-normal">{evalStudent.name}</DialogTitle>
-                      <DialogDescription className="text-[10px] uppercase tracking-widest opacity-60 mt-2">
+                      <DialogDescription className="text-xs uppercase tracking-widest opacity-60 mt-2">
                         {evalStudent.guardianName || 'Guardian Record'} • {selectedCourse.title}
                       </DialogDescription>
                     </div>
-                    <Badge variant="outline" className="text-[10px] uppercase tracking-widest bg-primary/5 text-primary border-primary/20">Term Dossier</Badge>
+                    <Badge variant="outline" className="text-xs uppercase tracking-widest bg-primary/5 text-primary border-primary/20 h-6 px-3">Term Dossier</Badge>
                   </div>
                 </DialogHeader>
 

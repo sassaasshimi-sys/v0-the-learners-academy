@@ -110,7 +110,7 @@ const teacherNavItems = [
 function TeacherSidebarHeader() {
   const { state } = useSidebar()
   return (
-    <SidebarHeader className="border-b border-white/5 py-8 transition-premium">
+    <SidebarHeader className="border-b border-white/5 py-8 transition-all duration-300">
       <div className="flex items-center justify-center w-full">
         <Logo 
           size={state === 'expanded' ? "md" : "sm"} 
@@ -134,8 +134,8 @@ export default function TeacherLayout({
   const { user, logout } = useAuth()
 
   return (
-    <SidebarProvider style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, var(--font-inter), Inter, sans-serif' }}>
-      <Sidebar className="border-r border-white/5 bg-sidebar transition-premium">
+    <SidebarProvider style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+      <Sidebar className="border-r border-white/5 bg-sidebar transition-all duration-300">
         <TeacherSidebarHeader />
         <SidebarContent className="px-3 py-4">
           <SidebarGroup>
@@ -155,7 +155,7 @@ export default function TeacherLayout({
                             asChild 
                             isActive={isActive}
                             className={cn(
-                              "transition-premium h-11 px-4 rounded-xl font-normal",
+                              "transition-all duration-300 h-10 px-4 rounded-xl font-normal",
                               isActive 
                                 ? "bg-primary/10 text-primary font-bold shadow-sm" 
                                 : "text-muted-foreground hover:bg-primary/5 hover:text-primary"
@@ -164,7 +164,7 @@ export default function TeacherLayout({
                           >
                             <Link href={item.href} className="flex items-center gap-3">
                               <item.icon className={cn("w-5 h-5", isActive ? "text-primary" : "text-muted-foreground opacity-60")} />
-                              <span className="tracking-tight">{item.title}</span>
+                              <span className="text-xs uppercase tracking-widest">{item.title}</span>
                             </Link>
                           </SidebarMenuButton>
                         </SidebarMenuItem>
@@ -185,13 +185,13 @@ export default function TeacherLayout({
                              asChild
                              tooltip={item.title}
                              className={cn(
-                               "transition-premium h-11 px-4 rounded-xl",
+                               "transition-all duration-300 h-10 px-4 rounded-xl",
                                isActive && !pathname.includes(item.href) ? "bg-primary/5 text-primary" : ""
                              )}
                           >
                             <Link href={item.href} className="flex items-center gap-3 w-full">
                               <item.icon className={cn("w-5 h-5", isActive ? "text-primary" : "text-muted-foreground opacity-60")} />
-                              <span className="tracking-tight font-normal text-sidebar-foreground/80">{item.title}</span>
+                              <span className="text-xs uppercase tracking-widest text-sidebar-foreground/80">{item.title}</span>
                               <ChevronDown className="ml-auto w-4 h-4 transition-transform duration-300 group-data-[state=open]/collapsible:rotate-180 opacity-40 shrink-0" />
                             </Link>
                           </SidebarMenuButton>
@@ -219,7 +219,7 @@ export default function TeacherLayout({
                                         asChild 
                                         isActive={isSubActive}
                                         className={cn(
-                                          "h-9 px-4 rounded-lg transition-all text-[11px] tracking-tight",
+                                          "h-8 px-4 rounded-lg transition-all text-xs tracking-widest uppercase",
                                           isSubActive 
                                             ? "text-primary bg-primary/5 font-bold" 
                                             : "text-muted-foreground/60 hover:text-primary hover:bg-primary/5 font-normal"
@@ -247,30 +247,30 @@ export default function TeacherLayout({
       </Sidebar>
 
       <SidebarInset className="bg-background">
-        <header className="sticky top-0 z-10 flex h-20 items-center gap-4 border-b border-primary/5 bg-card/80 backdrop-blur-xl px-8">
+        <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b border-primary/5 bg-card/40 backdrop-blur-xl px-8">
           <SidebarTrigger className="-ml-2" />
           <div className="flex-1" />
           <DropdownMenu>
             <DropdownMenuTrigger className="flex items-center gap-4 outline-none hover:opacity-80 transition-opacity">
-              <span className="hidden md:inline-block font-medium text-sm text-muted-foreground opacity-60">
+              <span className="hidden md:inline-block font-medium text-xs text-muted-foreground opacity-60 uppercase tracking-widest">
                 {user?.name}
               </span>
-              <Avatar className="h-9 w-9 border border-primary/10 shadow-sm">
+              <Avatar className="h-8 w-8 border border-primary/10 shadow-sm">
                 <AvatarImage src={user?.avatar} alt={user?.name} />
                 <AvatarFallback className="bg-primary/5 text-primary text-xs font-bold">
                   {user?.name?.split(' ').map(n => n[0]).join('') || 'U'}
                 </AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem asChild className="cursor-pointer">
-                <Link href="/teacher/settings" className="flex items-center gap-2 w-full">
+            <DropdownMenuContent align="end" className="w-48 rounded-xl border-primary/5 shadow-premium">
+              <DropdownMenuItem asChild className="cursor-pointer rounded-lg">
+                <Link href="/teacher/settings" className="flex items-center gap-2 w-full text-xs uppercase tracking-widest p-2">
                   <Settings className="w-4 h-4 text-muted-foreground" />
                   <span>Settings</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem 
-                className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive" 
+                className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive rounded-lg text-xs uppercase tracking-widest p-2" 
                 onSelect={() => logout()}
               >
                 <LogOut className="w-4 h-4 mr-2" />

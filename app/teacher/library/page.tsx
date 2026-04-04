@@ -148,51 +148,51 @@ export default function QuestionLibraryPage() {
       {/* Header */}
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="text-3xl font-normal text-foreground">Assessment Library</h1>
-          <p className="text-muted-foreground mt-1 text-editorial-meta opacity-70">
+          <h1 className="text-3xl font-serif tracking-tight text-foreground font-normal">Assessment Library</h1>
+          <p className="text-muted-foreground mt-1 text-sm opacity-70">
             Curate your institutional question bank across {CATEGORIES.length} academic categories.
           </p>
         </div>
 
         <Dialog open={isOpen} onOpenChange={(o) => { if (!o) handleClose(); else setIsOpen(true) }}>
           <DialogTrigger asChild>
-            <Button className="hover-lift shadow-premium rounded-xl h-11 px-6">
+            <Button className="hover-lift shadow-premium rounded-xl h-10 px-6">
               <Plus className="w-4 h-4 mr-2" />
-              <span className="text-[10px] uppercase tracking-widest font-normal">Add Question</span>
+              <span className="text-xs uppercase tracking-widest font-normal">Add Question</span>
             </Button>
           </DialogTrigger>
 
-          <DialogContent className="max-w-xl">
-            <DialogHeader className="bg-muted/5 border-b border-primary/5 text-left items-start">
-              <DialogTitle className="text-2xl font-normal">Add to Library</DialogTitle>
-              <DialogDescription className="text-editorial-meta text-xs">
+          <DialogContent className="max-w-xl p-0 overflow-hidden rounded-2xl border-primary/5 shadow-premium">
+            <DialogHeader className="bg-muted/5 border-b border-primary/5 p-6 text-left items-start">
+              <DialogTitle className="text-xl font-serif font-normal">Add to Library</DialogTitle>
+              <DialogDescription className="text-xs opacity-60">
                 Fields adapt to the selected block type for institutional precision.
               </DialogDescription>
             </DialogHeader>
 
             <form onSubmit={handleSubmit(onSubmit)}>
-              <div className="max-h-[min(500px,50vh)] overflow-y-auto space-y-4 premium-scrollbar">
+              <div className="p-6 max-h-[min(500px,50vh)] overflow-y-auto space-y-4 premium-scrollbar">
                 <FieldGroup className="space-y-4">
                   {/* Category + Phase row */}
                   <div className="grid grid-cols-2 gap-3">
                     <Field>
-                      <FieldLabel className="text-xs">Category</FieldLabel>
+                      <FieldLabel className="text-xs uppercase tracking-widest opacity-60">Category</FieldLabel>
                       <Select value={watch('category')} onValueChange={(v) => setValue('category', v)}>
-                        <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Category" /></SelectTrigger>
-                        <SelectContent>
-                          {CATEGORIES.map(c => <SelectItem key={c} value={c} className="text-xs">{c}</SelectItem>)}
+                        <SelectTrigger className="h-10 text-sm rounded-xl"><SelectValue placeholder="Category" /></SelectTrigger>
+                        <SelectContent className="rounded-xl">
+                          {CATEGORIES.map(c => <SelectItem key={c} value={c} className="text-sm">{c}</SelectItem>)}
                         </SelectContent>
                       </Select>
-                      {errors.category && <p className="text-[10px] text-destructive font-normal uppercase tracking-widest mt-1 opacity-80">{errors.category.message}</p>}
+                      {errors.category && <p className="text-xs text-destructive font-normal uppercase tracking-widest mt-1 opacity-80">{errors.category.message}</p>}
                     </Field>
                     <Field>
-                      <FieldLabel className="text-xs">Phase</FieldLabel>
+                      <FieldLabel className="text-xs uppercase tracking-widest opacity-60">Phase</FieldLabel>
                       <Select defaultValue="Both" onValueChange={(v) => setValue('phase', v as any)}>
-                        <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="First Test" className="text-xs">First Test</SelectItem>
-                          <SelectItem value="Last Test" className="text-xs">Last Test</SelectItem>
-                          <SelectItem value="Both" className="text-xs">Both</SelectItem>
+                        <SelectTrigger className="h-10 text-sm rounded-xl"><SelectValue /></SelectTrigger>
+                        <SelectContent className="rounded-xl">
+                          <SelectItem value="First Test" className="text-sm">First Test</SelectItem>
+                          <SelectItem value="Last Test" className="text-sm">Last Test</SelectItem>
+                          <SelectItem value="Both" className="text-sm">Both</SelectItem>
                         </SelectContent>
                       </Select>
                     </Field>
@@ -343,13 +343,13 @@ export default function QuestionLibraryPage() {
                 </FieldGroup>
               </div>
 
-              <DialogFooter className="bg-muted/5 border-t border-primary/5 mt-0 flex flex-col sm:flex-row gap-3">
-                <Button type="button" variant="outline" onClick={handleClose} className="rounded-xl px-6 h-11">
-                  <span className="text-[10px] uppercase tracking-widest font-normal">Cancel</span>
+              <DialogFooter className="bg-muted/5 border-t border-primary/5 p-6 mt-0 flex flex-col sm:flex-row gap-3">
+                <Button type="button" variant="outline" onClick={handleClose} className="rounded-xl px-6 h-10">
+                  <span className="text-xs uppercase tracking-widest font-normal">Cancel</span>
                 </Button>
-                <Button type="submit" disabled={isSubmitting} className="rounded-xl px-6 h-11 shadow-premium">
-                  <span className="text-[10px] uppercase tracking-widest font-normal">
-                    {isSubmitting ? 'Adding...' : 'Add to Library'}
+                <Button type="submit" disabled={isSubmitting} className="rounded-xl px-6 h-10 shadow-premium">
+                  <span className="text-xs uppercase tracking-widest font-normal">
+                    {isSubmitting ? 'Adding...' : 'Add Block'}
                   </span>
                 </Button>
               </DialogFooter>
@@ -364,13 +364,13 @@ export default function QuestionLibraryPage() {
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as QuestionCategory)}>
             <TabsList className="bg-card/40 backdrop-blur-md border border-primary/5 p-1 w-full justify-start overflow-x-auto no-scrollbar h-12 rounded-2xl">
               {CATEGORIES.map(cat => (
-                <TabsTrigger key={cat} value={cat} className="flex-1 md:flex-none h-10 px-6 text-[10px] uppercase tracking-widest font-normal rounded-xl data-[state=active]:bg-card data-[state=active]:shadow-sm transition-premium">{cat}</TabsTrigger>
+                <TabsTrigger key={cat} value={cat} className="flex-1 md:flex-none h-10 px-6 text-xs uppercase tracking-widest font-normal rounded-xl data-[state=active]:bg-card data-[state=active]:shadow-sm transition-premium">{cat}</TabsTrigger>
               ))}
             </TabsList>
 
             <div className="mt-6">
               <div className="relative mb-6">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground opacity-40" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground opacity-40 transition-premium" />
                 <Input placeholder={`Search in ${activeTab}...`} value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)} className="pl-9 h-12 bg-card/40 backdrop-blur-md border-primary/5 rounded-2xl text-sm transition-premium focus:ring-1 focus:ring-primary/20" />
               </div>
@@ -394,7 +394,7 @@ export default function QuestionLibraryPage() {
                 ) : (
                   filteredQuestions.map(q => (
                     <motion.div key={q.id} variants={STAGGER_ITEM}>
-                      <Card className="overflow-hidden border-primary/5 bg-card/40 backdrop-blur-md shadow-premium rounded-[1.5rem] hover-lift transition-premium flex flex-col">
+                      <Card className="overflow-hidden border-primary/5 bg-card/40 backdrop-blur-md shadow-premium rounded-2xl hover-lift transition-premium flex flex-col">
                         <div className="p-6">
                           <div className="flex justify-between items-start gap-6">
                             <div className="space-y-3 flex-1 min-w-0">
@@ -422,7 +422,7 @@ export default function QuestionLibraryPage() {
                             </div>
 
                             {/* Content */}
-                            <p className="text-base text-foreground/80 leading-relaxed font-sans font-normal">{q.content}</p>
+                            <p className="text-sm text-foreground/80 leading-relaxed font-sans font-normal">{q.content}</p>
 
                             {/* Match pairs preview */}
                             {q.type === 'Matching' && q.matchPairs && (
@@ -465,7 +465,7 @@ export default function QuestionLibraryPage() {
                               <Button 
                                 variant="outline" 
                                 size="sm" 
-                                className="h-8 border-success/30 hover:bg-success/10 text-success rounded-xl transition-premium font-bold text-[9px] uppercase tracking-widest gap-2"
+                                className="h-8 border-success/30 hover:bg-success/10 text-success rounded-xl transition-premium font-bold text-xs uppercase tracking-widest gap-2"
                                 onClick={() => { approveQuestion(q.id, true); toast.success('Question Approved') }}
                               >
                                 <Check className="w-3 h-3" /> Quick Approve
@@ -495,13 +495,13 @@ export default function QuestionLibraryPage() {
 
         {/* Stats sidebar */}
         <div className="space-y-4">
-          <Card className="border-primary/5 bg-card/40 backdrop-blur-md shadow-premium rounded-[1.5rem] overflow-hidden">
+          <Card className="border-primary/5 bg-card/40 backdrop-blur-md shadow-premium rounded-2xl overflow-hidden">
             <CardHeader className="p-6 border-b border-primary/5">
-              <CardTitle className="text-[10px] uppercase tracking-widest font-normal opacity-60">Block Registry Intelligence</CardTitle>
+              <CardTitle className="text-xs uppercase tracking-widest font-normal opacity-60">Block Registry Intelligence</CardTitle>
             </CardHeader>
             <div className="p-6 space-y-4">
               <div className="flex justify-between items-end">
-                <span className="text-[10px] uppercase tracking-widest font-normal opacity-50">Total Blocks</span>
+                <span className="text-xs uppercase tracking-widest font-normal opacity-50">Total Blocks</span>
                 <span className="text-3xl font-sans font-normal text-primary">{questions.length}</span>
               </div>
               <div className="pt-4 border-t border-primary/5 space-y-2.5">

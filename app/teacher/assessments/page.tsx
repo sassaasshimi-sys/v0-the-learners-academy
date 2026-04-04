@@ -82,54 +82,50 @@ export default function AssessmentsPage() {
 
   return (
     <div className="space-y-6">
+    <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between px-2">
-        <div className="space-y-1">
-          <div className="flex items-center gap-4">
-             <div className="p-3 bg-primary/10 rounded-2xl border border-primary/20">
-                <FileText className="w-6 h-6 text-primary" />
-             </div>
-             <div>
-                <h1 className="text-4xl font-serif font-normal text-foreground leading-none">Examination Registry</h1>
-                <p className="mt-2 text-muted-foreground text-editorial-meta opacity-70">
-                    Audit and generate academic assessments for individual term cycles.
-                </p>
-             </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <Button 
-            variant="outline" 
-            onClick={() => router.push('/teacher/assessments/library')}
-            className="h-14 px-8 rounded-2xl border-primary/5 bg-card/60 backdrop-blur-md shadow-premium hover:bg-primary/5 transition-premium group"
-          >
-             <Library className="w-5 h-5 mr-3 text-primary group-hover:scale-110 transition-transform" />
-             <span className="text-[10px] uppercase tracking-widest font-bold">Access Design Library</span>
+      <motion.div 
+        className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+        variants={STAGGER_CONTAINER}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.div variants={STAGGER_ITEM}>
+          <h1 className="text-3xl font-serif tracking-tight text-foreground font-normal">
+            Assessment Registry
+          </h1>
+          <p className="text-muted-foreground mt-1 text-sm opacity-70">
+            Define and coordinate active examination blocks
+          </p>
+        </motion.div>
+        
+        <motion.div variants={STAGGER_ITEM} className="flex gap-2">
+           <Button variant="outline" asChild className="hover-lift border-primary/20 bg-card/40 backdrop-blur-md rounded-xl h-10 px-6">
+            <Link href="/teacher/library" className="flex items-center text-xs uppercase tracking-widest font-normal">
+              <Plus className="w-4 h-4 mr-2" />
+              Build Block
+            </Link>
           </Button>
-
-          <Button 
-            onClick={() => router.push('/teacher/assessments/generator')}
-            className="h-14 px-8 rounded-2xl bg-primary text-white shadow-premium hover:shadow-massive hover-lift transition-premium group"
-          >
-            <Plus className="w-5 h-5 mr-3 group-hover:rotate-90 transition-transform duration-500" />
-            <span className="text-[10px] uppercase tracking-widest font-bold">
-              {requiresReview ? 'Submit for Review' : 'Generate New Test'}
-            </span>
+          <Button asChild className="hover-lift shadow-premium rounded-xl h-10 px-6">
+            <Link href="/teacher/assessments/generator" className="text-xs uppercase tracking-widest font-normal">
+              Initiate Registry
+            </Link>
           </Button>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* List */}
       <div className="grid gap-6">
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground opacity-30" />
-          <Input
-            placeholder="Search regional or institutional examination title..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-14 pl-12 max-w-md bg-card/40 backdrop-blur-md border-primary/5 rounded-[1.5rem] focus:ring-1 focus:ring-primary/20 transition-premium"
-          />
+        <div className="flex flex-col gap-4 md:flex-row md:items-center">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground opacity-40 transition-premium" />
+            <Input 
+              placeholder="Search registry by title..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 h-12 bg-card/40 backdrop-blur-md border-primary/5 rounded-2xl text-sm transition-premium focus:ring-1 focus:ring-primary/20"
+            />
+          </div>
         </div>
 
         <motion.div 
@@ -152,20 +148,20 @@ export default function AssessmentsPage() {
                 variants={STAGGER_ITEM}
                 layout
               >
-                <Card className="hover-lift overflow-hidden border-primary/5 bg-card/40 backdrop-blur-md shadow-premium rounded-[2.5rem] h-full flex flex-col hover:shadow-massive transition-premium">
-                  <CardHeader className="pb-4 flex flex-row items-start justify-between space-y-0 p-8">
+                <Card className="hover-lift overflow-hidden border-primary/5 bg-card/40 backdrop-blur-md shadow-premium rounded-2xl h-full flex flex-col hover:shadow-massive transition-premium">
+                  <CardHeader className="pb-4 flex flex-row items-start justify-between space-y-0 p-6">
                     <div className="space-y-3">
-                      <Badge variant={assessment.phase === 'First Test' ? 'outline' : 'secondary'} className="text-[9px] uppercase tracking-widest font-black border-primary/10 bg-primary/5 text-primary px-3 h-6">
+                      <Badge variant={assessment.phase === 'First Test' ? 'outline' : 'secondary'} className="text-[9px] uppercase tracking-widest font-normal h-5 border-none bg-primary/5 text-primary px-2">
                         {assessment.phase}
                       </Badge>
-                      <CardTitle className="text-2xl font-serif font-normal group-hover:text-primary transition-colors leading-tight">
+                      <CardTitle className="text-xl font-serif font-normal group-hover:text-primary transition-colors leading-tight">
                         {assessment.title}
                       </CardTitle>
                     </div>
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      className="h-10 w-10 text-destructive hover:bg-destructive/10 hover:text-destructive rounded-xl transition-premium opacity-40 hover:opacity-100"
+                      className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive rounded-xl transition-premium opacity-40 hover:opacity-100"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleDelete(assessment.id);
@@ -174,32 +170,32 @@ export default function AssessmentsPage() {
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </CardHeader>
-                  <CardContent className="space-y-8 flex-1 flex flex-col p-8 pt-0">
-                    <div className="grid grid-cols-2 gap-y-6 gap-x-4 text-[10px] uppercase tracking-widest font-bold text-muted-foreground opacity-50">
+                  <CardContent className="space-y-6 flex-1 flex flex-col p-6 pt-0">
+                    <div className="grid grid-cols-2 gap-y-4 gap-x-4 text-[9px] uppercase tracking-widest font-normal text-muted-foreground opacity-50">
                       <div className="flex items-center gap-3">
-                        <Users className="w-4 h-4 text-primary/60" />
+                        <Users className="w-3.5 h-3.5 text-primary/60" />
                         <span className="truncate">{assessment.classLevels[0]}</span>
                       </div>
                       <div className="flex items-center gap-3">
-                        <FileText className="w-4 h-4 text-primary/60" />
+                        <FileText className="w-3.5 h-3.5 text-primary/60" />
                         <span>{assessment.nature}</span>
                       </div>
                       <div className="flex items-center gap-3">
-                        <Clock className="w-4 h-4 text-primary/60" />
+                        <Clock className="w-3.5 h-3.5 text-primary/60" />
                         <span>{assessment.durationMinutes} min</span>
                       </div>
                       <div className="flex items-center gap-3">
-                        <Calendar className="w-4 h-4 text-primary/60" />
-                        <span>{new Date(assessment.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                        <Calendar className="w-3.5 h-3.5 text-primary/60" />
+                        <span>{new Date(assessment.createdAt).toLocaleDateString()}</span>
                       </div>
                     </div>
                     
                     {/* Status + Token strip */}
-                      <div className="flex items-center justify-between p-5 rounded-[2rem] bg-muted/10 border border-primary/5 group/token relative overflow-hidden transition-premium">
+                      <div className="flex items-center justify-between p-4 rounded-2xl bg-muted/5 border border-primary/5 group/token relative overflow-hidden transition-premium">
                         <div className="absolute inset-0 bg-primary/[0.02] opacity-0 group-hover/token:opacity-100 transition-opacity" />
                         <div className="relative z-10 flex flex-col">
-                          <span className="text-[8px] uppercase tracking-widest font-black text-muted-foreground opacity-40">System Access Token</span>
-                          <span className="font-mono text-base font-normal tracking-widest text-primary mt-1">{assessment.accessCode}</span>
+                          <span className="text-[8px] uppercase tracking-[0.2em] font-normal text-muted-foreground opacity-40">Access Token</span>
+                          <span className="font-mono text-sm font-normal tracking-widest text-primary mt-1">{assessment.accessCode}</span>
                         </div>
                         <div className="relative z-10 flex items-center gap-4">
                           {/* Status chip */}
@@ -253,9 +249,9 @@ export default function AssessmentsPage() {
                     <div className="pt-2">
                        <Button 
                         onClick={() => router.push(`/teacher/results/${assessment.id}`)}
-                        className="w-full group rounded-2xl h-14 bg-primary/5 hover:bg-primary text-primary hover:text-white border border-primary/5 transition-all shadow-sm font-bold text-[10px] uppercase tracking-widest"
+                        className="w-full group rounded-xl h-10 bg-primary/5 hover:bg-primary text-primary hover:text-white border border-primary/5 transition-all shadow-sm font-normal text-xs uppercase tracking-widest"
                       >
-                        Deep Audit Results
+                        Inspect Result
                         <ArrowRight className="w-4 h-4 ml-3 transition-transform group-hover:translate-x-1" />
                       </Button>
                     </div>
