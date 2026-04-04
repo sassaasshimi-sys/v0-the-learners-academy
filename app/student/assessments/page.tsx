@@ -51,14 +51,21 @@ export default function StudentAssessmentsPage() {
   // ── Start Test ──────────────────────────────────────────────────────────────
   const startTest = async (assessment: AssessmentTemplate) => {
     try {
-      if (!user) {
-        toast.error("Institutional profile not found. Please log in again.")
+      // Step 1: Explicit Identity Guard
+      if (!user || !user.id || user.id === 'undefined' || user.id === 'null') {
+        console.error("[Verification Failure] Auth data missing unique identifier", { user })
+        toast.error("Institutional Link Not Established", { 
+          description: "Your session identity is not yet stable. Please refresh or re-enter through the main portal."
+        })
         return
       }
 
       toast.loading("Shuffling institutional registry blocks...", { id: "test-start" })
       
-      // Step 6: Offload randomization to the server
+      // Step 5: Temporary Debug Audit
+      console.log(`[Test Initiation] Attempting secure randomized session for ${user.id} on test ${assessment.id}`)
+      
+      // Step 6: Server Action with Hard Validation
       const result = await generateRandomizedQuestions(user.id, assessment.id)
 
       if (!result.success || !result.questions) {
@@ -474,48 +481,103 @@ export default function StudentAssessmentsPage() {
   return (
     <div className="space-y-8 relative">
       {/* Header */}
-      <div>
-        <h1 className="font-serif leading-tight">Assessments</h1>
-        <p className="mt-2 text-muted-foreground text-editorial-label">
-          Access proctored academic tests and track your real-time results.
-        </p>
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-primary/10">
+        <div className="space-y-1">
+          <h1 className="font-serif text-5xl font-black text-foreground drop-shadow-sm">Assessments</h1>
+          <p className="text-muted-foreground text-editorial-label uppercase tracking-[0.2em] opacity-60">Proctored Academic Registry</p>
+        </div>
+        <div className="flex items-center gap-3 bg-primary/5 px-5 py-3 rounded-2xl border border-primary/10 backdrop-blur-sm">
+           <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+           <p className="text-[10px] font-bold uppercase tracking-widest text-primary">Identity: {user?.name || 'Verifying...'}</p>
+        </div>
       </div>
 
-      {/* Listing */}
-      <div className="grid gap-4 md:grid-cols-2">
+      {/* Available Assessments Section */}
+      <section className="space-y-8 pt-4">
+        <div className="flex items-center gap-3">
+           <BookOpen className="w-6 h-6 text-primary" />
+           <h2 className="text-2xl font-serif font-normal">Active Institutional Assessments</h2>
+        </div>
+
         {availableAssessments.length === 0 ? (
-          <Card className="md:col-span-2 border-dashed flex flex-col items-center justify-center p-10 text-center text-muted-foreground">
-            <ClipboardList className="w-10 h-10 mb-3 opacity-20" />
-            <p className="font-serif font-semibold">No Assessments Assigned</p>
-            <p className="text-sm mt-1">There are no active tests available for your access code.</p>
+          <Card className="border-dashed border-primary/20 bg-primary/5 rounded-[3rem] p-16 text-center animate-in fade-in zoom-in duration-500">
+            <Lock className="w-16 h-16 text-primary/20 mx-auto mb-6" />
+            <h3 className="text-2xl font-serif font-bold">No active sessions found</h3>
+            <p className="text-sm text-muted-foreground max-w-sm mx-auto mt-2 leading-relaxed">Your access token does not match any current active assessments in this academic branch.</p>
           </Card>
         ) : (
-          availableAssessments.map(test => (
-            <Card key={test.id} className="group overflow-hidden border-none shadow-sm ring-1 ring-border bg-card hover:ring-primary/40 transition-premium hover:shadow-md">
-              <div className="h-0.5 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-              <CardHeader className="pb-2 pt-4">
-                <div className="flex justify-between items-center">
-                  <Badge variant="outline" className="text-[9px] tracking-widest uppercase font-bold text-primary border-primary/20 bg-primary/5">
-                    {test.phase}
-                  </Badge>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground font-medium">
-                    <Clock className="w-3 h-3" /> {test.durationMinutes} min
-                  </div>
-                </div>
-                <CardTitle className="mt-1 font-serif text-lg">{test.title}</CardTitle>
-                <CardDescription className="text-[10px] uppercase tracking-wide">
-                  {test.nature} · {test.totalMarks} Marks
-                </CardDescription>
-              </CardHeader>
-              <CardFooter className="bg-muted/20 py-3">
-                <Button onClick={() => startTest(test)} className="w-full gap-2 font-semibold text-sm">
-                  Secure Entry <Lock className="w-3.5 h-3.5" />
-                </Button>
-              </CardFooter>
-            </Card>
-          ))
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {availableAssessments.map((assessment) => {
+              const isSessionReady = !!user && !!user.id && user.id !== 'undefined' && user.id !== 'null'
+              
+              return (
+                <Card 
+                  key={assessment.id} 
+                  className={cn(
+                    "group rounded-[2.5rem] border-primary/5 bg-card/60 backdrop-blur-xl shadow-premium overflow-hidden hover:shadow-massive hover-lift transition-premium relative",
+                    !isSessionReady && "opacity-60 grayscale-[0.5] cursor-not-allowed"
+                  )}
+                >
+                  <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  
+                  <CardHeader className="p-8 pb-4">
+                    <div className="flex justify-between items-start mb-4">
+                      <Badge variant="outline" className="text-[10px] uppercase tracking-widest bg-primary/5 border-primary/10 px-3 py-1">{assessment.nature}</Badge>
+                      <div className="p-2.5 bg-primary/10 rounded-xl">
+                        <Award className="w-5 h-5 text-primary" />
+                      </div>
+                    </div>
+                    <CardTitle className="font-serif text-2xl group-hover:text-primary transition-colors pr-4">{assessment.title}</CardTitle>
+                    <CardDescription className="text-[10px] uppercase tracking-widest font-bold opacity-30 mt-2">Institutional Examination Profile</CardDescription>
+                  </CardHeader>
+
+                  <CardContent className="p-8 pt-0 space-y-8">
+                    <div className="grid grid-cols-2 gap-6 bg-primary/[0.03] p-4 rounded-2xl border border-primary/5">
+                      <div className="space-y-1">
+                        <p className="text-[9px] uppercase tracking-widest font-black text-primary/60">Duration</p>
+                        <div className="flex items-center gap-2">
+                          <Timer className="w-4 h-4 text-primary" />
+                          <span className="text-sm font-sans font-bold">{assessment.durationMinutes}m</span>
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-[9px] uppercase tracking-widest font-black text-primary/60">Registry Blocks</p>
+                        <div className="flex items-center gap-2">
+                          <BookOpen className="w-4 h-4 text-primary" />
+                          <span className="text-sm font-sans font-bold">{assessment.questionCount || 10} Units</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <Button 
+                      onClick={() => isSessionReady && startTest(assessment)}
+                      disabled={!isSessionReady}
+                      className={cn(
+                        "w-full h-14 rounded-2xl text-[11px] uppercase tracking-widest font-black shadow-xl group/btn transition-all duration-500",
+                        isSessionReady 
+                          ? "bg-primary text-white shadow-primary/20 hover:scale-[1.02] active:scale-95" 
+                          : "bg-muted text-muted-foreground shadow-none"
+                      )}
+                    >
+                      {isSessionReady ? (
+                        <>
+                          <Zap className="w-4 h-4 mr-2 group-hover/btn:rotate-12 transition-transform" />
+                          Authorized Secure Entry
+                        </>
+                      ) : (
+                        <>
+                          <Clock className="w-4 h-4 mr-2 animate-spin" />
+                          Authenticating Identity...
+                        </>
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
         )}
-      </div>
+      </section>
 
       {/* ── Test Engine Overlay ───────────────────────────────────────────── */}
       <AnimatePresence>

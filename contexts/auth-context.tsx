@@ -9,15 +9,21 @@ import { loginAction, registerAction } from '@/lib/actions/auth-actions'
 function validateToken(token: string): User | null {
   try {
     const payload = JSON.parse(atob(token))
-    if (payload.exp < Date.now()) return null
-    return {
-      id: payload.sub,
-      email: payload.email,
-      role: payload.role,
-      name: payload.name || 'User',
-      createdAt: new Date().toISOString(),
+    if (!payload || !payload.sub) {
+      console.warn('[Auth] Token validation failed: Missing payload subject (sub)')
+      return null
     }
-  } catch {
+    if (payload.exp < Date.now()) return null
+    
+    return {
+      id: payload.sub, // Canonical 32-bit DB ID or CUID
+      email: payload.email || '',
+      role: payload.role as UserRole,
+      name: payload.name || 'User',
+      createdAt: payload.createdAt || new Date().toISOString(),
+    }
+  } catch (err) {
+    console.error('[Auth] Decoding fatal error:', err)
     return null
   }
 }
@@ -64,24 +70,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const stored = sessionStorage.getItem(AUTH_STORAGE_KEY)
         if (stored) {
-          const { token, user } = JSON.parse(stored)
+          const { token } = JSON.parse(stored)
           const validatedUser = validateToken(token)
           
           if (validatedUser) {
-            console.log('Restored auth session for:', validatedUser.email)
+            console.log('[Auth] Valid session hydrated:', validatedUser.id)
             setState({
               user: validatedUser,
               isAuthenticated: true,
               isLoading: false,
             })
             return
+          } else {
+            console.warn('[Auth] Stale or invalid session detected during hydration. Purging...')
+            sessionStorage.removeItem(AUTH_STORAGE_KEY)
           }
         }
       } catch (error) {
-        console.error('Failed to restore auth state:', error)
+        console.error('[Auth] Initialization failure:', error)
+        sessionStorage.removeItem(AUTH_STORAGE_KEY)
       }
       
-      setState(prev => ({ ...prev, isLoading: false }))
+      setState(prev => ({ ...prev, user: null, isAuthenticated: false, isLoading: false }))
     }
 
     initializeAuth()
@@ -239,15 +249,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Directly establishes a student session after token-based validation (bypasses password login)
   const setAssessmentSession = useCallback((studentRecord: any) => {
+    if (!studentRecord || !studentRecord.id) {
+      console.error('[Auth] Cannot establish session for incomplete record', studentRecord)
+      toast.error("Identity Verification Failed", { description: "Institutional record missing unique fingerprint." })
+      return
+    }
+
     const user: User = {
       id: studentRecord.id,
-      email: studentRecord.email,
-      name: studentRecord.name,
+      email: studentRecord.email || '',
+      name: studentRecord.name || 'Student',
       role: 'student',
       avatar: studentRecord.avatar || undefined,
       createdAt: studentRecord.createdAt ? new Date(studentRecord.createdAt).toISOString() : new Date().toISOString(),
     }
-    const token = btoa(JSON.stringify({ sub: user.id, email: user.email, role: user.role, name: user.name, exp: Date.now() + 24 * 60 * 60 * 1000 }))
+    
+    // Ensure "sub" is ALWAYS studentRecord.id to prevent "undefined::assessmentId" seeds
+    const token = btoa(JSON.stringify({ 
+      sub: user.id, 
+      email: user.email, 
+      role: user.role, 
+      name: user.name, 
+      createdAt: user.createdAt,
+      exp: Date.now() + 24 * 60 * 60 * 1000 
+    }))
+    
     sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ token, user, expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() }))
     setState({ user, isAuthenticated: true, isLoading: false })
   }, [])

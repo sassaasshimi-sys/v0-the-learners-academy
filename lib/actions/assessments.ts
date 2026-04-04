@@ -136,6 +136,12 @@ export async function validateAccessToken(token: string, studentId: string, clas
  */
 export async function generateRandomizedQuestions(studentId: string, assessmentId: string) {
   try {
+    // Hard Validation (Step 3 & 6 of Audit Fix)
+    if (!studentId || studentId === 'undefined' || studentId === 'null') {
+      console.error('[Assessment Engine] FATAL: Invalid identity passed to randomizer', { studentId, assessmentId })
+      throw new Error('Identity Verification Failed: Question sequence cannot be generated without a valid institutional record.')
+    }
+
     // 1. Fetch Template
     const assessment = await db.assessmentTemplate.findUnique({
       where: { id: assessmentId }
@@ -158,21 +164,20 @@ export async function generateRandomizedQuestions(studentId: string, assessmentI
 
     if (pool.length === 0) throw new Error('No approved institutional blocks found for this assessment criteria')
 
-    // 3. Stable Seed Construction (Step 3 of Audit Fix)
+    // 3. Stable Seed Construction
     const rawSeed = `${studentId}::${assessmentId}`
     const seed = getSeedFromId(rawSeed)
     const prng = createPRNG(seed)
 
-    // 4. Robust Shuffle (Step 2 of Audit Fix)
+    // 4. Robust Shuffle
     const shuffled = shuffleArray(pool as unknown as Question[], prng)
 
     // 5. Select target count
     const selected = shuffled.slice(0, assessment.questionCount || 10)
 
     // Debug Logging (Temporary - Step 7)
-    console.log(`[Assessment Engine] Seeded Shuffle - Student:${studentId} Test:${assessmentId}`)
-    console.log(`[Assessment Engine] Seed: ${seed} | Hash: ${rawSeed}`)
-    console.log(`[Assessment Engine] Sequence (First 3): ${selected.slice(0,3).map(q => q.id).join(', ')}`)
+    console.log(`[Assessment Engine] SEED_AUDIT | Student: ${studentId} | Test: ${assessmentId} | Seed: ${seed}`)
+    console.log(`[Assessment Engine] SEQ_AUDIT  | ${selected.slice(0,3).map(q => q.id).join(' -> ')}`)
 
     return {
       success: true,
