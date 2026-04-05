@@ -109,7 +109,7 @@ export default function GrowthPage() {
     }))
   }, [students])
 
-  if (isLoading) return null
+
 
   return (
     <motion.div 

@@ -197,7 +197,7 @@ export default function EconomicsPage() {
     toast.success("Branded PDF Registry generated.")
   }
 
-  if (isLoading || !economics) return null
+
 
   const pieData = Object.entries(economics.categoryBreakdown).map(([name, value]: [string, any]) => ({
     name,
