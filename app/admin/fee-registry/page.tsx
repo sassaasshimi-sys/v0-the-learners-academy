@@ -62,6 +62,10 @@ export default function FeeRegistryPage() {
   const [isAddAccountOpen, setIsAddAccountOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
 
+  // Live Preview State for Dialog
+  const [tempTotal, setTempTotal] = useState(0)
+  const [tempDiscount, setTempDiscount] = useState(0)
+
   const today = new Date()
   
   const stats = useMemo(() => {
@@ -78,9 +82,12 @@ export default function FeeRegistryPage() {
       .reduce((sum, p) => sum + p.amountPaid, 0)
 
     const totalOutstanding = feePayments
-      .reduce((sum, p) => sum + (p.totalAmount - p.amountPaid), 0)
+      .reduce((sum, p) => sum + (p.totalAmount - (p.discount || 0) - p.amountPaid), 0)
 
-    return { daily, weekly, monthly, totalOutstanding }
+    const totalDiscounts = feePayments
+      .reduce((sum, p) => sum + (p.discount || 0), 0)
+
+    return { daily, weekly, monthly, totalOutstanding, totalDiscounts }
   }, [feePayments])
 
   const filteredPayments = useMemo(() => {
@@ -99,6 +106,7 @@ export default function FeeRegistryPage() {
       studentId: formData.get('studentId') as string,
       courseId: formData.get('courseId') as string,
       totalAmount: Number(formData.get('totalAmount')),
+      discount: Number(formData.get('discount') || 0),
       initialDeposit: Number(formData.get('initialDeposit')),
     }
 
@@ -106,6 +114,8 @@ export default function FeeRegistryPage() {
       try {
         await addFeeAccount(data)
         setIsAddAccountOpen(false)
+        setTempTotal(0)
+        setTempDiscount(0)
         toast.success("Academic account initialized.")
       } catch (error) {
         toast.error("Failed to link account.")
@@ -171,7 +181,7 @@ export default function FeeRegistryPage() {
       label: 'Status',
       render: (entry) => (
         <div className={cn(
-          "inline-flex items-center gap-2.5 px-3.5 py-1.5 text-xs border border-transparent font-normal transition-all",
+          "inline-flex items-center gap-2.5 px-3.5 py-1.5 text-xs border border-transparent font-normal transition-all rounded-full",
           entry.status === 'Paid' && "bg-success/5 text-success border-success/10",
           entry.status === 'Partial' && "bg-warning/5 text-warning border-warning/10",
           entry.status === 'Unpaid' && "bg-destructive/5 text-destructive border-destructive/10"
@@ -183,14 +193,18 @@ export default function FeeRegistryPage() {
     {
       label: 'Dues (Rs.)',
       render: (entry) => {
-        const balance = entry.totalAmount - entry.amountPaid
-        const progress = (entry.amountPaid / entry.totalAmount) * 100
+        const netFee = entry.totalAmount - (entry.discount || 0)
+        const balance = netFee - entry.amountPaid
+        const progress = (entry.amountPaid / netFee) * 100
         return (
           <div className="flex flex-col gap-2 pr-6">
             <div className="flex justify-between items-end">
               <div className="flex flex-col">
-                <span className="text-xs font-normal text-foreground leading-none">Paid: {entry.amountPaid.toLocaleString()}</span>
-                <span className="text-xs text-muted-foreground mt-1 opacity-60">Total: {entry.totalAmount.toLocaleString()}</span>
+                <div className="flex items-center gap-2">
+                    <span className="text-xs font-normal text-foreground leading-none">Net: {netFee.toLocaleString()}</span>
+                    {entry.discount > 0 && <span className="text-[10px] text-primary/60 italic font-medium">(-{entry.discount.toLocaleString()})</span>}
+                </div>
+                <span className="text-[10px] text-muted-foreground mt-1 opacity-60">Base: {entry.totalAmount.toLocaleString()}</span>
               </div>
               {balance > 0 ? (
                 <span className="text-xs text-destructive font-serif font-normal italic">Rs. {balance.toLocaleString()} Due</span>
@@ -238,63 +252,97 @@ export default function FeeRegistryPage() {
         title="Institutional Fee Registry"
         description="Administrative ledger for tuition collection, payment scheduling, and real-time financial tracking across all academic sessions."
         actions={
-          <Dialog open={isAddAccountOpen} onOpenChange={setIsAddAccountOpen}>
+          <Dialog open={isAddAccountOpen} onOpenChange={(open) => { setIsAddAccountOpen(open); if(!open){ setTempTotal(0); setTempDiscount(0); } }}>
             <DialogTrigger asChild>
               <Button className="font-normal bg-primary shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
                 Add Student Account
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-xl overflow-hidden">
-              <DialogHeader className="p-8 bg-muted/5 border-b ">
-                <DialogTitle className="font-serif text-2xl font-normal">Initiate Academic Account</DialogTitle>
-                <DialogDescription className="text-xs opacity-60">
-                  Link an existing student to the financial registry
+            <DialogContent className="sm:max-w-xl p-0 overflow-hidden border-white/10 rounded-[2rem] glass-3">
+              <DialogHeader className="p-10 pb-0 text-center">
+                <div className="mx-auto w-14 h-14 bg-primary/5 rounded-2xl flex items-center justify-center mb-6 ring-1 ring-primary/20">
+                    <CreditCard className="w-7 h-7 text-primary opacity-80" />
+                </div>
+                <DialogTitle className="font-serif text-3xl font-medium tracking-tight">Initiate Academic Account</DialogTitle>
+                <DialogDescription className="text-[10px] uppercase tracking-[0.3em] opacity-40 mt-2">
+                    Fiscal Institutional Entry Protocol
                 </DialogDescription>
               </DialogHeader>
-              <form onSubmit={handleAddAccount} className="p-8 space-y-6">
-                <div className="grid grid-cols-2 gap-6 text-left items-stretch">
-                  <div className="space-y-2">
-                    <Label className="text-xs opacity-40 ml-1">Select Student</Label>
-                    <Select name="studentId" required>
-                      <SelectTrigger className="h-12 bg-muted/5">
-                        <SelectValue placeholder="Registration / UID" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {students?.map(s => (
-                          <SelectItem key={s.id} value={s.id}>
-                            {s.name} ({s.studentId})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+              <form onSubmit={handleAddAccount} className="p-10 pt-6 space-y-8">
+                <div className="space-y-6">
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label className="text-[10px] uppercase tracking-[0.2em] font-bold text-primary/60 mb-2 ml-1">Select Student</Label>
+                      <Select name="studentId" required>
+                        <SelectTrigger className="h-12 bg-background/30 border-white/5 focus:ring-1 focus:ring-primary/20 transition-all text-sm rounded-xl">
+                          <SelectValue placeholder="Candidate UID" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {students?.map(s => (
+                            <SelectItem key={s.id} value={s.id}>
+                              {s.name} ({s.studentId})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                        <Label className="text-[10px] uppercase tracking-[0.2em] font-bold text-primary/60 mb-2 ml-1">Academic Level</Label>
+                      <Select name="courseId" required>
+                        <SelectTrigger className="h-12 bg-background/30 border-white/5 focus:ring-1 focus:ring-primary/20 transition-all text-sm rounded-xl">
+                          <SelectValue placeholder="Enrolled Batch" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {courses?.map(c => (
+                            <SelectItem key={c.id} value={c.id}>
+                              {c.title}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs opacity-40 ml-1">Academic Level</Label>
-                    <Select name="courseId" required>
-                      <SelectTrigger className="h-12 bg-muted/5">
-                        <SelectValue placeholder="Enrolled Course" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {courses?.map(c => (
-                          <SelectItem key={c.id} value={c.id}>
-                            {c.title}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+
+                  <div className="grid grid-cols-2 gap-6 pt-6 border-t border-white/5">
+                    <div className="space-y-2">
+                        <Label className="text-[10px] uppercase tracking-[0.2em] font-bold text-primary/60 mb-2 ml-1">Total Flexible Fee (Rs.)</Label>
+                      <Input 
+                        name="totalAmount" 
+                        type="number" 
+                        required 
+                        placeholder="0.00" 
+                        onChange={(e) => setTempTotal(Number(e.target.value))}
+                        className="h-12 bg-background/30 border-white/5 focus:ring-1 focus:ring-primary/20 transition-all rounded-xl" 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                        <Label className="text-[10px] uppercase tracking-[0.2em] font-bold text-primary/60 mb-2 ml-1">Philanthropic Relief (Rs.)</Label>
+                      <Input 
+                        name="discount" 
+                        type="number" 
+                        placeholder="Scholarship Amount" 
+                        onChange={(e) => setTempDiscount(Number(e.target.value))}
+                        className="h-12 bg-background/30 border-white/5 focus:ring-1 focus:ring-primary/20 transition-all rounded-xl" 
+                      />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs opacity-40 ml-1">Total Flexible Fee (Rs.)</Label>
-                    <Input name="totalAmount" type="number" required placeholder="0.00" className="h-12 bg-muted/5 focus:bg-card transition-all" />
+
+                  <div className="pt-4 flex items-center justify-between px-6 py-4 bg-primary/5 rounded-2xl border border-primary/10">
+                    <span className="text-[10px] uppercase tracking-widest font-bold text-primary/60">Net Calculated Tuition</span>
+                    <span className="font-serif text-2xl text-primary drop-shadow-sm">Rs. {(tempTotal - tempDiscount).toLocaleString()}</span>
                   </div>
+
                   <div className="space-y-2">
-                    <Label className="text-xs opacity-40 ml-1">Initial Deposit (Rs.)</Label>
-                    <Input name="initialDeposit" type="number" defaultValue={0} className="h-12 bg-muted/5 focus:bg-card transition-all" />
+                    <Label className="text-[10px] uppercase tracking-[0.2em] font-bold text-primary/60 mb-2 ml-1">Initial Deposit (Rs.)</Label>
+                    <Input name="initialDeposit" type="number" defaultValue={0} className="h-12 bg-background/30 border-white/5 focus:ring-1 focus:ring-primary/20 transition-all rounded-xl" />
                   </div>
                 </div>
-                <DialogFooter className="pt-4">
-                  <Button type="submit" disabled={isPending} className="w-full font-normal shadow-lg">
-                    {isPending ? 'Syncing...' : 'Authorize Registration'}
+                <DialogFooter className="pt-4 gap-3">
+                  <Button type="button" variant="ghost" onClick={() => setIsAddAccountOpen(false)} className="rounded-xl text-muted-foreground hover:text-foreground">
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={isPending} className="px-8 rounded-xl bg-primary text-primary-foreground font-serif text-lg tracking-wide hover-lift shadow-xl shadow-primary/20">
+                    {isPending ? 'Processing...' : 'Authorize Registration'}
                   </Button>
                 </DialogFooter>
               </form>
@@ -303,33 +351,32 @@ export default function FeeRegistryPage() {
         }
       />
 
-      <EntityCardGrid 
-        data={[
-          { label: 'Daily Collection', value: stats.daily, info: 'Today', icon: Clock, color: 'text-primary' },
-          { label: 'Weekly Velocity', value: stats.weekly, info: 'Current Week', icon: ArrowUpRight, color: 'text-success' },
-          { label: 'Monthly Volume', value: stats.monthly, info: 'Current Month', icon: DollarSign, color: 'text-primary' },
-          { label: 'Total Outstanding', value: stats.totalOutstanding, info: 'Uncollected', icon: AlertCircle, color: 'text-destructive' },
-        ]}
-        renderItem={(stat, i) => (
-          <Card key={i} className="hover-lift transition-premium">
-            <CardContent className="pt-8 pb-7 flex-1">
-              <div className="flex flex-col gap-4">
-                <div className="w-10 h-10 bg-primary/5 flex items-center justify-center border ">
+      <div className="grid grid-cols-5 gap-6 mb-12">
+        {[
+          { label: 'Daily Collection', value: stats.daily, info: 'Current Cycle', icon: Clock, color: 'text-primary' },
+          { label: 'Weekly Velocity', value: stats.weekly, info: 'Active Term', icon: ArrowUpRight, color: 'text-success' },
+          { label: 'Monthly Volume', value: stats.monthly, info: 'Projected Flow', icon: DollarSign, color: 'text-primary' },
+          { label: 'Outstanding Dues', value: stats.totalOutstanding, info: 'Uncollected', icon: AlertCircle, color: 'text-destructive' },
+          { label: 'Institutional Relief', value: stats.totalDiscounts, info: 'Philanthropic Investment', icon: HeartHandshake, color: 'text-indigo-400' },
+        ].map((stat, i) => (
+          <Card key={i} className="glass-1 border-white/10 shadow-premium overflow-hidden rounded-[2rem] hover:translate-y-[-4px] transition-all duration-500">
+            <CardContent className="pt-8 pb-7">
+              <div className="flex flex-col gap-4 text-center">
+                <div className="mx-auto w-10 h-10 bg-primary/5 flex items-center justify-center border border-white/5 rounded-xl">
                   <stat.icon className={cn("h-4 w-4", stat.color)} />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground mb-2 font-normal opacity-60">{stat.label}</p>
-                  <h3 className="font-serif mb-3 text-xl font-serif font-medium">
+                  <p className="text-[10px] uppercase tracking-[0.2em] font-bold opacity-30 mb-2">{stat.label}</p>
+                  <h3 className="font-serif text-xl font-medium tracking-tight">
                     Rs. {stat.value.toLocaleString()}
                   </h3>
-                  <p className="text-xs text-muted-foreground mt-2 font-normal opacity-70">{stat.info}</p>
+                  <p className="text-[9px] text-muted-foreground mt-2 font-normal opacity-50 tracking-wider uppercase italic">{stat.info}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-        )}
-        columns={4}
-      />
+        ))}
+      </div>
 
       <EntityDataGrid 
         title="Student Accounts"

@@ -30,7 +30,8 @@ export async function recordPayment(paymentId: string, amount: number): Promise<
     if (!current) return { success: false, error: 'Payment record not found' }
 
     const newAmount = current.amountPaid + amount
-    const status = newAmount >= current.totalAmount ? 'Paid' : newAmount > 0 ? 'Partial' : 'Unpaid'
+    const netDue = current.totalAmount - (current.discount || 0)
+    const status = newAmount >= netDue ? 'Paid' : newAmount > 0 ? 'Partial' : 'Unpaid'
 
     const result = await db.feePayment.update({
       where: { id: paymentId },
@@ -49,14 +50,17 @@ export async function recordPayment(paymentId: string, amount: number): Promise<
   }
 }
 
-export async function addFeeAccount(data: { studentId: string, courseId: string, totalAmount: number, initialDeposit: number }): Promise<ActionResult> {
+export async function addFeeAccount(data: { studentId: string, courseId: string, totalAmount: number, discount: number, initialDeposit: number }): Promise<ActionResult> {
   try {
-    const status = data.initialDeposit >= data.totalAmount ? 'Paid' : data.initialDeposit > 0 ? 'Partial' : 'Unpaid'
+    const netDue = data.totalAmount - data.discount
+    const status = data.initialDeposit >= netDue ? 'Paid' : data.initialDeposit > 0 ? 'Partial' : 'Unpaid'
+    
     const result = await db.feePayment.create({
       data: {
         studentId: data.studentId,
         courseId: data.courseId,
         totalAmount: data.totalAmount,
+        discount: data.discount,
         amountPaid: data.initialDeposit,
         status,
         paymentDate: data.initialDeposit > 0 ? new Date() : null
@@ -69,6 +73,7 @@ export async function addFeeAccount(data: { studentId: string, courseId: string,
     return { success: false, error: 'Failed to initialize student fee account' }
   }
 }
+
 
 export async function updateClassFee(courseId: string, feeAmount: number): Promise<ActionResult> {
   try {
