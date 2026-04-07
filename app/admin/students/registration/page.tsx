@@ -3,6 +3,7 @@
 import { DashboardSkeleton } from '@/components/dashboard-skeleton'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
+import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { useData } from '@/contexts/data-context'
@@ -31,6 +32,7 @@ import {
 import Link from 'next/link'
 import type { Student } from '@/lib/types'
 import { ACADEMY_LEVELS, SESSION_TIMINGS } from '@/lib/registry'
+import { ReceiptModal } from '@/components/receipt/receipt-modal'
 
 const registrationSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -47,6 +49,10 @@ type RegistrationFormValues = z.infer<typeof registrationSchema>
 export default function StudentRegistrationPage() {
   const router = useRouter()
   const { students, courses, enrollStudent, isInitialized } = useData()
+  
+  const [showSuccess, setShowSuccess] = useState(false)
+  const [registeredStudent, setRegisteredStudent] = useState<any>(null)
+  const [selectedCourseObj, setSelectedCourseObj] = useState<any>(null)
 
   if (!isInitialized) return <DashboardSkeleton />
 
@@ -87,8 +93,10 @@ export default function StudentRegistrationPage() {
 
     try {
       await enrollStudent(newStudent)
+      setRegisteredStudent(newStudent)
+      setSelectedCourseObj(courses.find(c => c.id === data.course) || { title: data.course })
+      setShowSuccess(true)
       toast.success('Registration Protocol Finalized')
-      router.push('/admin/students')
     } catch (err) {
       // Error handled by context
     }
@@ -233,6 +241,18 @@ export default function StudentRegistrationPage() {
             </Button>
         </div>
       </form>
+
+      {registeredStudent && (
+        <ReceiptModal 
+          open={showSuccess}
+          onOpenChange={(open) => {
+            setShowSuccess(open)
+            if (!open) router.push('/admin/students')
+          }}
+          student={registeredStudent}
+          course={selectedCourseObj}
+        />
+      )}
     </div>
   )
 }
