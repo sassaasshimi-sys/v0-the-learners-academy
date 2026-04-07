@@ -70,6 +70,8 @@ export default function StudentsPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [classFilter, setClassFilter] = useState('all')
+  const [timingFilter, setTimingFilter] = useState('all')
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
 
   const { students, courses: mockCourses, removeStudent, updateStudentStatus, updateStudent, isInitialized } = useData()
@@ -83,9 +85,14 @@ export default function StudentsPage() {
   const filteredStudents = students?.filter(student => {
     const matchesSearch = 
       student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      student.email.toLowerCase().includes(searchQuery.toLowerCase())
+      student.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      student.studentId?.toLowerCase().includes(searchQuery.toLowerCase())
+    
     const matchesStatus = statusFilter === 'all' || student.status === statusFilter
-    return matchesSearch && matchesStatus
+    const matchesClass = classFilter === 'all' || student.enrolledCourses.includes(classFilter)
+    const matchesTiming = timingFilter === 'all' || student.classTiming === timingFilter
+
+    return matchesSearch && matchesStatus && matchesClass && matchesTiming
   })
 
   const onEditSubmit = async (data: StudentFormValues) => {
@@ -281,7 +288,7 @@ export default function StudentsPage() {
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-[140px] h-10 text-xs font-normal">
-                <SelectValue placeholder="Filter status" />
+                <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
@@ -290,10 +297,35 @@ export default function StudentsPage() {
                 <SelectItem value="graduated">Graduated</SelectItem>
               </SelectContent>
             </Select>
+
+            <Select value={classFilter} onValueChange={setClassFilter}>
+              <SelectTrigger className="w-[160px] h-10 text-xs font-normal">
+                <SelectValue placeholder="Class Level" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Classes</SelectItem>
+                {mockCourses?.map((course: any) => (
+                  <SelectItem key={course.id} value={course.id}>{course.title}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={timingFilter} onValueChange={setTimingFilter}>
+              <SelectTrigger className="w-[180px] h-10 text-xs font-normal">
+                <SelectValue placeholder="Session Timing" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Timings</SelectItem>
+                {SESSION_TIMINGS?.map((time) => (
+                  <SelectItem key={time} value={time}>{time}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
             <div className="relative w-full sm:w-72">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground opacity-30" />
               <Input
-                placeholder="Search students..."
+                placeholder="Search candidates..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-9 bg-muted/10 focus:bg-background transition-all h-10 text-sm font-normal"
