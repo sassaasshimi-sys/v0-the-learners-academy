@@ -206,17 +206,17 @@ export default function EnrollmentTrendPage() {
   ]
 
   const periodStatData = [
-    { label: 'Weekly Growth', value: `${stats.growthDelta.toFixed(0)}%`, sub: 'Admissions Momentum', icon: Zap, color: 'text-primary' },
-    { label: 'Today Records', value: stats.today, sub: 'Daily Pulse', icon: TrendingUp, color: 'text-success' },
-    { label: 'Term Admissions', value: stats.semester, sub: 'Seasonal Window', icon: Waves, color: 'text-primary' },
-    { label: 'Academy Roster', value: students.length, sub: 'Institutional Scale', icon: GraduationCap, color: 'text-indigo-400' },
+    { label: 'Daily', value: stats.today, sub: 'New students today', icon: TrendingUp, color: 'text-success' },
+    { label: 'Weekly', value: stats.week, sub: 'Last 7 days', icon: Zap, color: 'text-primary' },
+    { label: 'Monthly', value: stats.month, sub: 'Last 30 days', icon: Calendar, color: 'text-indigo-400' },
+    { label: 'Semester', value: stats.semester, sub: 'Last 3 months', icon: Waves, color: 'text-primary' },
   ]
 
   return (
     <PageShell>
       <PageHeader 
-        title="Admissions Intelligence"
-        description="Comprehensive analysis of institutional growth trajectories, enrollment trends, and academic tier distribution."
+        title="Student Enrollment"
+        description="Track how many students are joining and which levels they are choosing."
       />
 
       <EntityCardGrid 
@@ -232,7 +232,7 @@ export default function EnrollmentTrendPage() {
                 <CardTitle className={cn("text-2xl font-serif font-medium", stat.color)}>
                   {stat.value}
                 </CardTitle>
-                {i === 0 && (
+                {i === 1 && (
                   <div className={cn("flex items-center gap-1 text-[10px] font-normal", stats.growthDelta >= 0 ? "text-success" : "text-destructive")}>
                     {stats.growthDelta >= 0 ? <ArrowUp className="w-2 h-2" /> : <ArrowDown className="w-2 h-2" />} 
                     {Math.abs(stats.growthDelta).toFixed(0)}%
@@ -251,8 +251,8 @@ export default function EnrollmentTrendPage() {
         {/* Admission Velocity Chart */}
         <Card className="glass-1 lg:col-span-3 overflow-hidden rounded-2xl shadow-premium transition-premium h-full flex flex-col">
           <CardHeader className="bg-muted/5 border-b p-8">
-            <h3 className="font-serif text-xl font-medium">Recruitment Velocity</h3>
-            <p className="text-xs text-muted-foreground font-normal opacity-60 mt-1">Stochastic entry distribution (Trailing 30-Day Window)</p>
+            <h3 className="font-serif text-xl font-medium">Enrollment Trend</h3>
+            <p className="text-xs text-muted-foreground font-normal opacity-60 mt-1">New students over the last 30 days</p>
           </CardHeader>
           <CardContent className="p-6 pt-12 flex-1">
             <div className="h-[300px]">
@@ -321,7 +321,7 @@ export default function EnrollmentTrendPage() {
       </div>
 
       <EntityDataGrid 
-        title="Admission Registry"
+        title="Recent Enrollments"
         data={filteredStudents}
         columns={columns}
         actions={

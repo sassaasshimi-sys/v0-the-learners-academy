@@ -68,51 +68,51 @@ const adminNavItems = [
     icon: LayoutDashboard,
   },
   {
-    title: 'Faculty Registry',
+    title: 'Instructors',
     href: '/admin/teachers',
     icon: Users,
     items: [
-      { title: 'Instructor Roster', href: '/admin/teachers', icon: Users },
-      { title: 'Onboarding Protocol', href: '/admin/teachers/registration', icon: UserPlus },
-      { title: 'Payroll Audit', href: '/admin/teachers/payroll', icon: DollarSign },
+      { title: 'All Instructors', href: '/admin/teachers', icon: Users },
+      { title: 'New Teacher', href: '/admin/teachers/registration', icon: UserPlus },
+      { title: 'Salaries', href: '/admin/teachers/payroll', icon: DollarSign },
     ]
   },
   {
-    title: 'Student Body',
+    title: 'Students',
     href: '/admin/students',
     icon: GraduationCap,
     items: [
-      { title: 'Student Registry', href: '/admin/students', icon: GraduationCap },
-      { title: 'Enrollment Registry', href: '/admin/students/registration', icon: PlusCircle },
+      { title: 'All Students', href: '/admin/students', icon: GraduationCap },
+      { title: 'New Admission', href: '/admin/students/registration', icon: PlusCircle },
     ]
   },
   {
-    title: 'Academic Ops',
+    title: 'Classes',
     href: '/admin/classes',
     icon: BookOpen,
     items: [
-      { title: 'Active Batches', href: '/admin/classes', icon: BookOpen },
-      { title: 'Attendance Registry', href: '/admin/attendance', icon: BadgeCheck },
-      { title: 'Schedule Auditor', href: '/admin/schedule', icon: CalendarDays },
+      { title: 'Current Classes', href: '/admin/classes', icon: BookOpen },
+      { title: 'Attendance', href: '/admin/attendance', icon: BadgeCheck },
+      { title: 'Timetable', href: '/admin/schedule', icon: CalendarDays },
     ]
   },
   {
-    title: 'Institutional intelligence',
+    title: 'School Growth',
     href: '/admin/fee-registry',
     icon: TrendingUp,
     items: [
-      { title: 'Fee Tracking', href: '/admin/fee-registry', icon: DollarSign },
-      { title: 'Economics Ledger', href: '/admin/economics', icon: TrendingUp },
-      { title: 'Enrollment Trend', href: '/admin/students/enrollment-trend', icon: BarChart },
+      { title: 'Student Fees', href: '/admin/fee-registry', icon: DollarSign },
+      { title: 'Money Report', href: '/admin/economics', icon: TrendingUp },
+      { title: 'Enrollment trends', href: '/admin/students/enrollment-trend', icon: BarChart },
     ]
   },
   {
-    title: 'Governance',
+    title: 'Settings',
     href: '/admin/test-reviews',
     icon: ShieldCheck,
     items: [
-      { title: 'Quality Controls', href: '/admin/test-reviews', icon: ShieldCheck },
-      { title: 'System Settings', href: '/admin/settings', icon: Settings },
+      { title: 'Test Reviews', href: '/admin/test-reviews', icon: ShieldCheck },
+      { title: 'General Settings', href: '/admin/settings', icon: Settings },
     ]
   },
 ]
