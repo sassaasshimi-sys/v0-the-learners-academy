@@ -54,7 +54,6 @@ import { PageShell } from '@/components/shared/page-shell'
 import { PageHeader } from '@/components/shared/page-header'
 import { EntityCardGrid } from '@/components/shared/entity-card-grid'
 import { EntityDataGrid, Column } from '@/components/shared/entity-data-grid'
-import { ReceiptModal } from '@/components/receipt/receipt-modal'
 
 export default function FeeRegistryPage() {
   const { students, courses, feePayments, recordPayment, addFeeAccount, isInitialized } = useData()
@@ -63,8 +62,6 @@ export default function FeeRegistryPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [filterStatus, setFilterStatus] = useState<'All' | 'Paid' | 'Partial' | 'Unpaid'>('All')
   const [isAddAccountOpen, setIsAddAccountOpen] = useState(false)
-  const [isReceiptOpen, setIsReceiptOpen] = useState(false)
-  const [receiptData, setReceiptData] = useState<any>(null)
   const [isPending, startTransition] = useTransition()
 
   // Live Preview State for Dialog
@@ -237,8 +234,7 @@ export default function FeeRegistryPage() {
               <Plus className="w-4 h-4 text-primary opacity-60" /> <span className="text-xs font-medium text-primary">Record Payment</span>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => {
-              setReceiptData(entry)
-              setIsReceiptOpen(true)
+              window.open(`/admin/print/receipt?studentId=${entry.student.id}&courseId=${entry.course.id}`, '_blank')
             }} className="gap-3 cursor-pointer py-3 focus:bg-primary/5 transition-all font-normal">
               <Printer className="w-4 h-4 text-muted-foreground opacity-60" /> <span className="text-xs">Generate Receipt</span>
             </DropdownMenuItem>
@@ -428,15 +424,6 @@ export default function FeeRegistryPage() {
           </div>
         }
       />
-
-      {receiptData && (
-        <ReceiptModal 
-          open={isReceiptOpen}
-          onOpenChange={setIsReceiptOpen}
-          student={receiptData.student}
-          course={receiptData.course}
-        />
-      )}
     </PageShell>
   )
 }

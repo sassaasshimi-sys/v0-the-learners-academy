@@ -29,10 +29,16 @@ import {
   IdCard,
   Sparkles
 } from 'lucide-react'
-import Link from 'next/link'
 import type { Student } from '@/lib/types'
 import { ACADEMY_LEVELS, SESSION_TIMINGS } from '@/lib/registry'
-import { ReceiptModal } from '@/components/receipt/receipt-modal'
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogFooter,
+  DialogDescription
+} from '@/components/ui/dialog'
 
 const registrationSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -243,15 +249,42 @@ export default function StudentRegistrationPage() {
       </form>
 
       {registeredStudent && (
-        <ReceiptModal 
-          open={showSuccess}
+        <Dialog 
+          open={showSuccess} 
           onOpenChange={(open) => {
             setShowSuccess(open)
             if (!open) router.push('/admin/students')
           }}
-          student={registeredStudent}
-          course={selectedCourseObj}
-        />
+        >
+          <DialogContent className="sm:max-w-md text-center p-8">
+            <div className="mx-auto w-16 h-16 bg-success/5 rounded-full flex items-center justify-center mb-6 ring-1 ring-success/20 animate-in zoom-in duration-500">
+               <ShieldCheck className="w-8 h-8 text-success" />
+            </div>
+            <DialogHeader>
+              <DialogTitle className="font-serif text-3xl font-medium tracking-tight">Enrollment Finalized</DialogTitle>
+              <DialogDescription className="text-xs font-normal opacity-60 mt-2">
+                Candidate record secured. You can now generate the official institutional receipt.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid grid-cols-1 gap-3 mt-8">
+              <Button 
+                onClick={() => {
+                  window.open(`/admin/print/receipt?studentId=${registeredStudent.id}&courseId=${selectedCourseObj.id}`, '_blank')
+                }}
+                className="h-12 rounded-xl bg-primary shadow-lg shadow-primary/20 font-normal"
+              >
+                Launch Receipt Tab
+              </Button>
+              <Button 
+                variant="ghost" 
+                onClick={() => router.push('/admin/students')}
+                className="text-xs font-normal opacity-60"
+              >
+                Close & Go to Dashboard
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   )
