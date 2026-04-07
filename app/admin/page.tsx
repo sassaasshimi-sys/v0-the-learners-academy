@@ -37,10 +37,15 @@ import { useAuth } from '@/contexts/auth-context'
 
 export default function AdminDashboard() {
   const { user } = useAuth()
-  if (!user?.id) return null
   const { students, teachers, courses, stats, isInitialized } = useData()
+  const [hasMounted, setHasMounted] = React.useState(false)
 
-  if (!isInitialized) return <DashboardSkeleton />
+  React.useEffect(() => {
+    setHasMounted(true)
+  }, [])
+
+  if (!user?.id) return null
+  if (!isInitialized || !hasMounted) return <DashboardSkeleton />
 
   // Dynamic Chart Data Generation
   const enrollmentTrendData = useMemo(() => {

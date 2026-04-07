@@ -76,8 +76,13 @@ type TimePeriod = 'all' | 'today' | 'week' | 'month' | 'semester'
 
 export default function EconomicsPage() {
   const { economics, addExpenditure, isInitialized } = useData()
+  const [hasMounted, setHasMounted] = React.useState(false)
 
-  if (!isInitialized) return <DashboardSkeleton />
+  React.useEffect(() => {
+    setHasMounted(true)
+  }, [])
+
+  if (!isInitialized || !hasMounted) return <DashboardSkeleton />
   const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false)
   const [newExpense, setNewExpense] = useState({ amount: '', category: '', description: '' })
   const [periodFilter, setPeriodFilter] = useState<TimePeriod>('all')

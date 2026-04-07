@@ -144,7 +144,7 @@ export default function AdminLayout({
   const { user, logout } = useAuth()
   if (!user?.id) return null
   const { assessments } = useData()
-  const pendingReviewCount = assessments?.filter(a => a.status === 'pending_review').length
+  const pendingReviewCount = assessments?.filter(a => a.status === 'pending_review')?.length || 0
 
   return (
     <SidebarProvider style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>

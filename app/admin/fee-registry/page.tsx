@@ -57,8 +57,13 @@ import { EntityDataGrid, Column } from '@/components/shared/entity-data-grid'
 
 export default function FeeRegistryPage() {
   const { students, courses, feePayments, recordPayment, addFeeAccount, isInitialized } = useData()
+  const [hasMounted, setHasMounted] = React.useState(false)
 
-  if (!isInitialized) return <DashboardSkeleton />
+  React.useEffect(() => {
+    setHasMounted(true)
+  }, [])
+
+  if (!isInitialized || !hasMounted) return <DashboardSkeleton />
   const [searchQuery, setSearchQuery] = useState('')
   const [filterStatus, setFilterStatus] = useState<'All' | 'Paid' | 'Partial' | 'Unpaid'>('All')
   const [isAddAccountOpen, setIsAddAccountOpen] = useState(false)

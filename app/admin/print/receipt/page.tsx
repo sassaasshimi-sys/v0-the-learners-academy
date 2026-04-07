@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useState, useMemo, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useData } from '@/contexts/data-context'
 import { ReceiptContent } from '@/components/receipt/receipt-content'
@@ -8,7 +8,7 @@ import { DashboardSkeleton } from '@/components/dashboard-skeleton'
 
 const ADDRESS = "Tanzeem School, Suzuki Stop, Sar-e-Khartar, Mominabad, Alamdar Road Quetta, Pakistan"
 
-export default function ReceiptPrintPage() {
+function ReceiptPrintContent() {
   const searchParams = useSearchParams()
   const { students, courses, isInitialized } = useData()
   const [hasPrinted, setHasPrinted] = useState(false)
@@ -83,5 +83,13 @@ export default function ReceiptPrintPage() {
         }
       `}</style>
     </div>
+  )
+}
+
+export default function ReceiptPrintPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <ReceiptPrintContent />
+    </Suspense>
   )
 }
