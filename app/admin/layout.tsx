@@ -142,8 +142,9 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname()
   const { user, logout } = useAuth()
-  if (!user?.id) return null
   const { assessments } = useData()
+  
+  if (!user?.id) return null
   const pendingReviewCount = assessments?.filter(a => a.status === 'pending_review')?.length || 0
 
   return (

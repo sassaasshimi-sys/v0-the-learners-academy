@@ -71,7 +71,6 @@ type AssessmentFormValues = z.infer<typeof assessmentSchema>
 export default function AssessmentGeneratorPage() {
   const router = useRouter()
   const { user } = useAuth()
-  if (!user?.id) return null
   const { 
     courses, 
     questions, 
@@ -79,6 +78,7 @@ export default function AssessmentGeneratorPage() {
     teachers,
     isInitialized 
   } = useData()
+  if (!user?.id) return null
 
   const currentTeacher = teachers.find(t => t.id === user?.id)
   const requiresReview = !!currentTeacher?.requiresReview

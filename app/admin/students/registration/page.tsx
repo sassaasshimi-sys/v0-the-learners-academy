@@ -57,14 +57,11 @@ export default function StudentRegistrationPage() {
   const router = useRouter()
   const { students, courses, enrollStudent, isInitialized } = useData()
   const hasMounted = useHasMounted()
-
-  if (!isInitialized || !hasMounted) return <DashboardSkeleton />
-  
   const [showSuccess, setShowSuccess] = useState(false)
   const [registeredStudent, setRegisteredStudent] = useState<any>(null)
   const [selectedCourseObj, setSelectedCourseObj] = useState<any>(null)
 
-  if (!isInitialized) return <DashboardSkeleton />
+  if (!isInitialized || !hasMounted) return <DashboardSkeleton />
 
   const form = useForm<RegistrationFormValues>({
     resolver: zodResolver(registrationSchema),

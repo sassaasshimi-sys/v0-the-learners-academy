@@ -76,11 +76,11 @@ export default function StudentsPage() {
 
   const { students, courses: mockCourses, removeStudent, updateStudentStatus, updateStudent, isInitialized } = useData()
 
-  if (!isInitialized) return <DashboardSkeleton />
-
   const editForm = useForm<StudentFormValues>({
     resolver: zodResolver(studentSchema)
   })
+
+  if (!isInitialized) return <DashboardSkeleton />
 
   const filteredStudents = (Array.isArray(students) ? students : []).filter(student => {
     if (!student) return false

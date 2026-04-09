@@ -23,8 +23,8 @@ import { cn } from '@/lib/utils'
 
 export default function InstitutionalAnalyticsPage() {
   const { user } = useAuth()
-  if (!user?.id) return null
   const { students, courses, submissions, assessments, isInitialized } = useData()
+  if (!user?.id) return null
 
   if (!isInitialized) return <DashboardSkeleton />
 

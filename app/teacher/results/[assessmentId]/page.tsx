@@ -41,14 +41,7 @@ export default function AssessmentWorkspacePage() {
   const params = useParams()
   const router = useRouter()
   const { user } = useAuth()
-  if (!user?.id) return null
   const { assessments, submissions, students, gradeSubmission, isInitialized } = useData()
-
-  if (!isInitialized) return <DashboardSkeleton />
-  
-  const assessmentId = params.assessmentId as string
-  const assessment = assessments.find(a => a.id === assessmentId)
-  const assessmentSubmissions = submissions?.filter(s => s.assignmentId === assessmentId)
   
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedSubmission, setSelectedSubmission] = useState<any>(null)
@@ -56,7 +49,13 @@ export default function AssessmentWorkspacePage() {
   const [gradeInput, setGradeInput] = useState('')
   const [feedbackInput, setFeedbackInput] = useState('')
 
-  if (!isInitialized) return <AssessmentSkeleton />
+  if (!user?.id) return null
+  if (!isInitialized) return <DashboardSkeleton />
+  
+  const assessmentId = params.assessmentId as string
+  const assessment = assessments.find(a => a.id === assessmentId)
+  const assessmentSubmissions = submissions?.filter(s => s.assignmentId === assessmentId)
+  
   if (!assessment) return (
     <div className="flex flex-col items-center justify-center p-20 text-center space-y-4">
       <AlertCircle className="w-12 h-12 text-destructive opacity-30" />

@@ -48,8 +48,6 @@ import { cn } from '@/lib/utils'
 export default function ScheduleIntelligencePage() {
   const router = useRouter()
   const { courses, teachers, updateCourse, isInitialized } = useData()
-
-  if (!isInitialized) return <DashboardSkeleton />
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedDay, setSelectedDay] = useState('Monday') // Simple day toggle
 
@@ -95,11 +93,13 @@ export default function ScheduleIntelligencePage() {
     return results
   }, [courses, teachers])
 
-  const filteredTimings = SESSION_TIMINGS?.filter(t => 
-    t.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const filteredTimings = useMemo(() => {
+    return SESSION_TIMINGS?.filter(t => 
+      t.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  }, [searchQuery])
 
-  if (!isInitialized) return <div className="p-8 text-center animate-pulse text-muted-foreground   text-xs">Initializing Master Registry...</div>
+  if (!isInitialized) return <DashboardSkeleton />
 
   return (
     <div className="space-y-6 pb-12">

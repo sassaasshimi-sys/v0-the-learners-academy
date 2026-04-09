@@ -59,11 +59,11 @@ import { EntityDataGrid, Column } from '@/components/shared/entity-data-grid'
 
 export default function TeachersPage() {
   const { teachers, updateTeacherStatus, removeTeacher, updateTeacher, updateTeacherReviewFlag, isInitialized } = useData()
-
-  if (!isInitialized) return <DashboardSkeleton />
   const [searchQuery, setSearchQuery] = useState('')
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null)
+  
+  if (!isInitialized) return <DashboardSkeleton />
 
   const filteredTeachers = (Array.isArray(teachers) ? teachers : []).filter(teacher => {
     if (!teacher) return false
