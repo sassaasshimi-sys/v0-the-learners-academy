@@ -46,6 +46,8 @@ import { EntityDataGrid, Column } from '@/components/shared/entity-data-grid'
 import { STAGGER_CONTAINER, STAGGER_ITEM } from '@/lib/premium-motion'
 import { format, isSameDay, isSameWeek, isSameMonth, subDays, eachDayOfInterval } from 'date-fns'
 import type { Student } from '@/lib/types'
+import { useHasMounted } from '@/hooks/use-has-mounted'
+import { ClientDate } from '@/components/shared/client-date'
 
 type TimePeriod = 'all' | 'today' | 'week' | 'month' | 'semester'
 
@@ -151,7 +153,9 @@ export default function EnrollmentTrendPage() {
     })
   }, [students, periodFilter, classFilter, searchQuery])
 
-  if (!isInitialized) return <DashboardSkeleton />
+  const hasMounted = useHasMounted()
+
+  if (!isInitialized || !hasMounted) return <DashboardSkeleton />
 
   const columns: Column<Student>[] = [
     {
@@ -195,11 +199,7 @@ export default function EnrollmentTrendPage() {
       label: 'Admission Date',
       render: (student) => (
         <span className="font-sans text-xs opacity-50 font-normal">
-          {new Date(student.enrolledAt).toLocaleDateString(undefined, { 
-            year: 'numeric', 
-            month: 'short', 
-            day: 'numeric' 
-          })}
+          <ClientDate date={student.enrolledAt} formatString="MMM d, yyyy" fallback="---" />
         </span>
       )
     }

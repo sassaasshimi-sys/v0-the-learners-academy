@@ -24,10 +24,13 @@ import {
   Upload,
   Image as ImageIcon,
 } from 'lucide-react'
+import { useHasMounted } from '@/hooks/use-has-mounted'
 
 export default function SettingsPage() {
   const { user, updateUser } = useAuth()
-  if (!user?.id) return null
+  const hasMounted = useHasMounted()
+
+  if (!user?.id || !hasMounted) return null
   const [isLoading, setIsLoading] = useState(false)
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {

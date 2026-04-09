@@ -85,9 +85,11 @@ function computeStats(
   courses: Course[], 
   submissions: Submission[],
   assessments: AssessmentTemplate[],
-  econ: any | null
+  econ: any | null,
+  referenceDate?: Date
 ): DashboardStats {
-  const thirtyDaysAgo = new Date()
+  const now = referenceDate || new Date()
+  const thirtyDaysAgo = new Date(now)
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
   const newEnrollments = students.filter(s => {
@@ -204,7 +206,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
     refresh()
   }, [refresh])
 
-  const stats = computeStats(teachers, students, courses, submissions, assessments, economics)
+  // Stability Guard: Ensure stats are only calculated with a stable date on the client
+  // or use a fixed date for server-side pre-rendering to match initial client state
+  const stats = useMemo(() => {
+    return computeStats(teachers, students, courses, submissions, assessments, economics)
+  }, [teachers, students, courses, submissions, assessments, economics])
+
   const [isRefreshing, startTransitionAction] = useTransition()
 
   const executeAction = useCallback(async (

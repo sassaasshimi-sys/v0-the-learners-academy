@@ -40,11 +40,14 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useData } from '@/contexts/data-context'
 import { STAGGER_CONTAINER, STAGGER_ITEM } from '@/lib/premium-motion'
+import { useHasMounted } from '@/hooks/use-has-mounted'
+import { ClientDate } from '@/components/shared/client-date'
 
 export default function TestReviewsPage() {
   const { assessments, teachers, approveAssessment, rejectAssessment, isInitialized } = useData()
+  const hasMounted = useHasMounted()
 
-  if (!isInitialized) return <DashboardSkeleton />
+  if (!isInitialized || !hasMounted) return <DashboardSkeleton />
   const [expandedRejectId, setExpandedRejectId] = useState<string | null>(null)
   const [inspectPoolId, setInspectPoolId] = useState<string | null>(null)
   const [feedbackMap, setFeedbackMap] = useState<Record<string, string>>({})

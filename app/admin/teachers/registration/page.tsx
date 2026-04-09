@@ -19,6 +19,7 @@ import {
   ShieldCheck 
 } from 'lucide-react'
 import Link from 'next/link'
+import { useHasMounted } from '@/hooks/use-has-mounted'
 import type { Teacher } from '@/lib/types'
 
 const teacherRegistrationSchema = z.object({
@@ -34,8 +35,9 @@ type TeacherRegistrationValues = z.infer<typeof teacherRegistrationSchema>
 export default function TeacherRegistrationPage() {
   const router = useRouter()
   const { teachers, addTeacher, isInitialized } = useData()
+  const hasMounted = useHasMounted()
 
-  if (!isInitialized) return <DashboardSkeleton />
+  if (!isInitialized || !hasMounted) return <DashboardSkeleton />
 
   const form = useForm<TeacherRegistrationValues>({
     resolver: zodResolver(teacherRegistrationSchema),

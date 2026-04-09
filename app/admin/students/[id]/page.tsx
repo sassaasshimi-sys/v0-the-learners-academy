@@ -43,13 +43,16 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
+import { useHasMounted } from '@/hooks/use-has-mounted'
+import { ClientDate } from '@/components/shared/client-date'
 
 export default function StudentDossierPage() {
   const params = useParams()
   const router = useRouter()
   const { students, courses, feePayments, updateStudentSuccessMetrics, isInitialized } = useData()
+  const hasMounted = useHasMounted()
 
-  if (!isInitialized) return <DashboardSkeleton />
+  if (!isInitialized || !hasMounted) return <DashboardSkeleton />
   
   // Find student by ID or studentId
   const student = students.find(s => s.id === params.id || s.studentId === params.id)
@@ -147,7 +150,7 @@ export default function StudentDossierPage() {
                 <div className="bg-background/40  p-4  border ">
                    <p className="text-xs   text-muted-foreground mb-1  opacity-70">Enrolled Since</p>
                    <p className="text-2xl font-serif">
-                     {new Date(student.enrolledAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                      <ClientDate date={student.enrolledAt} formatString="MMM yyyy" fallback="Loading..." />
                    </p>
                 </div>
                 <div className="bg-background/40  p-4  border ">
@@ -322,7 +325,7 @@ export default function StudentDossierPage() {
                               ${fee.amountPaid.toLocaleString()}
                             </TableCell>
                             <TableCell className="text-muted-foreground text-xs font-sans">
-                              {new Date(fee.paymentDate || fee.createdAt).toLocaleDateString()}
+                              <ClientDate date={fee.paymentDate || fee.createdAt} formatString="MMM d, yyyy" fallback="---" />
                             </TableCell>
                             <TableCell className="text-right">
                               <Badge variant="outline" className="text-xs px-2 py-0   ">
@@ -377,7 +380,7 @@ export default function StudentDossierPage() {
                   </div>
                   <div>
                     <p className="text-xs   text-muted-foreground ">Enrollment Date</p>
-                    <p className="text-sm font-serif font-sans opacity-80">{new Date(student.enrolledAt).toLocaleDateString(undefined, { dateStyle: 'long' })}</p>
+                    <p className="text-sm font-serif font-sans opacity-80"><ClientDate date={student.enrolledAt} formatString="MMMM d, yyyy" fallback="---" /></p>
                   </div>
                 </div>
               </div>

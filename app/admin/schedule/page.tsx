@@ -36,6 +36,8 @@ import { useData } from '@/contexts/data-context'
 import { ACADEMY_LEVELS, SCHEDULE_SLOTS } from '@/lib/registry'
 import type { Schedule } from '@/lib/types'
 import { cn } from '@/lib/utils'
+import { useHasMounted } from '@/hooks/use-has-mounted'
+import { ClientDate } from '@/components/shared/client-date'
 
 
 const CLASS_LEVELS = ACADEMY_LEVELS
@@ -43,8 +45,9 @@ const ACADEMY_SLOTS = SCHEDULE_SLOTS
 
 export default function SchedulePage() {
   const { schedules, teachers, addSchedule, removeSchedule, updateSchedule, isInitialized } = useData()
+  const hasMounted = useHasMounted()
 
-  if (!isInitialized) return <DashboardSkeleton />
+  if (!isInitialized || !hasMounted) return <DashboardSkeleton />
   const [searchQuery, setSearchQuery] = useState('')
   const [isAddOpen, setIsAddOpen] = useState(false)
   const [isEditOpen, setIsEditOpen] = useState(false)

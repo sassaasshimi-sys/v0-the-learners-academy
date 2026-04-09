@@ -30,6 +30,7 @@ import {
   Sparkles
 } from 'lucide-react'
 import type { Student } from '@/lib/types'
+import { useHasMounted } from '@/hooks/use-has-mounted'
 import { ACADEMY_LEVELS, SESSION_TIMINGS } from '@/lib/registry'
 import { 
   Dialog, 
@@ -55,6 +56,9 @@ type RegistrationFormValues = z.infer<typeof registrationSchema>
 export default function StudentRegistrationPage() {
   const router = useRouter()
   const { students, courses, enrollStudent, isInitialized } = useData()
+  const hasMounted = useHasMounted()
+
+  if (!isInitialized || !hasMounted) return <DashboardSkeleton />
   
   const [showSuccess, setShowSuccess] = useState(false)
   const [registeredStudent, setRegisteredStudent] = useState<any>(null)

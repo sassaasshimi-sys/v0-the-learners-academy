@@ -38,6 +38,8 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
+import { useHasMounted } from '@/hooks/use-has-mounted'
+import { ClientDate } from '@/components/shared/client-date'
 
 function PayrollContent() {
   const searchParams = useSearchParams()
@@ -45,8 +47,9 @@ function PayrollContent() {
   const teacherId = searchParams.get('id')
   
   const { teachers, courses, students, feePayments, isInitialized } = useData()
+  const hasMounted = useHasMounted()
 
-  if (!isInitialized) return <DashboardSkeleton />
+  if (!isInitialized || !hasMounted) return <DashboardSkeleton />
   
   const [compensationModel, setCompensationModel] = useState<'fixed' | 'percentage'>('fixed')
   const [compensationRate, setCompensationRate] = useState<number>(1000)
@@ -136,7 +139,9 @@ function PayrollContent() {
                     {teacher.name.split(' ').map(n => n[0]).join('')}
                   </AvatarFallback>
                </Avatar>
-               <p className="text-muted-foreground text-xs  ">{teacher.name} • {new Date().toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</p>
+               <p className="text-muted-foreground text-xs  ">
+                 {teacher.name} • <ClientDate date={new Date()} formatString="MMMM yyyy" fallback="Loading month..." />
+               </p>
             </div>
           </div>
         </div>

@@ -25,6 +25,8 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
+import { useHasMounted } from '@/hooks/use-has-mounted'
+import { ClientDate } from '@/components/shared/client-date'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
 
@@ -40,6 +42,9 @@ export default function TeacherProfilePage() {
   const teacherId = params.id as string
   const teacher = teachers.find(t => t.id === teacherId || t.employeeId === teacherId)
   const teacherCourses = allCourses?.filter(c => c.teacherId === teacher?.id)
+  
+  const hasMounted = useHasMounted()
+  if (!isInitialized || !hasMounted) return <DashboardSkeleton />
 
   if (!teacher) {
     return (
@@ -265,7 +270,7 @@ export default function TeacherProfilePage() {
                 </div>
                 <div>
                   <p className="text-xs   text-muted-foreground ">Registration Date</p>
-                  <p className="text-sm font-serif">{new Date(teacher.joinedAt).toLocaleDateString(undefined, { dateStyle: 'long' })}</p>
+                  <p className="text-sm font-serif"><ClientDate date={teacher.joinedAt} formatString="MMMM d, yyyy" fallback="---" /></p>
                 </div>
               </div>
               

@@ -71,16 +71,14 @@ import { PageShell } from '@/components/shared/page-shell'
 import { PageHeader } from '@/components/shared/page-header'
 import { EntityCardGrid } from '@/components/shared/entity-card-grid'
 import { EntityDataGrid, Column } from '@/components/shared/entity-data-grid'
+import { useHasMounted } from '@/hooks/use-has-mounted'
+import { ClientDate } from '@/components/shared/client-date'
 
 type TimePeriod = 'all' | 'today' | 'week' | 'month' | 'semester'
 
 export default function EconomicsPage() {
   const { economics, addExpenditure, isInitialized } = useData()
-  const [hasMounted, setHasMounted] = React.useState(false)
-
-  React.useEffect(() => {
-    setHasMounted(true)
-  }, [])
+  const hasMounted = useHasMounted()
 
   if (!isInitialized || !hasMounted) return <DashboardSkeleton />
   const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false)

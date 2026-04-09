@@ -54,14 +54,12 @@ import { PageShell } from '@/components/shared/page-shell'
 import { PageHeader } from '@/components/shared/page-header'
 import { EntityCardGrid } from '@/components/shared/entity-card-grid'
 import { EntityDataGrid, Column } from '@/components/shared/entity-data-grid'
+import { useHasMounted } from '@/hooks/use-has-mounted'
+import { ClientDate } from '@/components/shared/client-date'
 
 export default function FeeRegistryPage() {
   const { students, courses, feePayments, recordPayment, addFeeAccount, isInitialized } = useData()
-  const [hasMounted, setHasMounted] = React.useState(false)
-
-  React.useEffect(() => {
-    setHasMounted(true)
-  }, [])
+  const hasMounted = useHasMounted()
 
   if (!isInitialized || !hasMounted) return <DashboardSkeleton />
   const [searchQuery, setSearchQuery] = useState('')

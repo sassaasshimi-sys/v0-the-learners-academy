@@ -56,12 +56,15 @@ import { PageShell } from '@/components/shared/page-shell'
 import { PageHeader } from '@/components/shared/page-header'
 import { EntityCardGrid } from '@/components/shared/entity-card-grid'
 import { EntityDataGrid, Column } from '@/components/shared/entity-data-grid'
+import { useHasMounted } from '@/hooks/use-has-mounted'
+import { ClientDate } from '@/components/shared/client-date'
 
 export default function ClassesPage() {
   const router = useRouter()
   const { courses, teachers, addCourse, removeCourse, updateCourseStatus, updateCourse, isInitialized } = useData()
+  const hasMounted = useHasMounted()
 
-  if (!isInitialized) return <DashboardSkeleton />
+  if (!isInitialized || !hasMounted) return <DashboardSkeleton />
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
@@ -481,14 +484,14 @@ export default function ClassesPage() {
                   <p className="text-[10px] text-muted-foreground font-normal">Start Date</p>
                   <p className="text-sm font-normal flex items-center gap-2">
                     <Calendar className="w-4 h-4 opacity-40" />
-                    {new Date(selectedCourse.startDate).toLocaleDateString()}
+                    <ClientDate date={selectedCourse.startDate} formatString="MMM d, yyyy" fallback="---" />
                   </p>
                 </div>
                 <div>
                   <p className="text-[10px] text-muted-foreground font-normal">End Date</p>
                   <p className="text-sm font-normal flex items-center gap-2">
                     <Calendar className="w-4 h-4 opacity-40" />
-                    {new Date(selectedCourse.endDate).toLocaleDateString()}
+                    <ClientDate date={selectedCourse.endDate} formatString="MMM d, yyyy" fallback="---" />
                   </p>
                 </div>
               </div>

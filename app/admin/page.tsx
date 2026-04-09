@@ -34,15 +34,13 @@ import { STAGGER_CONTAINER, STAGGER_ITEM } from '@/lib/premium-motion'
 import { cn } from '@/lib/utils'
 import { useData } from '@/contexts/data-context'
 import { useAuth } from '@/contexts/auth-context'
+import { useHasMounted } from '@/hooks/use-has-mounted'
+import { ClientDate } from '@/components/shared/client-date'
 
 export default function AdminDashboard() {
   const { user } = useAuth()
   const { students, teachers, courses, stats, isInitialized } = useData()
-  const [hasMounted, setHasMounted] = React.useState(false)
-
-  React.useEffect(() => {
-    setHasMounted(true)
-  }, [])
+  const hasMounted = useHasMounted()
 
   if (!user?.id) return null
   if (!isInitialized || !hasMounted) return <DashboardSkeleton />
@@ -50,9 +48,11 @@ export default function AdminDashboard() {
   // Dynamic Chart Data Generation
   const enrollmentTrendData = useMemo(() => {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-    // Initialize last 6 months buckets
+    // Initialize last 6 months buckets relative to a stable reference
+    const nowRef = new Date()
     const trend = Array(6).fill(0).map((_, i) => {
-      const d = new Date()
+      const d = new Date(nowRef)
+      d.setDate(1) // Avoid month-end overflow issues
       d.setMonth(d.getMonth() - 5 + i)
       return {
         name: months[d.getMonth()],
