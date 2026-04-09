@@ -61,8 +61,6 @@ export default function StudentRegistrationPage() {
   const [registeredStudent, setRegisteredStudent] = useState<any>(null)
   const [selectedCourseObj, setSelectedCourseObj] = useState<any>(null)
 
-  if (!isInitialized || !hasMounted) return <DashboardSkeleton />
-
   const form = useForm<RegistrationFormValues>({
     resolver: zodResolver(registrationSchema),
     defaultValues: {
@@ -74,6 +72,8 @@ export default function StudentRegistrationPage() {
       timing: '',
     }
   })
+
+  if (!isInitialized || !hasMounted) return <DashboardSkeleton />
 
   const onSubmit = async (data: RegistrationFormValues) => {
     // Check for duplicate Student ID
