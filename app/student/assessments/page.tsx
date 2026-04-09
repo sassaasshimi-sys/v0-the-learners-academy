@@ -59,6 +59,11 @@ export default function StudentAssessmentsPage() {
   const [finalScore, setFinalScore] = useState(0)
   const [isEvaluating, setIsEvaluating] = useState(false)
   const [aiAuditResults, setAiAuditResults] = useState<{ feedback: string; justification: string }>({ feedback: "", justification: "" })
+  const [isAdaptiveMode, setIsAdaptiveMode] = useState(false)
+  const [adaptivePools, setAdaptivePools] = useState<Record<string, Question[]>>({ Easy: [], Medium: [], Hard: [] })
+  const [currentDifficulty, setCurrentDifficulty] = useState<string>('Medium')
+  const [adaptiveHistory, setAdaptiveHistory] = useState<{questionId: string, difficulty: string, score: number}[]>([])
+
   const audioRef = useRef<HTMLAudioElement>(null)
 
   // ── Start Test ──────────────────────────────────────────────────────────────
@@ -81,14 +86,25 @@ export default function StudentAssessmentsPage() {
       // Step 6: Server Action with Hard Validation
       const result = await generateRandomizedQuestions(user.id, assessment.id)
 
-      if (!result.success || !result.questions) {
-        throw new Error(result.error || "Registry synthesis failed")
+      const isAdaptive = !!result.isAdaptive
+      setIsAdaptiveMode(isAdaptive)
+
+      if (isAdaptive && result.pools) {
+         setAdaptivePools(result.pools)
+         setCurrentDifficulty('Medium')
+         setAdaptiveHistory([])
+         
+         const startPool = [...(result.pools.Medium || [])]
+         const firstQ = startPool.pop()
+         
+         if (!firstQ) throw new Error("Adaptive initialization failed: No baseline (Medium) blocks available.")
+         setAdaptivePools(prev => ({ ...prev, Medium: startPool }))
+         setRandomizedQuestions([firstQ])
+      } else {
+         const selected = [...(result.questions || [])]
+         setRandomizedQuestions(selected)
       }
 
-      // Step 4: Ensure isolation with fresh copy
-      const selected = [...result.questions]
-
-      setRandomizedQuestions(selected)
       setActiveTest(assessment)
       setTimeLeft(assessment.durationMinutes * 60)
       setIsTestEngineOpen(true)
@@ -178,6 +194,48 @@ export default function StudentAssessmentsPage() {
 
     let totalScore = 0
 
+    if (isAdaptiveMode) {
+      randomizedQuestions.forEach((q, i) => {
+         const h = adaptiveHistory[i]
+         const getPointsForQuestion = (qType: string) => {
+            const allocationMap = activeTest?.markAllocation as Record<string, number> | undefined
+            if (allocationMap) {
+               const categoryTotalMarks = Number(allocationMap[qType]) || 0
+               const categoryQuestionsCount = randomizedQuestions.filter(rq => rq.type === qType).length
+               return categoryQuestionsCount > 0 ? categoryTotalMarks / categoryQuestionsCount : 0
+            }
+            const totalScorable = randomizedQuestions.length
+            return totalScorable > 0 ? (activeTest?.totalMarks || 100) / totalScorable : 0
+         }
+         const points = getPointsForQuestion(q.type)
+         totalScore += (h?.score || 0) * points
+      })
+      const finalCalculatedScore = Math.round(totalScore)
+      setFinalScore(finalCalculatedScore)
+      setIsEvaluating(false)
+      setShowResult(true)
+      if (document.exitFullscreen) document.exitFullscreen().catch(() => {})
+      if (isAuto) toast.error("Assessment auto-submitted due to proctoring violations.", {
+         style: { backgroundColor: 'oklch(0.577 0.245 27.325)', color: 'white' },
+      })
+      if (activeTest && user) {
+         submitTestResult({
+            id: `test-res-${Date.now()}`,
+            templateId: activeTest.id,
+            studentId: user.id,
+            studentName: user.name,
+            assignedAt: new Date().toISOString(),
+            completedAt: new Date().toISOString(),
+            status: 'Completed',
+            randomizedQuestions,
+            answers,
+            score: finalCalculatedScore,
+            feedback: aiAuditResults.feedback || "Adaptive assessment complete.",
+         }).catch(console.error)
+      }
+      return
+    }
+
     // 1. Auto-graded questions evaluation
     const autoGraded = randomizedQuestions.filter(q => (AUTO_GRADED_TYPES as readonly string[]).includes(q.type))
     const aiGraded   = randomizedQuestions.filter(q => (AI_GRADED_TYPES as readonly string[]).includes(q.type))
@@ -256,6 +314,79 @@ export default function StudentAssessmentsPage() {
         feedback: aiFeedbackChain,
       }).catch(console.error)
     }
+  }
+
+  const handleAdaptiveSubmit = async () => {
+     setIsEvaluating(true)
+     const q = randomizedQuestions[currentQuestionIndex]
+     const answer = answers[q.id] || ""
+     let score = 0
+     
+     const isAuto = (AUTO_GRADED_TYPES as readonly string[]).includes(q.type)
+     if (isAuto) {
+        if (q.type === 'Matching') {
+           try {
+             const studentPairs = JSON.parse(answer || '{}')
+             const allCorrect = (q.matchPairs || []).every(p => studentPairs[p.left] === p.right)
+             if (allCorrect) score = 1
+           } catch {}
+        } else if (q.type === 'Fill in the Blanks') {
+           if (answer?.toLowerCase().trim() === q.correctAnswer?.toLowerCase().trim()) score = 1
+        } else {
+           if (answer === q.correctAnswer) score = 1
+        }
+     } else {
+        const audit = await evaluateSubjective(q, answer)
+        score = audit.score
+        setAiAuditResults(prev => ({ 
+           feedback: prev.feedback + audit.feedback + " ", 
+           justification: prev.justification + audit.justification + " " 
+        }))
+     }
+
+     setAdaptiveHistory(prev => {
+        const newHistory = [...prev]
+        newHistory[currentQuestionIndex] = { questionId: q.id, difficulty: currentDifficulty, score }
+        return newHistory
+     })
+
+     const targetLength = activeTest?.questionCount || 10
+     if (currentQuestionIndex + 1 >= targetLength) {
+        finishTest(false)
+        return
+     }
+
+     let nextDifficulty = currentDifficulty
+     if (score > 0.8) {
+        if (currentDifficulty === 'Easy') nextDifficulty = 'Medium'
+        else nextDifficulty = 'Hard'
+     } else if (score < 0.4) {
+        if (currentDifficulty === 'Hard') nextDifficulty = 'Medium'
+        else nextDifficulty = 'Easy'
+     }
+
+     let pool = [...(adaptivePools[nextDifficulty] || [])]
+     if (pool.length === 0) {
+        nextDifficulty = 'Medium'
+        pool = [...(adaptivePools['Medium'] || [])]
+     }
+     if (pool.length === 0) {
+        const fallbackDiff = Object.keys(adaptivePools).find(k => (adaptivePools[k] || []).length > 0)
+        if (fallbackDiff) {
+           nextDifficulty = fallbackDiff
+           pool = [...adaptivePools[fallbackDiff]]
+        } else {
+           finishTest(false)
+           return
+        }
+     }
+
+     const nextQ = pool.pop()!
+     setAdaptivePools(prev => ({ ...prev, [nextDifficulty]: pool }))
+     setCurrentDifficulty(nextDifficulty)
+     setRandomizedQuestions(prev => [...prev, nextQ])
+     setCurrentQuestionIndex(prev => prev + 1)
+     setIsEvaluating(false)
   }
 
   const formatTime = (s: number) =>
@@ -716,19 +847,21 @@ export default function StudentAssessmentsPage() {
 
                 {/* Navigation bar */}
                 <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-t bg-muted/20 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
-                  <Button
-                    variant="ghost" size="sm"
-                    onClick={() => setCurrentQuestionIndex(p => Math.max(0, p - 1))}
-                    disabled={currentQuestionIndex === 0}
-                    className="rounded-xl gap-1.5"
-                  >
-                    <ChevronLeft className="w-4 h-4" /> Previous
-                  </Button>
+                  {!isAdaptiveMode ? (
+                    <Button
+                      variant="ghost" size="sm"
+                      onClick={() => setCurrentQuestionIndex(p => Math.max(0, p - 1))}
+                      disabled={currentQuestionIndex === 0}
+                      className="rounded-xl gap-1.5"
+                    >
+                      <ChevronLeft className="w-4 h-4" /> Previous
+                    </Button>
+                  ) : <div />}
 
-                  {currentQuestionIndex === randomizedQuestions.length - 1 ? (
+                  {(isAdaptiveMode ? currentQuestionIndex === (activeTest?.questionCount || 10) - 1 : currentQuestionIndex === randomizedQuestions.length - 1) ? (
                     <Button
                       size="sm"
-                      onClick={() => finishTest(false)}
+                      onClick={() => isAdaptiveMode ? handleAdaptiveSubmit() : finishTest(false)}
                       className="bg-success hover:bg-success/90 rounded-xl px-6 font-bold gap-1.5 shadow-md shadow-success/20"
                     >
                       Finish & Submit <CheckCircle className="w-4 h-4" />
@@ -736,10 +869,10 @@ export default function StudentAssessmentsPage() {
                   ) : (
                     <Button
                       size="sm"
-                      onClick={() => setCurrentQuestionIndex(p => p + 1)}
+                      onClick={() => isAdaptiveMode ? handleAdaptiveSubmit() : setCurrentQuestionIndex(p => p + 1)}
                       className="rounded-xl px-6 font-bold gap-1.5"
                     >
-                      Next <ChevronRight className="w-4 h-4" />
+                      {isAdaptiveMode ? "Submit Answer & Continue" : "Next"} <ChevronRight className="w-4 h-4" />
                     </Button>
                   )}
                 </div>

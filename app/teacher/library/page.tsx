@@ -38,6 +38,7 @@ const questionSchema = z.object({
   imageUrl: z.string().optional(),
   passageText: z.string().optional(),
   audioUrl: z.string().optional(),
+  difficulty: z.enum(['Easy', 'Medium', 'Hard']).default('Medium'),
 })
 
 type QuestionFormValues = z.infer<typeof questionSchema>
@@ -85,7 +86,7 @@ export default function QuestionLibraryPage() {
   const { register, handleSubmit, reset, watch, setValue, formState: { errors, isSubmitting } } =
     useForm<QuestionFormValues>({
       resolver: zodResolver(questionSchema),
-      defaultValues: { type: 'MCQ', phase: 'Both' },
+      defaultValues: { type: 'MCQ', phase: 'Both', difficulty: 'Medium' },
     })
 
   const selectedType = watch('type')
@@ -133,7 +134,8 @@ export default function QuestionLibraryPage() {
       audioUrl: data.audioUrl || undefined,
       matchPairs: data.type === 'Matching' ? validPairs : undefined,
       isApproved: !requiresReview,
-      teacherId: user.id
+      teacherId: user.id,
+      difficulty: data.difficulty as any
     }
 
     try {
@@ -175,8 +177,8 @@ export default function QuestionLibraryPage() {
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="p-6 max-h-[min(500px,50vh)] overflow-y-auto space-y-4 premium-scrollbar">
                 <FieldGroup className="space-y-4">
-                  {/* Category + Phase row */}
-                  <div className="grid grid-cols-2 gap-3 items-stretch">
+                  {/* Category + Phase + Difficulty row */}
+                  <div className="grid grid-cols-3 gap-3 items-stretch">
                     <Field>
                       <FieldLabel className="text-xs   opacity-60">Category</FieldLabel>
                       <Select value={watch('category')} onValueChange={(v) => setValue('category', v)}>
@@ -195,6 +197,17 @@ export default function QuestionLibraryPage() {
                           <SelectItem value="First Test" className="text-sm">First Test</SelectItem>
                           <SelectItem value="Last Test" className="text-sm">Last Test</SelectItem>
                           <SelectItem value="Both" className="text-sm">Both</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                    <Field>
+                      <FieldLabel className="text-xs   opacity-60">Difficulty</FieldLabel>
+                      <Select defaultValue="Medium" onValueChange={(v) => setValue('difficulty', v as any)}>
+                        <SelectTrigger className="h-10 text-sm "><SelectValue /></SelectTrigger>
+                        <SelectContent className="">
+                          <SelectItem value="Easy" className="text-sm">Easy</SelectItem>
+                          <SelectItem value="Medium" className="text-sm">Medium</SelectItem>
+                          <SelectItem value="Hard" className="text-sm">Hard</SelectItem>
                         </SelectContent>
                       </Select>
                     </Field>
@@ -418,6 +431,13 @@ export default function QuestionLibraryPage() {
                                   <Volume2 className="w-2.5 h-2.5" /> Audio
                                 </Badge>
                               )}
+                              <Badge variant="outline" className={`text-xs px-2 h-5 font-normal border-none ${
+                                q.difficulty === 'Easy' ? 'bg-success/5 text-success' : 
+                                q.difficulty === 'Hard' ? 'bg-destructive/5 text-destructive' : 
+                                'bg-warning/5 text-warning'
+                              }`}>
+                                {q.difficulty || 'Medium'}
+                              </Badge>
                               <Badge variant={q.isApproved ? 'outline' : 'secondary'} className={`text-xs px-2 h-5    ${q.isApproved ? 'border-success/30 bg-success/5 text-success' : 'border-warning/30 bg-warning/5 text-warning'}`}>
                                 {q.isApproved ? 'Approved' : 'Pending Review'}
                               </Badge>

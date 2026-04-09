@@ -29,7 +29,8 @@ export async function addQuestion(question: Omit<Question, 'id'>): Promise<Actio
         audioUrl: question.audioUrl,
         matchPairs: question.matchPairs as any,
         isApproved: question.isApproved ?? false,
-        teacherId: question.teacherId
+        teacherId: question.teacherId,
+        difficulty: question.difficulty || "Medium"
       }
     })
     revalidatePath('/')

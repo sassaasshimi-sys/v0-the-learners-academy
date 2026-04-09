@@ -169,6 +169,7 @@ model Question {
   passageText   String?
   isApproved    Boolean  @default(false)
   teacherId     String?
+  difficulty    String   @default("Medium")
 }
 
 model AssessmentTemplate {
@@ -187,6 +188,7 @@ model AssessmentTemplate {
   adminFeedback          String?
   submittedByTeacherId   String?
   submittedByTeacherName String?
+  isAdaptive             Boolean  @default(false)
 }
 
 model Schedule {

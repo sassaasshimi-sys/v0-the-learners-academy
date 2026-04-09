@@ -64,6 +64,7 @@ const assessmentSchema = z.object({
   duration: z.coerce.number().min(1, 'Duration must be positive'),
   questionCount: z.coerce.number().min(1, 'Count must be at least 1').max(100, 'Max 100 questions'),
   accessCode: z.string().min(5, 'Access code is required').regex(/^[A-Z0-9-]+$/, 'Letters, numbers, and hyphens only'),
+  isAdaptive: z.boolean().default(false),
 })
 
 type AssessmentFormValues = z.infer<typeof assessmentSchema>
@@ -103,7 +104,8 @@ export default function AssessmentGeneratorPage() {
       markAllocation: {
         MCQ: 0, Subjective: 0, 'True/False': 0, 'Fill in the Blanks': 0,
         Writing: 0, Matching: 0, Reading: 0, Listening: 0
-      }
+      },
+      isAdaptive: false
     }
   })
 
@@ -163,6 +165,7 @@ export default function AssessmentGeneratorPage() {
       accessCode: data.accessCode,
       submittedByTeacherId: user?.id,
       submittedByTeacherName: user?.name,
+      isAdaptive: data.isAdaptive,
     }
 
     try {
@@ -353,6 +356,21 @@ export default function AssessmentGeneratorPage() {
                               className="h-12 bg-muted/5   px-6 font-sans text-sm"
                            />
                         </div>
+                      </div>
+
+                      {/* Adaptive Toggle */}
+                      <div className="pt-8 border-t">
+                        <label className="flex items-center gap-3 cursor-pointer p-4 bg-primary/5 border border-primary/20 rounded-xl hover:bg-primary/10 transition-colors">
+                          <input 
+                            type="checkbox" 
+                            {...register('isAdaptive')}
+                            className="w-5 h-5 rounded border-primary/30 text-primary focus:ring-primary/20"
+                          />
+                          <div className="space-y-0.5">
+                            <p className="text-sm font-medium">Enable Adaptive Testing Mode (CAT Engine)</p>
+                            <p className="text-xs text-muted-foreground">Dynamically scales difficulty per string. Requires robust pool.</p>
+                          </div>
+                        </label>
                       </div>
 
                       <div className="pt-8 flex gap-3">

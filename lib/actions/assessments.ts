@@ -47,6 +47,7 @@ export async function publishAssessment(assessment: Omit<AssessmentTemplate, 'id
         accessCode: accessCode,
         submittedByTeacherId: assessment.submittedByTeacherId,
         submittedByTeacherName: assessment.submittedByTeacherName,
+        isAdaptive: assessment.isAdaptive || false,
         createdAt: new Date()
       } 
     })
@@ -199,11 +200,23 @@ export async function generateRandomizedQuestions(studentId: string, assessmentI
     const prng = createPRNG(seed)
 
     const shuffled = shuffleArray(pool as unknown as Question[], prng)
+
+    if (assessment.isAdaptive) {
+      // Group by difficulty
+      const pools = {
+        Easy: shuffled.filter(q => q.difficulty === 'Easy'),
+        Medium: shuffled.filter(q => q.difficulty === 'Medium'),
+        Hard: shuffled.filter(q => q.difficulty === 'Hard'),
+      }
+      return { success: true, pools, isAdaptive: true, questions: [] } // `questions: []` keeps type compatibility
+    }
+
     const selected = shuffled.slice(0, assessment.questionCount || 10)
 
     return {
       success: true,
-      questions: selected
+      questions: selected,
+      isAdaptive: false
     }
   } catch (error) {
     console.error('GENERATE_RANDOMIZED_QUESTIONS_ERROR:', error)

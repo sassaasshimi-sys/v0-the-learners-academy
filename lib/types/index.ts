@@ -138,6 +138,7 @@ export interface Question {
   matchPairs?: { left: string; right: string }[] // For Matching: column pairs
   isApproved: boolean
   teacherId?: string
+  difficulty?: 'Easy' | 'Medium' | 'Hard'
 }
 
 export interface ActionResult<T = any> {
@@ -163,6 +164,7 @@ export interface AssessmentTemplate {
   adminFeedback?: string
   submittedByTeacherId?: string
   submittedByTeacherName?: string
+  isAdaptive?: boolean
 }
 
 export interface StudentTest {
