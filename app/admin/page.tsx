@@ -293,7 +293,7 @@ export default function AdminDashboard() {
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10  bg-primary/5 flex items-center justify-center border  group-hover:scale-105 transition-transform text-primary">
                       <span className="text-xs font-normal">
-                        {student?.name?.split(' ').map(n => n[0]).join('') || 'S'}
+                        {(student?.name || 'S').split(' ').map(n => n?.[0]).join('') || 'S'}
                       </span>
                     </div>
                     <div>

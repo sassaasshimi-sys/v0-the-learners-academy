@@ -283,9 +283,9 @@ export default function AdminLayout({
                 {user?.name}
               </span>
               <Avatar className="h-9 w-9 border  shadow-sm">
-                <AvatarImage src={user?.avatar} alt={user?.name} />
+                <AvatarImage src={user?.avatar} alt={user?.name || 'User'} />
                 <AvatarFallback className="bg-primary/5 text-primary text-xs">
-                  {user?.name?.split(' ').map(n => n[0]).join('') || 'U'}
+                  {(user?.name || 'User').split(' ').map(n => n?.[0]).join('') || 'U'}
                 </AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>

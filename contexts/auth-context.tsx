@@ -160,7 +160,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }))
 
       setState({
-        user: session.user,
+        user: session.user ? { ...session.user, name: session.user.name || 'User' } : null,
         isAuthenticated: true,
         isLoading: false,
       })
@@ -187,7 +187,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }))
 
       setState({
-        user: session.user,
+        user: session.user ? { ...session.user, name: session.user.name || 'User' } : null,
         isAuthenticated: true,
         isLoading: false,
       })

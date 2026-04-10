@@ -70,8 +70,8 @@ export async function getInitialData(userId?: string, role?: 'admin' | 'teacher'
 
     // Capture validated data or fallback to raw if critical failures occur
     const validData = validation.success ? validation.data : {
-      teachers: teachers || [],
-      students: students || [],
+      teachers: (teachers || []).map((t: any) => ({ ...t, name: t.name || 'Teacher' })),
+      students: (students || []).map((s: any) => ({ ...s, name: s.name || 'Student' })),
       courses: sanitizedCourses || [],
       submissions: submissions || [],
       schedules: schedules || [],
