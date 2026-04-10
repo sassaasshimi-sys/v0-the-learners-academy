@@ -36,6 +36,7 @@ import { useData } from '@/contexts/data-context'
 import { useAuth } from '@/contexts/auth-context'
 import { useHasMounted } from '@/hooks/use-has-mounted'
 import { ClientDate } from '@/components/shared/client-date'
+import { TrimesterBanner } from '@/components/shared/trimester-banner'
 
 export default function AdminDashboard() {
   const { user } = useAuth()
@@ -136,6 +137,9 @@ export default function AdminDashboard() {
           </h1>
         </motion.div>
       </motion.div>
+
+      <TrimesterBanner className="mb-2" />
+
 
       {/* Stats Grid */}
       <motion.div 

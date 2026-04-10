@@ -102,6 +102,7 @@ const adminNavItems = [
     icon: TrendingUp,
     items: [
       { title: 'Student Fees', href: '/admin/fee-registry', icon: DollarSign },
+      { title: 'Batch Financials', href: '/admin/batch-financials', icon: BarChart },
       { title: 'Money Report', href: '/admin/economics', icon: TrendingUp },
       { title: 'Enrollment trends', href: '/admin/students/enrollment-trend', icon: BarChart },
     ]

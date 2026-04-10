@@ -40,6 +40,14 @@ import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { useHasMounted } from '@/hooks/use-has-mounted'
 import { ClientDate } from '@/components/shared/client-date'
+import {
+  getTrimesters,
+  getDateRangeFromFilterKey,
+} from '@/lib/trimesters'
+import { TrimesterBanner } from '@/components/shared/trimester-banner'
+import { SelectSeparator } from '@/components/ui/select'
+
+type TimePeriod = 'all' | 'spring' | 'summer' | 'autumn' | 'winter'
 
 function PayrollContent() {
   const searchParams = useSearchParams()
@@ -57,9 +65,14 @@ function PayrollContent() {
     teachers.find(t => t.id === teacherId || t.employeeId === teacherId)
   , [teachers, teacherId])
   
+  const [periodFilter, setPeriodFilter] = useState<TimePeriod>('all')
+  const currentYear = useMemo(() => new Date().getFullYear(), [])
+  const trimesters = useMemo(() => getTrimesters(currentYear), [currentYear])
+  
   const financialData = useMemo(() => {
     if (!hasMounted || !teacher) return { roster: [], paidCount: 0, unpaidCount: 0, totalPaidRevenue: 0 }
     
+    const trimesterRange = getDateRangeFromFilterKey(periodFilter, currentYear)
     const teacherCourses = courses?.filter(c => c.teacherId === teacher.id)
     let paidCount = 0
     let unpaidCount = 0
@@ -69,8 +82,18 @@ function PayrollContent() {
     teacherCourses.forEach(course => {
       const courseStudents = students?.filter(s => s.enrolledCourses?.includes(course.id))
       courseStudents.forEach(student => {
-        const payment = feePayments.find((fp: any) => fp.studentId === student.id && fp.courseId === course.id)
-        const isPaid = payment && (payment.status === 'paid' || payment.status === 'partial')
+        const payment = feePayments.find((fp: any) => {
+          const matches = fp.studentId === student.id && fp.courseId === course.id
+          if (!matches) return false
+          
+          if (trimesterRange && fp.paymentDate) {
+            const d = new Date(fp.paymentDate).getTime()
+            return d >= trimesterRange.start.getTime() && d <= trimesterRange.end.getTime()
+          }
+          return true
+        })
+
+        const isPaid = payment && (payment.status === 'Paid' || payment.status === 'Partial')
         
         if (isPaid) {
           paidCount++
@@ -87,13 +110,14 @@ function PayrollContent() {
           timing: course.schedule,
           status: isPaid ? 'Paid' : 'Due',
           amount: isPaid ? payment.amountPaid : 0,
-          totalFee: payment?.amount || 0
+          totalFee: payment?.totalAmount || 0,
+          paymentDate: payment?.paymentDate
         })
       })
     })
 
     return { roster, paidCount, unpaidCount, totalPaidRevenue }
-  }, [teacher, courses, students, feePayments, hasMounted])
+  }, [teacher, courses, students, feePayments, hasMounted, periodFilter, currentYear])
 
   const filteredRoster = useMemo(() => {
     if (!hasMounted) return []
@@ -127,25 +151,16 @@ function PayrollContent() {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between mb-8">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild className="">
-            <Link href="/admin/teachers">
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-          </Button>
+          <Link href="/admin/teachers">
+            <Button variant="outline" size="icon" className="h-10 w-10 rounded-xl border-white/5 hover:bg-white/5">
+              <ArrowLeft className="h-4 w-4 opacity-70" />
+            </Button>
+          </Link>
           <div>
-            <h1 className="font-serif text-3xl font-medium">Institutional Payroll</h1>
-            <div className="flex items-center gap-2 mt-1">
-               <Avatar className="w-5 h-5 ring-1 ring-primary/20">
-                  <AvatarFallback className="text-xs bg-primary/10 text-primary">
-                    {teacher.name.split(' ').map(n => n[0]).join('')}
-                  </AvatarFallback>
-               </Avatar>
-               <p className="text-muted-foreground text-xs  ">
-                 {teacher.name} • <ClientDate date={new Date()} formatString="MMMM yyyy" fallback="Loading month..." />
-               </p>
-            </div>
+            <h1 className="font-serif text-3xl font-medium tracking-tight">Faculty Payroll Engine</h1>
+            <p className="text-xs text-muted-foreground opacity-50 uppercase tracking-widest mt-1">Salary Computation Module</p>
           </div>
         </div>
         <div className="flex items-center gap-3">

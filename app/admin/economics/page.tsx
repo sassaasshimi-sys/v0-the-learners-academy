@@ -49,6 +49,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectSeparator,
 } from '@/components/ui/select'
 import { 
   AreaChart, 
@@ -64,6 +65,11 @@ import {
 } from 'recharts'
 import { useData } from '@/contexts/data-context'
 import { EXPENDITURE_CATEGORIES } from '@/lib/registry'
+import {
+  getTrimesters,
+  getDateRangeFromFilterKey,
+  type TrimesterSeason,
+} from '@/lib/trimesters'
 import { format, isSameDay, isSameWeek, isSameMonth, subDays } from 'date-fns'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
@@ -73,8 +79,9 @@ import { EntityCardGrid } from '@/components/shared/entity-card-grid'
 import { EntityDataGrid, Column } from '@/components/shared/entity-data-grid'
 import { useHasMounted } from '@/hooks/use-has-mounted'
 import { ClientDate } from '@/components/shared/client-date'
+import { TrimesterBanner } from '@/components/shared/trimester-banner'
 
-type TimePeriod = 'all' | 'today' | 'week' | 'month' | 'semester'
+type TimePeriod = 'all' | 'today' | 'week' | 'month' | 'spring' | 'summer' | 'autumn' | 'winter'
 
 export default function EconomicsPage() {
   const { economics, addExpenditure, isInitialized } = useData()
@@ -83,6 +90,19 @@ export default function EconomicsPage() {
   const [newExpense, setNewExpense] = useState({ amount: '', category: '', description: '' })
   const [periodFilter, setPeriodFilter] = useState<TimePeriod>('all')
 
+  const currentYear = useMemo(() => new Date().getFullYear(), [])
+  const trimesters = useMemo(() => getTrimesters(currentYear), [currentYear])
+
+  // Human-readable label for the active period (used in exports)
+  const periodLabel = useMemo(() => {
+    if (periodFilter === 'all') return 'FULL HISTORY'
+    if (periodFilter === 'today') return 'TODAY'
+    if (periodFilter === 'week') return 'THIS WEEK'
+    if (periodFilter === 'month') return 'THIS MONTH'
+    const t = trimesters.find(t => t.filterKey === periodFilter)
+    return t ? t.label.toUpperCase() : periodFilter.toUpperCase()
+  }, [periodFilter, trimesters])
+
   // Filtered Data Calculations
   const filteredTransactions = useMemo(() => {
     if (!hasMounted || !economics?.transactions) return []
@@ -90,7 +110,9 @@ export default function EconomicsPage() {
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
     const week = now.getTime() - 7 * 24 * 60 * 60 * 1000
     const month = now.getTime() - 30 * 24 * 60 * 60 * 1000
-    const semester = now.getTime() - 90 * 24 * 60 * 60 * 1000
+
+    // Check if the filter key is a trimester season
+    const trimesterRange = getDateRangeFromFilterKey(periodFilter, currentYear)
 
     return economics.transactions.filter((tx: any) => {
       const txDate = new Date(tx.date).getTime()
@@ -98,10 +120,12 @@ export default function EconomicsPage() {
       if (periodFilter === 'today') return txDate >= today
       if (periodFilter === 'week') return txDate >= week
       if (periodFilter === 'month') return txDate >= month
-      if (periodFilter === 'semester') return txDate >= semester
+      if (trimesterRange) {
+        return txDate >= trimesterRange.start.getTime() && txDate <= trimesterRange.end.getTime()
+      }
       return true
     })
-  }, [economics?.transactions, periodFilter, hasMounted])
+  }, [economics?.transactions, periodFilter, hasMounted, currentYear])
 
   const periodStats = useMemo(() => {
     if (!hasMounted) return { inflow: 0, outflow: 0, net: 0, count: 0 }
@@ -175,7 +199,6 @@ export default function EconomicsPage() {
     if (!filteredTransactions) return
     const doc = new jsPDF() as any
     const title = "THE LEARNER'S ACADEMY - INSTITUTIONAL AUDIT LEDGER"
-    const periodLabel = periodFilter === 'all' ? 'FULL HISTORY' : periodFilter.toUpperCase()
     const date = `Generated on: ${format(new Date(), 'PPPP')} | View: ${periodLabel}`
     
     doc.setFont("times", "normal")
@@ -263,7 +286,7 @@ export default function EconomicsPage() {
         actions={
           <div className="flex items-center gap-4">
              <Select value={periodFilter} onValueChange={(v: TimePeriod) => setPeriodFilter(v)}>
-              <SelectTrigger className="w-[180px] h-11 text-xs font-normal border-primary/10 shadow-sm">
+              <SelectTrigger className="w-[200px] h-11 text-xs font-normal border-primary/10 shadow-sm">
                 <SelectValue placeholder="Analyze Period" />
               </SelectTrigger>
               <SelectContent>
@@ -271,7 +294,12 @@ export default function EconomicsPage() {
                 <SelectItem value="today">Daily Pulse (Today)</SelectItem>
                 <SelectItem value="week">Weekly Velocity</SelectItem>
                 <SelectItem value="month">Monthly Volume</SelectItem>
-                <SelectItem value="semester">Seasonal Trend (90d)</SelectItem>
+                <SelectSeparator className="opacity-10" />
+                {trimesters.map(t => (
+                  <SelectItem key={t.filterKey} value={t.filterKey}>
+                    {t.label} &nbsp;·&nbsp; {t.range}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
 
@@ -447,9 +475,11 @@ export default function EconomicsPage() {
         </Card>
       </div>
 
+      <TrimesterBanner className="mb-8" />
+
       <EntityDataGrid 
         title="Transaction Registry"
-        description={`Displaying records for the window: ${periodFilter.toUpperCase()}`}
+        description={`Displaying records for the window: ${periodLabel}`}
         data={filteredTransactions}
         columns={transactionColumns}
         emptyState={

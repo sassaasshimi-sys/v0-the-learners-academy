@@ -13,7 +13,8 @@ import {
   MoreVertical,
   CheckCircle,
   HeartHandshake,
-  Printer
+  Printer,
+  Leaf
 } from 'lucide-react'
 import {
   Dialog,
@@ -30,6 +31,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectSeparator,
 } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent } from '@/components/ui/card'
@@ -56,6 +58,14 @@ import { EntityCardGrid } from '@/components/shared/entity-card-grid'
 import { EntityDataGrid, Column } from '@/components/shared/entity-data-grid'
 import { useHasMounted } from '@/hooks/use-has-mounted'
 import { ClientDate } from '@/components/shared/client-date'
+import {
+  getTrimesters,
+  getActiveTrimester,
+  getDateRangeFromFilterKey,
+} from '@/lib/trimesters'
+import { TrimesterBanner } from '@/components/shared/trimester-banner'
+
+type TimePeriod = 'all' | 'spring' | 'summer' | 'autumn' | 'winter'
 
 export default function FeeRegistryPage() {
   const { students, courses, feePayments, recordPayment, addFeeAccount, isInitialized } = useData()
@@ -64,16 +74,21 @@ export default function FeeRegistryPage() {
   const [filterStatus, setFilterStatus] = useState<'All' | 'Paid' | 'Partial' | 'Unpaid'>('All')
   const [isAddAccountOpen, setIsAddAccountOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
+  const [periodFilter, setPeriodFilter] = useState<TimePeriod>('all')
 
   // Live Preview State for Dialog
   const [tempTotal, setTempTotal] = useState(0)
   const [tempDiscount, setTempDiscount] = useState(0)
 
   const today = useMemo(() => new Date(), [hasMounted])
-  
+  const currentYear = useMemo(() => new Date().getFullYear(), [])
+  const trimesters = useMemo(() => getTrimesters(currentYear), [currentYear])
+  const activeTrimester = useMemo(() => getActiveTrimester(), [])
+
   const stats = useMemo(() => {
-    if (!hasMounted) return { daily: 0, weekly: 0, monthly: 0, totalOutstanding: 0, totalDiscounts: 0 }
+    if (!hasMounted) return { daily: 0, weekly: 0, monthly: 0, totalOutstanding: 0, totalDiscounts: 0, trimesterCollection: 0 }
     const safePayments = Array.isArray(feePayments) ? feePayments : []
+
     const daily = safePayments
       .filter(p => p.paymentDate && isSameDay(new Date(p.paymentDate), today))
       .reduce((sum, p) => sum + p.amountPaid, 0)
@@ -92,8 +107,23 @@ export default function FeeRegistryPage() {
     const totalDiscounts = safePayments
       .reduce((sum, p) => sum + (p.discount || 0), 0)
 
-    return { daily, weekly, monthly, totalOutstanding, totalDiscounts }
-  }, [feePayments, today, hasMounted])
+    // Trimester collection — uses active period filter if set, otherwise current trimester
+    const trimesterRange = periodFilter !== 'all'
+      ? getDateRangeFromFilterKey(periodFilter, currentYear)
+      : { start: activeTrimester.start, end: activeTrimester.end }
+
+    const trimesterCollection = trimesterRange
+      ? safePayments
+          .filter(p => {
+            if (!p.paymentDate) return false
+            const d = new Date(p.paymentDate).getTime()
+            return d >= trimesterRange.start.getTime() && d <= trimesterRange.end.getTime()
+          })
+          .reduce((sum, p) => sum + p.amountPaid, 0)
+      : 0
+
+    return { daily, weekly, monthly, totalOutstanding, totalDiscounts, trimesterCollection }
+  }, [feePayments, today, hasMounted, periodFilter, currentYear, activeTrimester])
 
   const filteredPayments = useMemo(() => {
     if (!hasMounted) return []
@@ -251,7 +281,7 @@ export default function FeeRegistryPage() {
                 totalFee:      String((entry.totalAmount || 0) - (entry.discount || 0)),
                 paid:          String(entry.amountPaid || 0),
                 dues:          String(dues > 0 ? dues : 0),
-                term:          'Spring-2026',
+                term:          `${activeTrimester.season}-${activeTrimester.year}`,
                 teacherName:   entry.course.teacherName || '',
               })
               window.open(`/admin/print/receipt?${params.toString()}`, '_blank')
@@ -277,12 +307,28 @@ export default function FeeRegistryPage() {
         title="Institutional Fee Registry"
         description="Administrative ledger for tuition collection, payment scheduling, and real-time financial tracking across all academic sessions."
         actions={
-          <Dialog open={isAddAccountOpen} onOpenChange={(open) => { setIsAddAccountOpen(open); if(!open){ setTempTotal(0); setTempDiscount(0); } }}>
-            <DialogTrigger asChild>
-              <Button className="font-normal bg-primary shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
-                Add Student Account
-              </Button>
-            </DialogTrigger>
+          <div className="flex items-center gap-4">
+            <Select value={periodFilter} onValueChange={(v: TimePeriod) => setPeriodFilter(v)}>
+              <SelectTrigger className="w-[200px] h-11 text-xs font-normal border-primary/10 shadow-sm">
+                <SelectValue placeholder="Select Trimester" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Collections</SelectItem>
+                <SelectSeparator className="opacity-10" />
+                {trimesters.map(t => (
+                  <SelectItem key={t.filterKey} value={t.filterKey}>
+                    {t.label} &nbsp;·&nbsp; {t.range}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Dialog open={isAddAccountOpen} onOpenChange={(open) => { setIsAddAccountOpen(open); if(!open){ setTempTotal(0); setTempDiscount(0); } }}>
+              <DialogTrigger asChild>
+                <Button className="font-normal bg-primary shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                  Add Student Account
+                </Button>
+              </DialogTrigger>
             <DialogContent className="sm:max-w-xl p-0 overflow-hidden border-white/10 rounded-[2rem] glass-3">
               <DialogHeader className="p-10 pb-0 text-center">
                 <div className="mx-auto w-14 h-14 bg-primary/5 rounded-2xl flex items-center justify-center mb-6 ring-1 ring-primary/20">
@@ -372,17 +418,28 @@ export default function FeeRegistryPage() {
                 </DialogFooter>
               </form>
             </DialogContent>
-          </Dialog>
+            </Dialog>
+          </div>
         }
       />
 
-      <div className="grid grid-cols-5 gap-6 mb-12">
+      <TrimesterBanner className="mb-8" />
+
+
+      <div className="grid grid-cols-6 gap-5 mb-12">
         {[
           { label: 'Daily Collection', value: stats.daily, info: 'Current Cycle', icon: Clock, color: 'text-primary' },
           { label: 'Weekly Velocity', value: stats.weekly, info: 'Active Term', icon: ArrowUpRight, color: 'text-success' },
           { label: 'Monthly Volume', value: stats.monthly, info: 'Projected Flow', icon: DollarSign, color: 'text-primary' },
           { label: 'Outstanding Dues', value: stats.totalOutstanding, info: 'Uncollected', icon: AlertCircle, color: 'text-destructive' },
           { label: 'Institutional Relief', value: stats.totalDiscounts, info: 'Philanthropic Investment', icon: HeartHandshake, color: 'text-indigo-400' },
+          { 
+            label: periodFilter !== 'all' ? `${trimesters.find(t => t.filterKey === periodFilter)?.label ?? 'Trimester'} Collection` : `${activeTrimester.label} Collection`,
+            value: stats.trimesterCollection,
+            info: 'Trimester Revenue',
+            icon: Leaf,
+            color: 'text-primary'
+          },
         ].map((stat, i) => (
           <Card key={i} className="glass-1 border-white/10 shadow-premium overflow-hidden rounded-[2rem] hover:translate-y-[-4px] transition-all duration-500">
             <CardContent className="pt-8 pb-7">

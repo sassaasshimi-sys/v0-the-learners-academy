@@ -11,6 +11,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectSeparator,
 } from '@/components/ui/select'
 import { 
   Search, 
@@ -48,8 +49,15 @@ import { format, isSameDay, isSameWeek, isSameMonth, subDays, eachDayOfInterval 
 import type { Student } from '@/lib/types'
 import { useHasMounted } from '@/hooks/use-has-mounted'
 import { ClientDate } from '@/components/shared/client-date'
+import {
+  getTrimesters,
+  getActiveTrimester,
+  getDaysRemaining,
+  getDateRangeFromFilterKey,
+} from '@/lib/trimesters'
+import { TrimesterBanner } from '@/components/shared/trimester-banner'
 
-type TimePeriod = 'all' | 'today' | 'week' | 'month' | 'semester'
+type TimePeriod = 'all' | 'today' | 'week' | 'month' | 'spring' | 'summer' | 'autumn' | 'winter'
 
 export default function EnrollmentTrendPage() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -76,13 +84,11 @@ export default function EnrollmentTrendPage() {
     const lastWeekly = students?.filter(s => s.enrolledAt && isSameWeek(new Date(s.enrolledAt), subDays(now, 7))).length
     const growthDelta = weekCount > lastWeekly ? ((weekCount - lastWeekly) / (lastWeekly || 1)) * 100 : (-(lastWeekly - weekCount) / (lastWeekly || 1)) * 100
 
-    // Term Progress (3-month cycle)
-    const currentMonth = now.getMonth()
-    const termSeason = currentMonth < 3 ? 'Spring' : currentMonth < 6 ? 'Summer' : currentMonth < 9 ? 'Autumn' : 'Winter'
-    const daysInTerm = 90
-    const termStartMonth = currentMonth < 3 ? 0 : currentMonth < 6 ? 3 : currentMonth < 9 ? 6 : 9
-    const termStartDate = new Date(now.getFullYear(), termStartMonth, 1)
-    const daysPassed = Math.floor((now.getTime() - termStartDate.getTime()) / (1000 * 60 * 60 * 24))
+    // Term Progress — driven by getActiveTrimester()
+    const activeTrimester = getActiveTrimester(now)
+    const termSeason = activeTrimester.season
+    const daysInTerm = (activeTrimester.end.getTime() - activeTrimester.start.getTime()) / (1000 * 60 * 60 * 24)
+    const daysPassed = (now.getTime() - activeTrimester.start.getTime()) / (1000 * 60 * 60 * 24)
     const termProgress = Math.min((daysPassed / daysInTerm) * 100, 100)
 
     return { 
@@ -128,6 +134,9 @@ export default function EnrollmentTrendPage() {
     }))
   }, [students, mockCourses])
 
+  const currentYear = useMemo(() => new Date().getFullYear(), [])
+  const trimesters = useMemo(() => getTrimesters(currentYear), [currentYear])
+
   const filteredStudents = useMemo(() => {
     return students?.filter(student => {
       const enrollmentDate = new Date(student.enrolledAt).getTime()
@@ -139,7 +148,12 @@ export default function EnrollmentTrendPage() {
       if (periodFilter === 'today') matchesPeriod = enrollmentDate >= today
       else if (periodFilter === 'week') matchesPeriod = enrollmentDate >= (now.getTime() - 7 * 24 * 60 * 60 * 1000)
       else if (periodFilter === 'month') matchesPeriod = enrollmentDate >= (now.getTime() - 30 * 24 * 60 * 60 * 1000)
-      else if (periodFilter === 'semester') matchesPeriod = enrollmentDate >= (now.getTime() - 90 * 24 * 60 * 60 * 1000)
+      else {
+        const trimesterRange = getDateRangeFromFilterKey(periodFilter, currentYear)
+        if (trimesterRange) {
+          matchesPeriod = enrollmentDate >= trimesterRange.start.getTime() && enrollmentDate <= trimesterRange.end.getTime()
+        }
+      }
 
       // Class Filter
       const matchesClass = classFilter === 'all' || student.enrolledCourses.includes(classFilter)
@@ -151,7 +165,7 @@ export default function EnrollmentTrendPage() {
 
       return matchesPeriod && matchesClass && matchesSearch
     })
-  }, [students, periodFilter, classFilter, searchQuery])
+  }, [students, periodFilter, classFilter, searchQuery, currentYear])
 
   const hasMounted = useHasMounted()
 
@@ -218,6 +232,8 @@ export default function EnrollmentTrendPage() {
         title="Student Enrollment"
         description="Track how many students are joining and which levels they are choosing."
       />
+
+      <TrimesterBanner className="mb-8" />
 
       <EntityCardGrid 
         data={periodStatData}
@@ -328,7 +344,7 @@ export default function EnrollmentTrendPage() {
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <div className="flex items-center gap-2">
               <Select value={periodFilter} onValueChange={(v: TimePeriod) => setPeriodFilter(v)}>
-                <SelectTrigger className="w-[150px] h-10 text-xs font-normal border-primary/10">
+                <SelectTrigger className="w-[180px] h-10 text-xs font-normal border-primary/10">
                   <SelectValue placeholder="Period" />
                 </SelectTrigger>
                 <SelectContent>
@@ -336,7 +352,12 @@ export default function EnrollmentTrendPage() {
                   <SelectItem value="today">Today</SelectItem>
                   <SelectItem value="week">This Week</SelectItem>
                   <SelectItem value="month">This Month</SelectItem>
-                  <SelectItem value="semester">This Semester</SelectItem>
+                  <SelectSeparator className="opacity-10" />
+                  {trimesters.map(t => (
+                    <SelectItem key={t.filterKey} value={t.filterKey}>
+                      {t.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
 
