@@ -12,7 +12,7 @@ export function calculateStudentOverallProgress(
   allSubmissions: Submission[],
   allAssessments: AssessmentTemplate[]
 ): number {
-  if (!student || !Array.isArray(allSubmissions) || !Array.isArray(allAssessments)) return 0
+  if (!student || !student.id || !Array.isArray(allSubmissions) || !Array.isArray(allAssessments)) return 0
 
   const studentSubmissions = allSubmissions.filter(s => s && student?.id && s.studentId === student.id)
   if (studentSubmissions.length === 0) return 0
@@ -39,7 +39,7 @@ export function calculateStudentAverageGrade(
   allSubmissions: Submission[],
   allAssessments: AssessmentTemplate[]
 ): number {
-  if (!student || !Array.isArray(allSubmissions) || !Array.isArray(allAssessments)) return 0
+  if (!student || !student.id || !Array.isArray(allSubmissions) || !Array.isArray(allAssessments)) return 0
 
   const gradedSubmissions = allSubmissions.filter(s => 
     s.studentId === student.id && 

@@ -62,7 +62,7 @@ export default function AdminDashboard() {
       }
     })
 
-    students?.forEach(student => {
+    students?.filter(Boolean).forEach(student => {
       if (!student || !student.enrolledAt) return
       const date = new Date(student.enrolledAt)
       if (isNaN(date.getTime())) return // Guard against "Invalid Date"
@@ -82,8 +82,8 @@ export default function AdminDashboard() {
   const coursePopularityData = useMemo(() => {
     if (!hasMounted || !courses) return []
     // Sort courses by current specific enrollment and take top 5
-    return [...courses]
-      .sort((a, b) => b.enrolled - a.enrolled)
+    return [...(courses?.filter(Boolean) || [])]
+      .sort((a, b) => (Number(b?.enrolled) || 0) - (Number(a?.enrolled) || 0))
       .slice(0, 5)
       .map(course => {
         const title = course?.title || 'Untitled Course'
@@ -286,7 +286,7 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {students.slice(0, 5).map((student) => (
+              {students?.filter(Boolean).slice(0, 5).map((student) => (
                 <div key={student.id} className="flex items-center justify-between p-3  hover:bg-muted/30 transition-premium group">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10  bg-primary/5 flex items-center justify-center border  group-hover:scale-105 transition-transform text-primary">
@@ -370,7 +370,7 @@ export default function AdminDashboard() {
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 items-stretch">
-            {courses?.filter(c => c.status === 'active').slice(0, 6).map((course) => (
+            {courses?.filter(c => c && c.status === 'active').slice(0, 6).map((course) => (
               <div 
                 key={course.id} 
                 className="group p-5  border bg-card hover-lift transition-premium cursor-pointer"
@@ -385,7 +385,7 @@ export default function AdminDashboard() {
                 </div>
                 <p className="font-normal text-sm mb-1 line-clamp-1">{course.title}</p>
                 <p className="text-xs text-muted-foreground mb-3">{course.teacherName}</p>
-                <Progress value={(course.enrolled / course.capacity) * 100} className="h-1.5" />
+                <Progress value={Math.min(Math.max((Number(course.enrolled) / (Number(course.capacity) || 1)) * 100, 0), 100)} className="h-1.5" />
               </div>
             ))}
           </div>

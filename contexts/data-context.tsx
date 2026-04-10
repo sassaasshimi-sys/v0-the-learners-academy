@@ -155,7 +155,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
     
     isRefreshingRef.current = true
     setIsLoading(true)
-    const normalizeDate = (d: any) => (d instanceof Date ? d.toISOString() : d)
+  const normalizeDate = (d: any) => {
+    if (!d) return new Date().toISOString()
+    try {
+      const date = d instanceof Date ? d : new Date(d)
+      return isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString()
+    } catch (e) {
+      return new Date().toISOString()
+    }
+  }
 
     try {
       console.log(`[DataProvider] Syncing with institutional registry for user: ${user?.id || 'Public'}...`)
@@ -186,24 +194,32 @@ export function DataProvider({ children }: { children: ReactNode }) {
       } = initRes.data || {}
 
       startTransition(() => {
-        setTeachers((t || []).map((item: any) => ({ ...item, joinedAt: normalizeDate(item.joinedAt) })) as unknown as Teacher[])
-        setStudents((s || []).map((item: any) => ({ ...item, enrolledAt: normalizeDate(item.enrolledAt) })) as unknown as Student[])
+        // DATA FIREWALL: Filter out nulls and normalize records before setting state
+        setTeachers((t || []).filter(Boolean).map((item: any) => ({ ...item, joinedAt: normalizeDate(item.joinedAt) })) as unknown as Teacher[])
         
-        const normalizedCourses = (c || []).map((item: any) => ({ 
+        setStudents((s || []).filter(Boolean).map((item: any) => ({ 
+          ...item, 
+          enrolledAt: normalizeDate(item.enrolledAt),
+          progress: Number(item.progress) || 0
+        })) as unknown as Student[])
+        
+        const normalizedCourses = (c || []).filter(Boolean).map((item: any) => ({ 
           ...item, 
           startDate: normalizeDate(item.startDate),
-          endDate: normalizeDate(item.endDate)
+          endDate: normalizeDate(item.endDate),
+          enrolled: Number(item._count?.enrollments) || 0, // Ensure numeric
+          capacity: Math.max(Number(item.capacity) || 1, 1), // Prevent division by zero
         })) as unknown as Course[]
         setCourses(normalizedCourses)
         
-        setQuestions(q as unknown as Question[])
-        setAssessments(a as unknown as AssessmentTemplate[])
-        setSubmissions((sub || []).map((item: any) => ({ ...item, submittedAt: normalizeDate(item.submittedAt) })) as unknown as Submission[])
-        setSchedules(sch as unknown as Schedule[])
-        setAssignments(asgn as Assignment[])
+        setQuestions((q || []).filter(Boolean) as unknown as Question[])
+        setAssessments((a || []).filter(Boolean) as unknown as AssessmentTemplate[])
+        setSubmissions((sub || []).filter(Boolean).map((item: any) => ({ ...item, submittedAt: normalizeDate(item.submittedAt) })) as unknown as Submission[])
+        setSchedules((sch || []).filter(Boolean) as unknown as Schedule[])
+        setAssignments((asgn || []).filter(Boolean) as Assignment[])
         
         // Advanced Mapping: Link enrollments to course objects by ID
-        const normalizedEnrollments = (enr || []).map((en: any) => ({
+        const normalizedEnrollments = (enr || []).filter(Boolean).map((en: any) => ({
           ...en,
           course: normalizedCourses.find(nc => nc.id === en.courseId)
         }))
