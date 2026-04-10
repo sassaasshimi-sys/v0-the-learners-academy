@@ -146,7 +146,9 @@ export default function AdminLayout({
   const { assessments } = useData()
   
   if (!user?.id) return null
-  const pendingReviewCount = assessments?.filter(a => a.status === 'pending_review')?.length || 0
+  const pendingReviewCount = Array.isArray(assessments) 
+    ? assessments.filter(a => a && a.status === 'pending_review').length 
+    : 0
 
   return (
     <SidebarProvider style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
@@ -159,11 +161,12 @@ export default function AdminLayout({
             <SidebarGroupContent>
               <SidebarMenu className="gap-2">
                 {adminNavItems?.map((item) => {
-                  const isActive = pathname === item.href || 
-                    (item.href !== '/admin' && pathname.startsWith(item.href))
+                  const safePathname = pathname || ''
+                  const isActive = safePathname === item.href || 
+                    (item.href !== '/admin' && safePathname.startsWith(item.href))
                   
-                  const hasSubItems = item.items && item.items.length > 0
-                  const isInitiallyOpen = hasSubItems && (pathname === item.href || pathname.startsWith(item.href))
+                  const hasSubItems = Array.isArray(item.items) && item.items.length > 0
+                  const isInitiallyOpen = hasSubItems && (safePathname === item.href || safePathname.startsWith(item.href))
 
                   if (!hasSubItems) {
                     return (

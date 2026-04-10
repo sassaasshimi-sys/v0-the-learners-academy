@@ -102,9 +102,9 @@ function computeStats(
 
   return {
     totalStudents,
-    totalTeachers: teachers.length,
-    totalCourses: courses.length,
-    activeEnrollments: (students || []).filter(s => s && s.status === 'active').length,
+    totalTeachers: Array.isArray(teachers) ? teachers.length : 0,
+    totalCourses: Array.isArray(courses) ? courses.length : 0,
+    activeEnrollments: Array.isArray(students) ? students.filter(s => s && s.status === 'active').length : 0,
     revenue: econ?.actualRevenue || 0,
     revenueChange: econ?.revenueChange || 0,
     newEnrollments: econ?.newEnrollments || newEnrollments,
@@ -270,8 +270,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }
 
   // Stability Guard: Strictly block rendering of protected views while loading
-  const isProtectedRoute = typeof window !== 'undefined' && 
-    (window.location.pathname.startsWith('/admin') || window.location.pathname.startsWith('/teacher') || (window.location.pathname.startsWith('/student') && window.location.pathname !== '/student'))
+  const safeLocation = typeof window !== 'undefined' ? window.location.pathname : ''
+  const isProtectedRoute = 
+    safeLocation.startsWith('/admin') || 
+    safeLocation.startsWith('/teacher') || 
+    (safeLocation.startsWith('/student') && safeLocation !== '/student')
 
   if (!isInitialized && isLoading && isProtectedRoute) {
     return (

@@ -62,6 +62,8 @@ export default function AdminDashboard() {
       }
     })
 
+    if (!Array.isArray(students)) return trend.map(({ name, value }) => ({ name, value }))
+
     students?.filter(Boolean).forEach(student => {
       if (!student || !student.enrolledAt) return
       const date = new Date(student.enrolledAt)
@@ -121,7 +123,7 @@ export default function AdminDashboard() {
     },
     {
       title: 'Realized Revenue',
-      value: `Rs. ${stats.revenue.toLocaleString()}`,
+      value: typeof stats?.revenue === 'number' ? `Rs. ${stats.revenue.toLocaleString()}` : 'Rs. 0',
       sub: 'Fees Collected',
       icon: DollarSign,
       href: '/admin/economics',
