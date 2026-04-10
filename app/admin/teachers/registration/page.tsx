@@ -37,7 +37,8 @@ export default function TeacherRegistrationPage() {
   const { teachers, addTeacher, isInitialized } = useData()
   const hasMounted = useHasMounted()
 
-  if (!isInitialized || !hasMounted) return <DashboardSkeleton />
+  if (!hasMounted) return <DashboardSkeleton />
+  if (!isInitialized) return <DashboardSkeleton />
 
   const form = useForm<TeacherRegistrationValues>({
     resolver: zodResolver(teacherRegistrationSchema),
@@ -52,12 +53,17 @@ export default function TeacherRegistrationPage() {
 
 
   const onSubmit = async (data: TeacherRegistrationValues) => {
+    // Defensive check for initialization
+    if (!isInitialized) return
+
     // Check for duplicates
-    if (teachers.some(t => t.employeeId.toLowerCase() === data.employeeId.toLowerCase())) {
+    const existingTeachers = Array.isArray(teachers) ? teachers : []
+    
+    if (existingTeachers.some(t => t.employeeId?.toLowerCase() === data.employeeId.toLowerCase())) {
         form.setError('employeeId', { message: 'ID already exists in faculty registry' })
         return
     }
-    if (teachers.some(t => t.email.toLowerCase() === data.email.toLowerCase())) {
+    if (existingTeachers.some(t => t.email?.toLowerCase() === data.email.toLowerCase())) {
         form.setError('email', { message: 'Email is already registered' })
         return
     }
