@@ -135,11 +135,12 @@ export default function TeacherLayout({
             <SidebarGroupContent>
               <SidebarMenu className="gap-2">
                 {teacherNavItems?.map((item) => {
-                  const isActive = pathname === item.href || 
-                    (item.href !== '/teacher' && pathname.startsWith(item.href))
+                  const safePathname = pathname || ''
+                  const isActive = safePathname === item.href || 
+                    (item.href !== '/teacher' && safePathname.startsWith(item.href))
                   
                   const hasSubItems = item.items && item.items.length > 0
-                  const isInitiallyOpen = hasSubItems && (pathname === item.href || pathname.startsWith(item.href))
+                  const isInitiallyOpen = hasSubItems && (safePathname === item.href || safePathname.startsWith(item.href))
 
                   if (!hasSubItems) {
                     return (
@@ -179,7 +180,7 @@ export default function TeacherLayout({
                              tooltip={item.title}
                              className={cn(
                                "transition-all duration-300 h-10 px-4 ",
-                               isActive && !pathname.includes(item.href) ? "bg-primary/5 text-primary" : ""
+                               isActive && !(pathname || '').includes(item.href) ? "bg-primary/5 text-primary" : ""
                              )}
                           >
                             <Link href={item.href} className="flex items-center gap-3 w-full">
@@ -255,7 +256,7 @@ export default function TeacherLayout({
               <Avatar className="h-8 w-8 border  shadow-sm">
                 <AvatarImage src={user?.avatar} alt={user?.name} />
                 <AvatarFallback className="bg-primary/5 text-primary text-xs ">
-                  {user?.name?.split(' ').map(n => n[0]).join('') || 'U'}
+                  {(user?.name || 'User').split(' ').filter(Boolean).map(n => n?.[0]).join('') || 'U'}
                 </AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>

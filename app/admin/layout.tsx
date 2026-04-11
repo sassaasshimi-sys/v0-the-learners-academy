@@ -206,7 +206,7 @@ export default function AdminLayout({
                              tooltip={item.title}
                              className={cn(
                                "transition-premium h-11 px-4  group/btn",
-                               isActive && !pathname.includes(item.href) 
+                               isActive && !(pathname || '').includes(item.href) 
                                  ? "bg-primary/5 text-primary shadow-sm" 
                                  : "text-muted-foreground hover:bg-primary/5 hover:text-primary font-normal"
                              )}
@@ -285,7 +285,7 @@ export default function AdminLayout({
               <Avatar className="h-9 w-9 border  shadow-sm">
                 <AvatarImage src={user?.avatar} alt={user?.name || 'User'} />
                 <AvatarFallback className="bg-primary/5 text-primary text-xs">
-                  {(user?.name || 'User').split(' ').map(n => n?.[0]).join('') || 'U'}
+                  {(user?.name || 'User').split(' ').filter(Boolean).map(n => n?.[0]).join('') || 'U'}
                 </AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>

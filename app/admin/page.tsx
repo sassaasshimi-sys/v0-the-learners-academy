@@ -37,6 +37,7 @@ import { useAuth } from '@/contexts/auth-context'
 import { useHasMounted } from '@/hooks/use-has-mounted'
 import { ClientDate } from '@/components/shared/client-date'
 import { TrimesterBanner } from '@/components/shared/trimester-banner'
+import { StabilityBoundary } from '@/components/stability/stability-boundary'
 
 export default function AdminDashboard() {
   const { user } = useAuth()
@@ -141,7 +142,7 @@ export default function AdminDashboard() {
       >
         <motion.div variants={STAGGER_ITEM}>
           <h1 className="font-serif text-3xl text-foreground font-medium">
-            Welcome, {user?.name?.split(' ')[0] || 'Admin'}
+            Welcome, {(user?.name || 'Admin').split(' ').filter(Boolean)[0] || 'Admin'}
           </h1>
         </motion.div>
       </motion.div>
@@ -184,90 +185,94 @@ export default function AdminDashboard() {
       {/* Charts Row */}
       <div className="grid gap-6 lg:grid-cols-2 items-stretch">
         {/* Enrollment Trend Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-xl font-serif font-medium">
-              <UserPlus className="w-5 h-5 text-primary" />
-              Enrollment Trend
-            </CardTitle>
-            <CardDescription>
-              Student enrollments over the past 6 months
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[280px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={enrollmentTrendData}>
-                  <defs>
-                    <linearGradient id="enrollmentGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis dataKey="name" className="text-xs" />
-                  <YAxis className="text-xs" />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))', 
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px',
-                    }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="value"
-                    stroke="var(--color-primary)"
-                    strokeWidth={2}
-                    fill="url(#enrollmentGradient)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
+        <StabilityBoundary name="Enrollment Analytics">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-xl font-serif font-medium">
+                <UserPlus className="w-5 h-5 text-primary" />
+                Enrollment Trend
+              </CardTitle>
+              <CardDescription>
+                Student enrollments over the past 6 months
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[280px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={enrollmentTrendData}>
+                    <defs>
+                      <linearGradient id="enrollmentGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="name" className="text-xs" />
+                    <YAxis className="text-xs" />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'hsl(var(--card))', 
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px',
+                      }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="value"
+                      stroke="var(--color-primary)"
+                      strokeWidth={2}
+                      fill="url(#enrollmentGradient)"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </StabilityBoundary>
 
         {/* Course Popularity Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-xl font-serif font-medium">
-              <Award className="w-5 h-5 text-accent" />
-              Class Popularity
-            </CardTitle>
-            <CardDescription>
-              Most enrolled classes this semester
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[280px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={coursePopularityData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis type="number" className="text-xs" />
-                  <YAxis 
-                    type="category" 
-                    dataKey="name" 
-                    className="text-xs" 
-                    width={120}
-                    tick={{ fontSize: 11 }}
-                  />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))', 
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px',
-                    }}
-                  />
-                  <Bar 
-                    dataKey="value" 
-                    fill="var(--color-accent)" 
-                    radius={[0, 4, 4, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
+        <StabilityBoundary name="Class Metrics">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-xl font-serif font-medium">
+                <Award className="w-5 h-5 text-accent" />
+                Class Popularity
+              </CardTitle>
+              <CardDescription>
+                Most enrolled classes this semester
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[280px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={coursePopularityData} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis type="number" className="text-xs" />
+                    <YAxis 
+                      type="category" 
+                      dataKey="name" 
+                      className="text-xs" 
+                      width={120}
+                      tick={{ fontSize: 11 }}
+                    />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'hsl(var(--card))', 
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px',
+                      }}
+                    />
+                    <Bar 
+                      dataKey="value" 
+                      fill="var(--color-accent)" 
+                      radius={[0, 4, 4, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </StabilityBoundary>
       </div>
 
       {/* Recent Activity & Quick Actions */}
@@ -293,12 +298,12 @@ export default function AdminDashboard() {
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10  bg-primary/5 flex items-center justify-center border  group-hover:scale-105 transition-transform text-primary">
                       <span className="text-xs font-normal">
-                        {(student?.name || 'S').split(' ').map(n => n?.[0]).join('') || 'S'}
+                        {(student?.name || 'S').split(' ').filter(Boolean).map(n => n?.[0]).join('') || 'S'}
                       </span>
                     </div>
                     <div>
-                      <p className="font-serif text-base leading-tight font-normal">{student.name}</p>
-                      <p className="text-editorial-label text-xs lowercase opacity-70">{student.email}</p>
+                      <p className="font-serif text-base leading-tight font-normal">{student?.name || 'Student'}</p>
+                      <p className="text-editorial-label text-xs lowercase opacity-70">{student?.email || 'N/A'}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-6">

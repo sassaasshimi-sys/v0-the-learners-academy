@@ -22,6 +22,7 @@ import { cn } from '@/lib/utils'
 import { PageShell } from '@/components/shared/page-shell'
 import { PageHeader } from '@/components/shared/page-header'
 import { EntityCardGrid } from '@/components/shared/entity-card-grid'
+import { StabilityBoundary } from '@/components/stability/stability-boundary'
 
 export default function TeacherDashboard() {
   const { user } = useAuth()
@@ -85,7 +86,7 @@ export default function TeacherDashboard() {
   return (
     <PageShell>
       <PageHeader 
-        title={`Welcome, ${user?.name?.split(' ')[0] || 'Teacher'}`}
+        title={`Welcome, ${(user?.name || 'Teacher').split(' ').filter(Boolean)[0] || 'Teacher'}`}
         description="Orchestrating academic excellence through precision insights."
         actions={
           <div className="flex gap-2">
@@ -131,111 +132,115 @@ export default function TeacherDashboard() {
       />
 
       <div className="grid gap-6 lg:grid-cols-2 items-stretch mt-6">
-        <Card className="hover-lift transition-premium h-full flex flex-col overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between p-6 pb-2">
-            <div>
-              <CardTitle className="text-xl font-serif font-medium">Active Assessments</CardTitle>
-              <CardDescription className="text-xs font-normal opacity-60">Track ongoing test participation</CardDescription>
-            </div>
-            <Button variant="ghost" size="sm" asChild className="hover:bg-primary/10 transition-premium group">
-              <Link href="/teacher/assessments" className="flex items-center text-xs font-normal">
-                View Registry
-                <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </Button>
-          </CardHeader>
-          <CardContent className="p-6 space-y-4 flex-1">
-            {activeTests.length === 0 ? (
-              <div className="py-8 text-center bg-muted/5 border border-dashed rounded-xl">
-                <p className="text-xs font-normal text-muted-foreground opacity-60">No Live Encounters</p>
+        <StabilityBoundary name="Active Assessments">
+          <Card className="hover-lift transition-premium h-full flex flex-col overflow-hidden">
+            <CardHeader className="flex flex-row items-center justify-between p-6 pb-2">
+              <div>
+                <CardTitle className="text-xl font-serif font-medium">Active Assessments</CardTitle>
+                <CardDescription className="text-xs font-normal opacity-60">Track ongoing test participation</CardDescription>
               </div>
-            ) : (
-              activeTests.slice(0, 3).map((assessment) => {
-                const subCount = submissions?.filter(s => s.assignmentId === assessment.id).length || 0
-                const enrolledCount = students?.filter(s =>
-                  (s.enrolledCourses || []).some(cId =>
-                    myCourses.some(mc => mc.id === cId && (assessment.classLevels || []).includes(mc.title))
+              <Button variant="ghost" size="sm" asChild className="hover:bg-primary/10 transition-premium group">
+                <Link href="/teacher/assessments" className="flex items-center text-xs font-normal">
+                  View Registry
+                  <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </Button>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4 flex-1">
+              {activeTests.length === 0 ? (
+                <div className="py-8 text-center bg-muted/5 border border-dashed rounded-xl">
+                  <p className="text-xs font-normal text-muted-foreground opacity-60">No Live Encounters</p>
+                </div>
+              ) : (
+                activeTests.slice(0, 3).map((assessment) => {
+                  const subCount = submissions?.filter(s => s.assignmentId === assessment.id).length || 0
+                  const enrolledCount = students?.filter(s =>
+                    (s.enrolledCourses || []).some(cId =>
+                      myCourses.some(mc => mc.id === cId && (assessment.classLevels || []).includes(mc.title))
+                    )
+                  ).length || 0
+                  const safeTotal = enrolledCount > 0 ? enrolledCount : 1
+
+                  return (
+                    <div key={assessment.id} className="p-4 bg-muted/5 border hover:bg-muted/10 transition-premium group cursor-pointer">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <p className="font-sans text-base font-normal group-hover:text-primary transition-colors">{assessment.title}</p>
+                          <p className="text-xs mt-0.5 opacity-60 font-normal">
+                            {(assessment.classLevels || []).join(', ') || assessment.nature}
+                          </p>
+                        </div>
+                        <Badge variant="outline" className="text-[10px] font-normal text-primary bg-primary/5">
+                          Registry Active
+                        </Badge>
+                      </div>
+                      <div className="space-y-2 mt-4">
+                        <div className="flex items-center justify-between text-[10px] text-muted-foreground font-normal opacity-60">
+                          <span>Capture Census</span>
+                          <span>{subCount}/{enrolledCount}</span>
+                        </div>
+                        <Progress value={Math.min(100, (subCount / safeTotal) * 100)} className="h-1 bg-primary/10" />
+                      </div>
+                    </div>
                   )
-                ).length || 0
-                const safeTotal = enrolledCount > 0 ? enrolledCount : 1
+                })
+              )}
+            </CardContent>
+          </Card>
+        </StabilityBoundary>
 
-                return (
-                  <div key={assessment.id} className="p-4 bg-muted/5 border hover:bg-muted/10 transition-premium group cursor-pointer">
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <p className="font-sans text-base font-normal group-hover:text-primary transition-colors">{assessment.title}</p>
-                        <p className="text-xs mt-0.5 opacity-60 font-normal">
-                          {(assessment.classLevels || []).join(', ') || assessment.nature}
-                        </p>
-                      </div>
-                      <Badge variant="outline" className="text-[10px] font-normal text-primary bg-primary/5">
-                        Registry Active
-                      </Badge>
-                    </div>
-                    <div className="space-y-2 mt-4">
-                      <div className="flex items-center justify-between text-[10px] text-muted-foreground font-normal opacity-60">
-                        <span>Capture Census</span>
-                        <span>{subCount}/{enrolledCount}</span>
-                      </div>
-                      <Progress value={Math.min(100, (subCount / safeTotal) * 100)} className="h-1 bg-primary/10" />
-                    </div>
-                  </div>
-                )
-              })
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="hover-lift transition-premium h-full flex flex-col overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between p-6 pb-2">
-            <div>
-              <CardTitle className="text-xl font-serif font-medium">Class Performance</CardTitle>
-              <CardDescription className="text-xs font-normal opacity-60">Success metrics & average tracking</CardDescription>
-            </div>
-            <TrendingUp className="w-5 h-5 text-primary opacity-40" />
-          </CardHeader>
-          <CardContent className="p-6 space-y-6 flex-1">
-            {myCourses.length === 0 ? (
-              <div className="py-8 text-center bg-muted/5 border border-dashed rounded-xl">
-                <p className="text-xs font-normal text-muted-foreground opacity-60">No Academic Records</p>
+        <StabilityBoundary name="Class Performance">
+          <Card className="hover-lift transition-premium h-full flex flex-col overflow-hidden">
+            <CardHeader className="flex flex-row items-center justify-between p-6 pb-2">
+              <div>
+                <CardTitle className="text-xl font-serif font-medium">Class Performance</CardTitle>
+                <CardDescription className="text-xs font-normal opacity-60">Success metrics & average tracking</CardDescription>
               </div>
-            ) : (
-              myCourses.map((course) => {
-                const courseStudents = students?.filter(s => (s.enrolledCourses || []).includes(course.id)) || []
-                const courseStudentIds = courseStudents.map(s => s.id)
-                
-                const courseResults = submissions?.filter(s => 
-                  s.grade !== undefined && s.grade !== null &&
-                  courseStudentIds.includes(s.studentId)
-                ) || []
+              <TrendingUp className="w-5 h-5 text-primary opacity-40" />
+            </CardHeader>
+            <CardContent className="p-6 space-y-6 flex-1">
+              {myCourses.length === 0 ? (
+                <div className="py-8 text-center bg-muted/5 border border-dashed rounded-xl">
+                  <p className="text-xs font-normal text-muted-foreground opacity-60">No Academic Records</p>
+                </div>
+              ) : (
+                myCourses.map((course) => {
+                  const courseStudents = students?.filter(s => (s.enrolledCourses || []).includes(course.id)) || []
+                  const courseStudentIds = courseStudents.map(s => s.id)
+                  
+                  const courseResults = submissions?.filter(s => 
+                    s.grade !== undefined && s.grade !== null &&
+                    courseStudentIds.includes(s.studentId)
+                  ) || []
 
-                let avgProgress = 0
-                if (courseResults.length > 0) {
-                  let totalPercentage = 0
-                  courseResults.forEach((r) => {
-                    const template = assessments.find(a => a.id === r.assignmentId)
-                    if (template && (template.totalMarks || 0) > 0) {
-                      totalPercentage += (r.grade! / template.totalMarks) * 100
-                    } else {
-                      totalPercentage += r.grade!
-                    }
-                  })
-                  avgProgress = Math.round(totalPercentage / courseResults.length)
-                }
+                  let avgProgress = 0
+                  if (courseResults.length > 0) {
+                    let totalPercentage = 0
+                    courseResults.forEach((r) => {
+                      const template = assessments.find(a => a.id === r.assignmentId)
+                      if (template && (template.totalMarks || 0) > 0) {
+                        totalPercentage += (r.grade! / template.totalMarks) * 100
+                      } else {
+                        totalPercentage += r.grade!
+                      }
+                    })
+                    avgProgress = Math.round(totalPercentage / courseResults.length)
+                  }
 
-                return (
-                  <div key={course.id} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="font-sans text-sm font-normal">{course.title}</span>
-                      <span className="text-xs font-normal text-primary">Avg. {avgProgress}%</span>
+                  return (
+                    <div key={course.id} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-sans text-sm font-normal">{course.title}</span>
+                        <span className="text-xs font-normal text-primary">Avg. {avgProgress}%</span>
+                      </div>
+                      <Progress value={avgProgress} className="h-1 bg-primary/10" />
                     </div>
-                    <Progress value={avgProgress} className="h-1 bg-primary/10" />
-                  </div>
-                )
-              })
-            )}
-          </CardContent>
-        </Card>
+                  )
+                })
+              )}
+            </CardContent>
+          </Card>
+        </StabilityBoundary>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 items-stretch mt-6">
