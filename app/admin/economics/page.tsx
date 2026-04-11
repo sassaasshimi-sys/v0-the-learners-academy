@@ -78,7 +78,7 @@ import { PageHeader } from '@/components/shared/page-header'
 import { EntityCardGrid } from '@/components/shared/entity-card-grid'
 import { EntityDataGrid, Column } from '@/components/shared/entity-data-grid'
 import { useHasMounted } from '@/hooks/use-has-mounted'
-import { ClientDate } from '@/components/shared/client-date'
+import { SafeDate } from '@/components/shared/safe-date'
 import { TrimesterBanner } from '@/components/shared/trimester-banner'
 
 type TimePeriod = 'all' | 'today' | 'week' | 'month' | 'spring' | 'summer' | 'autumn' | 'winter'
@@ -259,7 +259,9 @@ export default function EconomicsPage() {
             {tx.type === 'Credit' ? 'CR' : 'DB'}
           </div>
           <div>
-            <p className="text-xs font-normal text-foreground leading-none mb-1">{format(new Date(tx.date), 'MMM d, yyyy')}</p>
+            <p className="text-xs font-normal text-foreground leading-none mb-1">
+              <SafeDate date={tx.date} formatStr="MMM d, yyyy" />
+            </p>
             <p className="text-[10px] text-muted-foreground opacity-40 font-normal tracking-wider">{(tx?.id || 'TX-ID-TBC').substring(0, 12)}</p>
           </div>
         </div>

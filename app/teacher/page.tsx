@@ -86,7 +86,7 @@ export default function TeacherDashboard() {
   return (
     <PageShell>
       <PageHeader 
-        title={`Welcome, ${(user?.name || 'Teacher').split(' ').filter(Boolean)[0] || 'Teacher'}`}
+        title={`Welcome, ${(String(user?.name || 'Teacher')).split(' ').filter(Boolean)[0] || 'Teacher'}`}
         description="Orchestrating academic excellence through precision insights."
         actions={
           <div className="flex gap-2">

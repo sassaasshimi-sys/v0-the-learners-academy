@@ -55,7 +55,7 @@ import { PageShell } from '@/components/shared/page-shell'
 import { PageHeader } from '@/components/shared/page-header'
 import { motion } from 'framer-motion'
 import { useHasMounted } from '@/hooks/use-has-mounted'
-import { ClientDate } from '@/components/shared/client-date'
+import { SafeDate } from '@/components/shared/safe-date'
 
 export default function AttendancePage() {
   const { teachers, isInitialized } = useData()
@@ -321,7 +321,7 @@ export default function AttendancePage() {
                         <Badge variant="outline" className="text-xs font-normal opacity-60">Faculty Member</Badge>
                       </div>
                       <p className="text-xs font-normal opacity-70">
-                        Institutional ID: {selectedTeacher.employeeId} — Academic Record for {currentRange.label}
+                        Institutional ID: {selectedTeacher.employeeId} — Academic Record for <SafeDate date={currentDate} formatStr="MMMM yyyy" priority />
                       </p>
                     </div>
                   </div>
@@ -394,7 +394,7 @@ export default function AttendancePage() {
                                   )} />
                                   <div className="flex flex-col">
                                     <span className={cn("text-sm font-normal", isWeekendDay ? "opacity-30" : "text-foreground")}>
-                                      {format(day, 'EEEE, MMM d')}
+                                      <SafeDate date={day} formatStr="EEEE, MMM d" />
                                     </span>
                                     {isToday(day) && <span className="text-xs text-primary mt-1 font-normal animate-pulse">Current Cycle</span>}
                                   </div>
@@ -581,7 +581,7 @@ export default function AttendancePage() {
               <div>
                 <DialogTitle className="font-serif text-xl font-normal">Granular Academic Audit</DialogTitle>
                 <DialogDescription className="text-xs opacity-80">
-                  {auditTarget ? format(new Date(auditTarget.date), 'EEEE, MMMM do, yyyy') : ''}
+                  {auditTarget ? <SafeDate date={auditTarget.date} formatStr="EEEE, MMMM do, yyyy" /> : ''}
                 </DialogDescription>
               </div>
             </div>

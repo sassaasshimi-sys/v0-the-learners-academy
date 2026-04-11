@@ -69,34 +69,43 @@ export async function getInitialData(userId?: string, role?: 'admin' | 'teacher'
     }
 
     // Capture validated data or fallback to raw if critical failures occur
-    const validData = validation.success ? validation.data : {
+    // AND: Apply mandatory string-casting to all identity fields to prevent React crashes
+    const validData = {
       teachers: (teachers || []).map((t: any) => ({ 
         ...t, 
-        name: typeof t?.name === 'string' ? t.name : (t?.name ? 'Teacher' : 'Teacher'),
-        joinedAt: t?.joinedAt || new Date().toISOString()
+        id: String(t?.id || ''),
+        name: typeof t?.name === 'string' ? t.name : (t?.name ? String(t.name) : 'Teacher'),
+        joinedAt: t?.joinedAt ? new Date(t.joinedAt).toISOString() : new Date().toISOString()
       })),
       students: (students || []).map((s: any) => ({ 
         ...s, 
-        name: typeof s?.name === 'string' ? s.name : (s?.name ? 'Student' : 'Student'),
+        id: String(s?.id || ''),
+        name: typeof s?.name === 'string' ? s.name : (s?.name ? String(s.name) : 'Student'),
         progress: Number(s?.progress) || 0,
         enrolledCourses: Array.isArray(s?.enrolledCourses) ? s.enrolledCourses : [],
-        enrolledAt: s?.enrolledAt || new Date().toISOString()
+        enrolledAt: s?.enrolledAt ? new Date(s.enrolledAt).toISOString() : new Date().toISOString()
       })),
       courses: (sanitizedCourses || []).map((c: any) => ({
         ...c,
-        title: typeof c?.title === 'string' ? c.title : (c?.title ? 'Untitled Course' : 'Untitled Course'),
-        level: typeof c?.level === 'string' ? c.level : (c?.level ? 'beginner' : 'beginner'),
+        id: String(c?.id || ''),
+        title: typeof c?.title === 'string' ? c.title : (c?.title ? String(c.title) : 'Untitled Course'),
+        level: typeof c?.level === 'string' ? c.level : (c?.level ? String(c.level) : 'beginner'),
         teacherName: typeof c?.teacherName === 'string' ? c.teacherName : 'Unassigned'
       })),
       submissions: (submissions || []).map((sub: any) => ({
         ...sub,
+        id: String(sub?.id || ''),
         studentName: typeof sub?.studentName === 'string' ? sub.studentName : 'Student',
-        submittedAt: sub?.submittedAt || new Date().toISOString()
+        submittedAt: sub?.submittedAt ? new Date(sub.submittedAt).toISOString() : new Date().toISOString()
       })),
-      schedules: (schedules || []).map((sch: any) => ({ ...sch, day: String(sch?.day || 'Monday') })),
-      questions: questions || [],
-      assessments: assessments || [],
-      assignments: assignments || [],
+      schedules: (schedules || []).map((sch: any) => ({ 
+        ...sch, 
+        id: String(sch?.id || ''),
+        day: String(sch?.day || 'Monday') 
+      })),
+      questions: (questions || []).map((q: any) => ({ ...q, id: String(q?.id || '') })),
+      assessments: (assessments || []).map((a: any) => ({ ...a, id: String(a?.id || '') })),
+      assignments: (assignments || []).map((as: any) => ({ ...as, id: String(as?.id || '') })),
     }
 
     // Derive enrollments from students' enrolledCourses (Logic layer)

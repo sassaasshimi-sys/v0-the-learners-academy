@@ -1,6 +1,7 @@
 'use client'
 
 import { usePathname, useRouter } from 'next/navigation'
+import { StabilityBoundary } from '@/components/stability/stability-boundary'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useAuth } from '@/contexts/auth-context'
@@ -307,7 +308,9 @@ export default function AdminLayout({
           </DropdownMenu>
         </header>
         <main className="flex-1 p-6">
-          {children}
+          <StabilityBoundary>
+            {children}
+          </StabilityBoundary>
         </main>
       </SidebarInset>
     </SidebarProvider>
