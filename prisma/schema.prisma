@@ -177,6 +177,7 @@ model AssessmentTemplate {
   title                  String
   phase                  String
   classLevels            String[]
+  courseIds              String[] @default([])
   nature                 String
   totalMarks             Int
   markAllocation         Json?

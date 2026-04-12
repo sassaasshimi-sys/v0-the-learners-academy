@@ -9,7 +9,11 @@ export async function getAssessments(): Promise<ActionResult<AssessmentTemplate[
   try {
     const data = await db.assessmentTemplate.findMany({ orderBy: { createdAt: 'desc' } })
     return { success: true, data }
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.code === 'P2022') {
+      console.warn('SCHEMA_DRIFT_DETECTED: [AssessmentTemplate] missing columns in production. Run prisma migrate deploy.')
+      return { success: true, data: [] }
+    }
     console.error('DATABASE_ERROR [getAssessments]:', error)
     return { success: false, error: 'Failed to fetch assessment registry' }
   }
