@@ -142,6 +142,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       
     if (!isLandingPage && (!user?.id || !user?.role)) {
       setIsLoading(false)
+      setIsInitialized(true)
       return
     }
     
@@ -162,15 +163,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
       startTransition(() => {
         const d = initRes.data
-        setTeachers(d.teachers)
-        setStudents(d.students)
-        setCourses(d.courses)
-        setQuestions(d.questions)
-        setAssessments(d.assessments)
-        setSubmissions(d.submissions)
-        setSchedules(d.schedules)
-        setAssignments(d.assignments)
-        setEnrollments(d.enrollments)
+        setTeachers(Array.isArray(d.teachers) ? d.teachers : [])
+        setStudents(Array.isArray(d.students) ? d.students : [])
+        setCourses(Array.isArray(d.courses) ? d.courses : [])
+        setQuestions(Array.isArray(d.questions) ? d.questions : [])
+        setAssessments(Array.isArray(d.assessments) ? d.assessments : [])
+        setSubmissions(Array.isArray(d.submissions) ? d.submissions : [])
+        setSchedules(Array.isArray(d.schedules) ? d.schedules : [])
+        setAssignments(Array.isArray(d.assignments) ? d.assignments : [])
+        setEnrollments(Array.isArray(d.enrollments) ? d.enrollments : [])
         
         if (econData && econData.success) {
           setEconomics(econData.data)
@@ -269,14 +270,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
     )
   }
 
-  // Stability Guard: Strictly block rendering of protected views while loading
-  const safeLocation = typeof window !== 'undefined' ? window.location.pathname : ''
-  const isProtectedRoute = 
-    safeLocation.startsWith('/admin') || 
-    safeLocation.startsWith('/teacher') || 
-    (safeLocation.startsWith('/student') && safeLocation !== '/student')
-
-  if (!isInitialized && isLoading && isProtectedRoute) {
+  // Stability Guard: Strictly block rendering until data is ready
+  if (!isInitialized) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="space-y-4 text-center">
@@ -300,5 +295,18 @@ export function DataProvider({ children }: { children: ReactNode }) {
 export function useData() {
   const context = useContext(DataContext)
   if (context === undefined) throw new Error('useData must be used within a DataProvider')
-  return context
+  return {
+    ...context,
+    teachers: Array.isArray(context.teachers) ? context.teachers : [],
+    courses: Array.isArray(context.courses) ? context.courses : [],
+    students: Array.isArray(context.students) ? context.students : [],
+    assignments: Array.isArray(context.assignments) ? context.assignments : [],
+    submissions: Array.isArray(context.submissions) ? context.submissions : [],
+    schedules: Array.isArray(context.schedules) ? context.schedules : [],
+    questions: Array.isArray(context.questions) ? context.questions : [],
+    assessments: Array.isArray(context.assessments) ? context.assessments : [],
+    enrollments: Array.isArray(context.enrollments) ? context.enrollments : [],
+    feePayments: Array.isArray(context.feePayments) ? context.feePayments : [],
+    isInitialized: !!context.isInitialized,
+  }
 }
