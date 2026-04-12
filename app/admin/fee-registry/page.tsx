@@ -47,7 +47,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Progress } from '@/components/ui/progress'
-import { cn } from '@/lib/utils'
+import { cn, getInitials } from '@/lib/utils'
 import { useData } from '@/contexts/data-context'
 import { isSameDay, isSameWeek, isSameMonth } from 'date-fns'
 import { toast } from 'sonner'
@@ -188,7 +188,7 @@ export default function FeeRegistryPage() {
           <Avatar className="h-10 w-10 border shadow-sm group-hover:scale-105 transition-transform">
             <AvatarImage src={entry.student.avatar} />
             <AvatarFallback className="text-xs bg-primary/5 text-primary font-normal">
-              {entry?.student?.name?.split(' ').map((n: string) => n[0]).join('') || 'S'}
+              {getInitials(entry?.student?.name, 'S')}
             </AvatarFallback>
           </Avatar>
           <div>

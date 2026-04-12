@@ -75,6 +75,7 @@ interface DataContextType {
   rejectAssessment: (id: string, feedback: string) => Promise<void>
   resetToDefaults: () => void
   refresh: () => Promise<void>
+  retryConnection: () => Promise<void>
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined)
@@ -131,6 +132,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   
   const { user } = useAuth()
   const isRefreshingRef = useRef(false)
+  const retryCountRef = useRef(0)
   const [, startTransition] = useTransition()
 
   const refresh = useCallback(async () => {
@@ -150,7 +152,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setIsLoading(true)
 
     try {
-      setHasError(false)
+      // We don't reset hasError here to avoid flickering if it's already set
+      // setHasError(false)
       
       const [initRes, econData] = await Promise.all([
         getInitialData(user?.id, user?.role as any),
@@ -160,6 +163,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
       if (!initRes.success || !initRes.data) {
         throw new Error(initRes.error || "Institutional link failure")
       }
+
+      // Success! Reset the retry counter
+      retryCountRef.current = 0
+      setHasError(false)
 
       startTransition(() => {
         const d = initRes.data
@@ -179,15 +186,30 @@ export function DataProvider({ children }: { children: ReactNode }) {
         }
       })
     } catch (err) {
-      console.error('[DataProvider] CRITICAL_SYNC_ERROR:', err)
+      console.error('[DataProvider] SYNC_FAILURE:', err)
+      
+      if (retryCountRef.current < 2) {
+        retryCountRef.current++
+        console.log(`[DataProvider] Attempting automated recovery (${retryCountRef.current}/2)...`)
+        await new Promise(resolve => setTimeout(resolve, 2000))
+        isRefreshingRef.current = false // Allow the retry call to proceed
+        return refresh()
+      }
+
       setHasError(true)
-      toast.error("Institutional Link Disrupted", { description: "Attempting automated recovery..." })
+      toast.error("Institutional Link Disrupted", { description: "Automatic synchronization failed after retries." })
     } finally {
       setIsInitialized(true)
       setIsLoading(false)
       isRefreshingRef.current = false
     }
   }, [user?.id, user?.role])
+
+  const retryConnection = useCallback(async () => {
+    setHasError(false)
+    retryCountRef.current = 0
+    await refresh()
+  }, [refresh])
 
   useEffect(() => {
     refresh()
@@ -265,7 +287,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
         </div>
         <h2 className="text-2xl font-serif mb-2">Institutional Link Disrupted</h2>
         <p className="text-muted-foreground mb-8 max-w-xs mx-auto">Unable to synchronize with the registry.</p>
-        <button onClick={() => window.location.reload()} className="bg-primary text-white px-6 py-2 rounded-xl text-xs uppercase tracking-widest font-normal hover:bg-primary/90 transition-all shadow-premium">Reload Portal</button>
+        <button onClick={retryConnection} className="bg-primary text-white px-6 py-2 rounded-xl text-xs uppercase tracking-widest font-normal hover:bg-primary/90 transition-all shadow-premium mb-3 w-48">Retry Connection</button>
+        <button onClick={() => window.location.reload()} className="bg-background text-foreground border border-border px-6 py-2 rounded-xl text-xs uppercase tracking-widest font-normal hover:bg-muted transition-all w-48">Reload Portal</button>
       </div>
     )
   }
@@ -285,7 +308,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   return (
     <DataContext.Provider value={{
       teachers, students, courses, assignments, submissions, stats, schedules, questions, assessments, economics, feePayments, enrollments, isInitialized, isLoading, hasError,
-      enrollStudent, removeStudent, updateStudentStatus, updateStudent, updateStudentSuccessMetrics, publishAssessment, updateAssessmentStatus, removeAssessment, submitTestResult, gradeSubmission, updateCourseProgress, addQuestion, deleteQuestion, updateQuestion, addTeacher, updateTeacherStatus, removeTeacher, addCourse, updateCourseStatus, updateCourse, removeCourse, addSchedule, updateSchedule, removeSchedule, addExpenditure, recordPayment, addFeeAccount, updateClassFee, updateTeacher: updateTeacherProfile, updateTeacherReviewFlag, approveQuestion, approveAssessment, rejectAssessment, resetToDefaults: () => {}, refresh,
+      enrollStudent, removeStudent, updateStudentStatus, updateStudent, updateStudentSuccessMetrics, publishAssessment, updateAssessmentStatus, removeAssessment, submitTestResult, gradeSubmission, updateCourseProgress, addQuestion, deleteQuestion, updateQuestion, addTeacher, updateTeacherStatus, removeTeacher, addCourse, updateCourseStatus, updateCourse, removeCourse, addSchedule, updateSchedule, removeSchedule, addExpenditure, recordPayment, addFeeAccount, updateClassFee, updateTeacher: updateTeacherProfile, updateTeacherReviewFlag, approveQuestion, approveAssessment, rejectAssessment, resetToDefaults: () => {}, refresh, retryConnection,
     }}>
       {children}
     </DataContext.Provider>

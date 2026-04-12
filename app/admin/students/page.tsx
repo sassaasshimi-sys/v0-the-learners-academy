@@ -43,7 +43,7 @@ import {
   UserX,
 } from 'lucide-react'
 import { useData } from '@/contexts/data-context'
-import { cn } from '@/lib/utils'
+import { cn, getInitials } from '@/lib/utils'
 import { SESSION_TIMINGS } from '@/lib/registry'
 import type { Student } from '@/lib/types'
 import { useForm } from 'react-hook-form'
@@ -155,7 +155,7 @@ export default function StudentsPage() {
         <div className="flex items-center gap-3">
           <Avatar className="h-9 w-9">
             <AvatarFallback className="bg-primary/5 text-primary text-xs font-normal">
-              {student?.name?.split(' ').map(n => n[0]).join('') || 'S'}
+              {getInitials(student?.name, 'S')}
             </AvatarFallback>
           </Avatar>
           <p className="font-normal">{student.name}</p>

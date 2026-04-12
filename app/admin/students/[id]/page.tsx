@@ -44,7 +44,7 @@ import {
   History
 } from 'lucide-react'
 import Link from 'next/link'
-import { cn } from '@/lib/utils'
+import { cn, getInitials } from '@/lib/utils'
 import { useHasMounted } from '@/hooks/use-has-mounted'
 import { ClientDate } from '@/components/shared/client-date'
 
@@ -128,7 +128,7 @@ export default function StudentDossierPage() {
           <div className="flex flex-col md:flex-row gap-8 items-start">
             <Avatar className="w-24 h-24 md:w-32 md:h-32 ring-8 ring-primary/5 shadow-2xl">
               <AvatarFallback className="bg-primary/5 text-primary text-4xl font-serif">
-                {student.name.split(' ').map(n => n[0]).join('')}
+                {getInitials(student.name, 'S')}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 space-y-4">

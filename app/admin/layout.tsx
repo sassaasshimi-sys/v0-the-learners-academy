@@ -40,7 +40,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Spinner } from '@/components/ui/spinner'
-import { cn } from '@/lib/utils'
+import { cn, getInitials } from '@/lib/utils'
 import {
   LayoutDashboard,
   Users,
@@ -289,7 +289,7 @@ export default function AdminLayout({
               <Avatar className="h-9 w-9 border  shadow-sm">
                 <AvatarImage src={user?.avatar} alt={user?.name || 'User'} />
                 <AvatarFallback className="bg-primary/5 text-primary text-xs">
-                  {(String(user?.name || 'User')).split(' ').filter(Boolean).map(n => n?.[0]).join('') || 'U'}
+                  {getInitials(user?.name, 'A')}
                 </AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>

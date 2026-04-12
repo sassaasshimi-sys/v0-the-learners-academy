@@ -24,7 +24,7 @@ import {
   UserCheck
 } from 'lucide-react'
 import Link from 'next/link'
-import { cn } from '@/lib/utils'
+import { cn, getInitials } from '@/lib/utils'
 import { useHasMounted } from '@/hooks/use-has-mounted'
 import { ClientDate } from '@/components/shared/client-date'
 import { toast } from 'sonner'
@@ -119,7 +119,7 @@ export default function TeacherProfilePage() {
             <div className="flex flex-col md:flex-row gap-8 items-start relative z-10">
               <Avatar className="w-24 h-24 md:w-32 md:h-32 ring-8 ring-background shadow-2xl">
                 <AvatarFallback className="bg-primary/10 text-primary text-4xl font-serif">
-                  {teacher.name.split(' ').map(n => n[0]).join('')}
+                  {getInitials(teacher.name, 'T')}
                 </AvatarFallback>
               </Avatar>
               

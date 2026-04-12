@@ -45,7 +45,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { cn } from '@/lib/utils'
+import { cn, getInitials } from '@/lib/utils'
 import { useData } from '@/contexts/data-context'
 import { ACADEMY_LEVELS, SESSION_TIMINGS } from '@/lib/registry'
 import { markAttendance, getTeacherAttendance, addAttendanceEvent } from '@/lib/actions/attendance'
@@ -55,7 +55,7 @@ import { PageShell } from '@/components/shared/page-shell'
 import { PageHeader } from '@/components/shared/page-header'
 import { motion } from 'framer-motion'
 import { useHasMounted } from '@/hooks/use-has-mounted'
-import { SafeDate } from '@/components/shared/safe-date'
+import { ClientDate } from '@/components/shared/client-date'
 
 export default function AttendancePage() {
   const hasMounted = useHasMounted()
@@ -257,7 +257,9 @@ export default function AttendancePage() {
               </Button>
               <div className="flex items-center gap-3 min-w-[180px] justify-center">
                 <Calendar className="w-4 h-4 text-primary opacity-60" />
-                <span className="text-xs opacity-80 font-normal">{currentRange.label}</span>
+                <span className="text-xs opacity-80 font-normal">
+                  <ClientDate date={currentDate} formatString="MMMM yyyy" />
+                </span>
               </div>
               <Button variant="ghost" size="icon" onClick={() => handleNavigate('next')} className="h-9 w-9 hover:bg-primary/5 ">
                 <ChevronRight className="w-4 h-4 opacity-50" />
@@ -289,7 +291,7 @@ export default function AttendancePage() {
                   <Avatar className="h-10 w-10 border group-hover:scale-105 transition-transform">
                     <AvatarImage src={teacher.avatar} />
                     <AvatarFallback className="text-xs bg-primary/5 text-primary font-normal">
-                      {teacher?.name?.split(' ').map(n => n[0]).join('') || 'T'}
+                      {getInitials(teacher?.name, 'T')}
                     </AvatarFallback>
                   </Avatar>
                   <div className="overflow-hidden">
@@ -313,7 +315,7 @@ export default function AttendancePage() {
                     <Avatar className="h-16 w-16 border-2 border-background shadow-xl">
                       <AvatarImage src={selectedTeacher.avatar} />
                       <AvatarFallback className="bg-primary/5 text-primary text-2xl font-normal">
-                        {selectedTeacher?.name?.split(' ').map(n => n[0]).join('') || 'T'}
+                        {getInitials(selectedTeacher?.name, 'T')}
                       </AvatarFallback>
                     </Avatar>
                     <div className="space-y-1">
@@ -322,7 +324,7 @@ export default function AttendancePage() {
                         <Badge variant="outline" className="text-xs font-normal opacity-60">Faculty Member</Badge>
                       </div>
                       <p className="text-xs font-normal opacity-70">
-                        Institutional ID: {selectedTeacher.employeeId} — Academic Record for <SafeDate date={currentDate} formatStr="MMMM yyyy" priority />
+                        Institutional ID: {selectedTeacher.employeeId} — Academic Record for <ClientDate date={currentDate} formatString="MMMM yyyy" />
                       </p>
                     </div>
                   </div>
@@ -395,7 +397,7 @@ export default function AttendancePage() {
                                   )} />
                                   <div className="flex flex-col">
                                     <span className={cn("text-sm font-normal", isWeekendDay ? "opacity-30" : "text-foreground")}>
-                                      <SafeDate date={day} formatStr="EEEE, MMM d" />
+                                      <ClientDate date={day} formatString="EEEE, MMM d" />
                                     </span>
                                     {isToday(day) && <span className="text-xs text-primary mt-1 font-normal animate-pulse">Current Cycle</span>}
                                   </div>
@@ -582,7 +584,7 @@ export default function AttendancePage() {
               <div>
                 <DialogTitle className="font-serif text-xl font-normal">Granular Academic Audit</DialogTitle>
                 <DialogDescription className="text-xs opacity-80">
-                  {auditTarget ? <SafeDate date={auditTarget.date} formatStr="EEEE, MMMM do, yyyy" /> : ''}
+                  {auditTarget ? <ClientDate date={auditTarget.date} formatString="EEEE, MMMM do, yyyy" /> : ''}
                 </DialogDescription>
               </div>
             </div>

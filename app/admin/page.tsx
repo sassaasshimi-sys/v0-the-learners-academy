@@ -30,7 +30,7 @@ import {
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { STAGGER_CONTAINER, STAGGER_ITEM } from '@/lib/premium-motion'
-import { cn } from '@/lib/utils'
+import { cn, getInitials } from '@/lib/utils'
 import { useData } from '@/contexts/data-context'
 import { useAuth } from '@/contexts/auth-context'
 import { useHasMounted } from '@/hooks/use-has-mounted'
@@ -288,7 +288,7 @@ export default function AdminDashboard() {
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 bg-primary/5 flex items-center justify-center border group-hover:scale-105 transition-transform text-primary">
                       <span className="text-xs font-normal">
-                        {student.name?.split(' ').map(n => n[0]).join('') || 'S'}
+                        {getInitials(student.name, 'S')}
                       </span>
                     </div>
                     <div>

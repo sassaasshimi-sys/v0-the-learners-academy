@@ -48,7 +48,7 @@ import {
 } from 'lucide-react'
 import { Switch } from '@/components/ui/switch'
 import { useData } from '@/contexts/data-context'
-import { cn } from '@/lib/utils'
+import { cn, getInitials } from '@/lib/utils'
 import type { Teacher } from '@/lib/types'
 import Link from 'next/link'
 import { ACADEMY_LEVELS } from '@/lib/registry'
@@ -124,7 +124,7 @@ export default function TeachersPage() {
         <div className="flex items-center gap-3">
           <Avatar>
             <AvatarFallback className="bg-primary/10 text-primary font-normal">
-              {teacher?.name?.split(' ').map(n => n[0]).join('') || 'T'}
+              {getInitials(teacher?.name, 'T')}
             </AvatarFallback>
           </Avatar>
           <div>
@@ -310,7 +310,7 @@ export default function TeachersPage() {
                 <div className="pt-2">
                   <Avatar className="h-16 w-16 ring-2 ring-primary/10 transition-premium shadow-lg">
                     <AvatarFallback className="bg-primary/5 text-primary font-serif font-normal">
-                    {selectedTeacher?.name?.split(' ').map(n => n[0]).join('') || <User className="h-8 w-8" />}
+                    {getInitials(selectedTeacher?.name, 'T')}
                     </AvatarFallback>
                   </Avatar>
                 </div>

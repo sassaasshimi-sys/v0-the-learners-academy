@@ -17,3 +17,21 @@ export function generateSecureToken() {
   }
   return token
 }
+
+/**
+ * Safely generates initials from a name string.
+ * Guards against null, undefined, and empty strings.
+ */
+export function getInitials(name: string | null | undefined, fallback: string = 'U'): string {
+  if (!name || typeof name !== 'string' || name.trim() === '') return fallback
+  
+  const initials = name
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map(part => part[0])
+    .join('')
+    .toUpperCase()
+
+  return initials || fallback
+}
