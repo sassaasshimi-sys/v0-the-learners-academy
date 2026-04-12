@@ -97,7 +97,7 @@ export default function AdminDashboard() {
       })
   }, [courses, hasMounted])
 
-  if (!user?.id) return null
+
 
 
   const statCards = [

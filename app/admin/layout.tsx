@@ -146,7 +146,7 @@ export default function AdminLayout({
   const { user, logout } = useAuth()
   const { assessments } = useData()
   
-  if (!user?.id) return null
+
   const pendingReviewCount = Array.isArray(assessments) 
     ? assessments.filter(a => a && a.status === 'pending_review').length 
     : 0
