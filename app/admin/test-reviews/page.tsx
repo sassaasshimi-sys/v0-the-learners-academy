@@ -45,19 +45,24 @@ import { ClientDate } from '@/components/shared/client-date'
 import { PageShell } from '@/components/shared/page-shell'
 
 export default function TestReviewsPage() {
-  const { assessments, teachers, questions, approveAssessment, rejectAssessment, isInitialized } = useData()
   const hasMounted = useHasMounted()
+  const { assessments, teachers, questions, approveAssessment, rejectAssessment, isInitialized } = useData()
 
   const [expandedRejectId, setExpandedRejectId] = useState<string | null>(null)
   const [inspectPoolId, setInspectPoolId] = useState<string | null>(null)
   const [feedbackMap, setFeedbackMap] = useState<Record<string, string>>({})
 
-  if (!hasMounted) return null
-  if (!isInitialized) return <DashboardSkeleton />
+  // UNIFIED STABILITY GUARD
+  if (!hasMounted || !isInitialized) {
+    return <DashboardSkeleton />
+  }
 
-  const pendingAssessments = assessments?.filter(a => a.status === 'pending_review')
-  const approvedCount = assessments?.filter(a => a.status === 'active' && a.submittedByTeacherId).length
-  const rejectedCount = assessments?.filter(a => a.status === 'draft' && a.adminFeedback).length
+  // Derived Data (Only runs after initialization)
+  const pendingAssessments = (assessments || []).filter(a => a.status === 'pending_review')
+  const approvedCount = (assessments || []).filter(a => a.status === 'active' && a.submittedByTeacherId).length
+  const rejectedCount = (assessments || []).filter(a => a.status === 'draft' && a.adminFeedback).length
+
+
 
   const getTeacherName = (assessment: any) => {
     if (assessment.submittedByTeacherName) return assessment.submittedByTeacherName

@@ -49,18 +49,18 @@ import { useHasMounted } from '@/hooks/use-has-mounted'
 import { ClientDate } from '@/components/shared/client-date'
 
 export default function StudentDossierPage() {
+  const hasMounted = useHasMounted()
   const params = useParams()
   const router = useRouter()
   const { students, courses, feePayments, updateStudentSuccessMetrics, isInitialized } = useData()
-  const hasMounted = useHasMounted()
 
-
-  
-  // Find student by ID or studentId
-  const student = students.find(s => s.id === params.id || s.studentId === params.id)
-  
   const [metricProgress, setMetricProgress] = useState(0)
   const [metricGrade, setMetricGrade] = useState('')
+
+  // Derived state (only runs after hydration/init)
+  const student = useMemo(() => 
+    students.find(s => s.id === params.id || s.studentId === params.id)
+  , [students, params.id])
 
   useEffect(() => {
     if (student) {
@@ -68,6 +68,11 @@ export default function StudentDossierPage() {
       setMetricGrade(student.grade || '')
     }
   }, [student])
+
+  // UNIFIED STABILITY GUARD
+  if (!hasMounted || !isInitialized) {
+    return <DashboardSkeleton />
+  }
 
   const handleUpdateMetrics = async () => {
     if (!student) return
@@ -77,10 +82,6 @@ export default function StudentDossierPage() {
     } catch (err) {
       toast.error('Failed to sync metrics')
     }
-  }
-
-  if (!isInitialized || !hasMounted) {
-    return <DashboardSkeleton />
   }
 
   if (!student) {

@@ -11,7 +11,6 @@ import { useData } from '@/contexts/data-context'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { SecureInput } from '@/components/ui/secure-input'
 import { 
   Select, 
   SelectContent, 
@@ -19,7 +18,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select'
-import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
+import { Field, FieldLabel } from '@/components/ui/field'
 import { toast } from 'sonner'
 import { 
   ArrowLeft, 
@@ -38,7 +37,6 @@ import {
   DialogContent, 
   DialogHeader, 
   DialogTitle, 
-  DialogFooter,
   DialogDescription
 } from '@/components/ui/dialog'
 
@@ -51,10 +49,10 @@ const registrationSchema = z.object({
   timing: z.string().min(1, 'Please select a session timing'),
 })
 
-
 type RegistrationFormValues = z.infer<typeof registrationSchema>
 
 export default function StudentRegistrationPage() {
+  const hasMounted = useHasMounted()
   const router = useRouter()
   const { students, courses, enrollStudent, isInitialized } = useData()
 
@@ -74,14 +72,12 @@ export default function StudentRegistrationPage() {
     }
   })
 
-
-
-  const hasMounted = useHasMounted()
-  if (!hasMounted) return null
-  if (!isInitialized) return <DashboardSkeleton />
+  // UNIFIED STABILITY GUARD
+  if (!hasMounted || !isInitialized) {
+    return <DashboardSkeleton />
+  }
 
   const onSubmit = async (data: RegistrationFormValues) => {
-    // Check for duplicate Student ID
     if (students.some(s => s.studentId?.toLowerCase() === data.studentId.toLowerCase())) {
         form.setError('studentId', { message: 'ID already exists in institutional database' })
         return
@@ -94,14 +90,13 @@ export default function StudentRegistrationPage() {
       email: `${data.studentId.toLowerCase()}@learnersacademy.com`,
       phone: data.phone,
       guardianName: data.guardianName,
-      password: data.studentId, // DEFAULT PORTAL ACCESS
+      password: data.studentId, 
       enrolledCourses: [data.course],
       classTiming: data.timing,
       status: 'active',
       enrolledAt: new Date().toISOString(),
       progress: 0,
     }
-
 
     try {
       await enrollStudent(newStudent)
@@ -114,13 +109,8 @@ export default function StudentRegistrationPage() {
     }
   }
 
-  if (!isInitialized || !hasMounted) {
-    return <DashboardSkeleton />
-  }
-
   return (
     <div className="max-w-xl mx-auto space-y-8 py-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-      {/* Premium Header */}
       <div className="text-center space-y-3">
         <div className="mx-auto w-14 h-14 bg-primary/5 rounded-2xl flex items-center justify-center mb-4 ring-1 ring-primary/20 rotate-3 hover:rotate-0 transition-transform duration-500">
             <GraduationCap className="w-7 h-7 text-primary opacity-80" />
@@ -140,8 +130,6 @@ export default function StudentRegistrationPage() {
              <CardDescription className="text-[9px] uppercase tracking-[0.2em] opacity-30 mt-1">Official Academic Record Entry</CardDescription>
           </CardHeader>
           <CardContent className="p-10 space-y-8">
-            
-            {/* Row 1: Identity */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Field>
                 <FieldLabel className="text-[10px] uppercase tracking-[0.2em] font-bold text-primary/60 mb-2 ml-1">Candidate Full Name</FieldLabel>
@@ -167,7 +155,6 @@ export default function StudentRegistrationPage() {
               </Field>
             </div>
 
-            {/* Row 2: Guardianship */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-white/5">
               <Field>
                 <FieldLabel className="text-[10px] uppercase tracking-[0.2em] font-bold text-primary/60 mb-2 ml-1">Guardian Identity</FieldLabel>
@@ -193,7 +180,6 @@ export default function StudentRegistrationPage() {
               </Field>
             </div>
 
-            {/* Row 3: Class & Session */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-white/5">
               <Field>
                 <FieldLabel className="text-[10px] uppercase tracking-[0.2em] font-bold text-primary/60 mb-2 ml-1">Academic Batch</FieldLabel>
@@ -238,16 +224,10 @@ export default function StudentRegistrationPage() {
                 </span>
                 <div className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
               </Button>
-              
-              <div className="flex items-center justify-center gap-2 mt-8 opacity-20">
-                 <ShieldCheck className="w-3 h-3 text-primary" />
-                 <span className="text-[8px] uppercase tracking-[0.5em] font-black italic">Institutional Security Layer Active</span>
-              </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Navigation */}
         <div className="flex justify-center">
             <Button variant="link" asChild className="text-muted-foreground/30 hover:text-primary transition-colors text-[10px] uppercase tracking-widest font-bold group">
                 <Link href="/admin/students" className="flex items-center gap-3">
