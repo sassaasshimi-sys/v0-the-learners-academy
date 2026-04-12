@@ -313,9 +313,7 @@ export default function FeeRegistryPage() {
     }
   ]
 
-  if (!isInitialized || !hasMounted) {
-    return <DashboardSkeleton />
-  }
+  
 
   return (
     <PageShell>
@@ -365,7 +363,7 @@ export default function FeeRegistryPage() {
                           <SelectValue placeholder="Candidate UID" />
                         </SelectTrigger>
                         <SelectContent>
-                          {students?.map(s => (
+                          {(students || []).map(s => (
                             <SelectItem key={s.id} value={s.id}>
                               {s.name} ({s.studentId})
                             </SelectItem>
@@ -380,7 +378,7 @@ export default function FeeRegistryPage() {
                           <SelectValue placeholder="Enrolled Batch" />
                         </SelectTrigger>
                         <SelectContent>
-                          {courses?.map(c => (
+                          {(courses || []).map(c => (
                             <SelectItem key={c.id} value={c.id}>
                               {c.title}
                             </SelectItem>

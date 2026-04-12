@@ -52,8 +52,7 @@ type TimePeriod = 'all' | 'spring' | 'summer' | 'autumn' | 'winter'
 
 export default function BatchFinancialsPage() {
   const { courses, feePayments, students, isInitialized } = useData()
-  const hasMounted = useHasMounted()
-  const [searchQuery, setSearchQuery] = useState('')
+    const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [periodFilter, setPeriodFilter] = useState<TimePeriod>('all')
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null)
@@ -121,10 +120,12 @@ export default function BatchFinancialsPage() {
     return { totalExpected, totalCollected, totalOutstanding, avgCollectionRate }
   }, [filteredFinancials])
 
-  const selectedCourse = useMemo(() => 
-    courseFinancials.find(cf => cf.id === selectedCourseId), 
-    [courseFinancials, selectedCourseId]
-  )
+  const hasMounted = useHasMounted()
+  if (!hasMounted) return null
+  if (!isInitialized) return <DashboardSkeleton />
+
+
+  const selectedCourse = (courseFinancials || []).find(cf => cf.id === selectedCourseId)
 
   const handleExportCSV = () => {
     const headers = ["Class", "Instructor", "Enrolled", "Fee/Student", "Expected Total", "Collected", "Outstanding", "Collection %"]
@@ -213,9 +214,7 @@ export default function BatchFinancialsPage() {
 
 
 
-  if (!isInitialized || !hasMounted) {
-    return <DashboardSkeleton />
-  }
+  
 
   return (
     <PageShell>

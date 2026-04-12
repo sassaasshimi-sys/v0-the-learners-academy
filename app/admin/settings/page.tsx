@@ -25,13 +25,21 @@ import {
   Image as ImageIcon,
 } from 'lucide-react'
 import { useHasMounted } from '@/hooks/use-has-mounted'
+import { DashboardSkeleton } from '@/components/dashboard-skeleton'
+import { useData } from '@/contexts/data-context'
+import { PageShell } from '@/components/shared/page-shell'
+import { PageHeader } from '@/components/shared/page-header'
 
 export default function SettingsPage() {
   const { user, updateUser } = useAuth()
-  const hasMounted = useHasMounted()
-
+  
   if (!user?.id || !hasMounted) return null
   const [isLoading, setIsLoading] = useState(false)
+
+  const hasMounted = useHasMounted()
+  if (!hasMounted) return null
+  if (!isInitialized) return <DashboardSkeleton />
+
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]

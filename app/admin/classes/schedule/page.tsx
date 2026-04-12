@@ -39,11 +39,13 @@ import {
   MoreHorizontal,
   RefreshCw,
   MoreVertical,
-  Filter,
 } from 'lucide-react'
+import { PageShell } from '@/components/shared/page-shell'
+import { PageHeader } from '@/components/shared/page-header'
 import { useData } from '@/contexts/data-context'
 import { SESSION_TIMINGS } from '@/lib/registry'
 import { cn } from '@/lib/utils'
+import { useHasMounted } from '@/hooks/use-has-mounted'
 
 export default function ScheduleIntelligencePage() {
   const router = useRouter()
@@ -94,22 +96,20 @@ export default function ScheduleIntelligencePage() {
   }, [courses, teachers])
 
   const filteredTimings = useMemo(() => {
-    return SESSION_TIMINGS?.filter(t => 
+    return (SESSION_TIMINGS || []).filter(t => 
       t.toLowerCase().includes(searchQuery.toLowerCase())
     )
   }, [searchQuery])
 
-
-
-  if (!isInitialized) {
-    return <DashboardSkeleton />
-  }
+  const hasMounted = useHasMounted()
+  if (!hasMounted) return null
+  if (!isInitialized) return <DashboardSkeleton />
 
   return (
-    <div className="space-y-6 pb-12">
-      {/* Premium Header */}
-      <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between px-2">
-        <div className="space-y-2">
+    <PageShell>
+      <div className="space-y-6 pb-12">
+        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between px-2">
+          <div className="space-y-2">
           <Button 
             variant="ghost" 
             size="sm" 
@@ -200,7 +200,7 @@ export default function ScheduleIntelligencePage() {
                         className="space-y-4"
                     >
                         <h4 className="px-4 text-xs text-destructive font-medium">Active Registry Issues</h4>
-                        {conflicts?.map((conflict, idx) => (
+                        {(conflicts || []).map((conflict, idx) => (
                             <div 
                                 key={idx}
                                 className="p-4 bg-destructive/5 border border-destructive/10  space-y-2 group hover:bg-destructive/10 transition-colors"
@@ -216,7 +216,7 @@ export default function ScheduleIntelligencePage() {
                                     <p className="text-xs text-muted-foreground mt-0.5">{conflict.time}</p>
                                 </div>
                                 <div className="pt-2 flex gap-1 items-center">
-                                    {conflict.courseIds?.map(cid => (
+                                    {(conflict.courseIds || []).map(cid => (
                                         <div key={cid} className="h-1 flex-1 bg-destructive/20 " />
                                     ))}
                                 </div>
@@ -257,8 +257,8 @@ export default function ScheduleIntelligencePage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {filteredTimings?.map((time) => {
-                                const batchesInTime = courses?.filter(c => c.schedule === time)
+                            {(filteredTimings || []).map((time) => {
+                                const batchesInTime = (courses || []).filter(c => c.schedule === time)
                                 const hasConflicts = conflicts.some(c => c.time === time)
                                 
                                 return (
@@ -344,7 +344,7 @@ export default function ScheduleIntelligencePage() {
                     <CardContent className="pt-2 flex-1">
                          <div className="space-y-4">
                             {teachers.slice(0, 3).map(t => {
-                                const tCourses = courses?.filter(c => c.teacherId === t.id)
+                                const tCourses = (courses || []).filter(c => c.teacherId === t.id)
                                 return (
                                     <div key={t.id} className="flex items-center justify-between p-4  bg-muted/5 border ">
                                         <div className="flex items-center gap-3">
@@ -383,7 +383,8 @@ export default function ScheduleIntelligencePage() {
                 </Card>
             </div>
         </div>
+        </div>
       </div>
-    </div>
+    </PageShell>
   )
 }

@@ -57,7 +57,7 @@ type RegistrationFormValues = z.infer<typeof registrationSchema>
 export default function StudentRegistrationPage() {
   const router = useRouter()
   const { students, courses, enrollStudent, isInitialized } = useData()
-  const hasMounted = useHasMounted()
+
   const [showSuccess, setShowSuccess] = useState(false)
   const [registeredStudent, setRegisteredStudent] = useState<any>(null)
   const [selectedCourseObj, setSelectedCourseObj] = useState<any>(null)
@@ -75,6 +75,10 @@ export default function StudentRegistrationPage() {
   })
 
 
+
+  const hasMounted = useHasMounted()
+  if (!hasMounted) return null
+  if (!isInitialized) return <DashboardSkeleton />
 
   const onSubmit = async (data: RegistrationFormValues) => {
     // Check for duplicate Student ID

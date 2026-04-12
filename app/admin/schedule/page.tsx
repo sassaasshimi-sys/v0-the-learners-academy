@@ -38,6 +38,8 @@ import type { Schedule } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { useHasMounted } from '@/hooks/use-has-mounted'
 import { ClientDate } from '@/components/shared/client-date'
+import { PageShell } from '@/components/shared/page-shell'
+import { PageHeader } from '@/components/shared/page-header'
 
 
 const CLASS_LEVELS = ACADEMY_LEVELS
@@ -45,17 +47,21 @@ const ACADEMY_SLOTS = SCHEDULE_SLOTS
 
 export default function SchedulePage() {
   const { schedules, teachers, addSchedule, removeSchedule, updateSchedule, isInitialized } = useData()
-  const hasMounted = useHasMounted()
-
+  
 
   const [searchQuery, setSearchQuery] = useState('')
   const [isAddOpen, setIsAddOpen] = useState(false)
   const [isEditOpen, setIsEditOpen] = useState(false)
   const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(null)
 
-  const filteredSchedules = schedules?.filter(s =>
-    s.classTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.teacherName.toLowerCase().includes(searchQuery.toLowerCase())
+  const hasMounted = useHasMounted()
+  if (!hasMounted) return null
+  if (!isInitialized) return <DashboardSkeleton />
+
+
+  const filteredSchedules = (schedules || []).filter(s =>
+    (s.classTitle || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (s.teacherName || '').toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   const handleAddSchedule = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -144,7 +150,7 @@ export default function SchedulePage() {
                         <SelectValue placeholder="Select class" />
                       </SelectTrigger>
                       <SelectContent>
-                        {CLASS_LEVELS?.map(level => (
+                        {(CLASS_LEVELS || []).map(level => (
                           <SelectItem key={level} value={level}>{level}</SelectItem>
                         ))}
                       </SelectContent>
@@ -157,7 +163,7 @@ export default function SchedulePage() {
                         <SelectValue placeholder="Select teacher" />
                       </SelectTrigger>
                       <SelectContent>
-                        {teachers?.map(teacher => (
+                        {(teachers || []).map(teacher => (
                           <SelectItem key={teacher.id} value={teacher.name}>{teacher.name}</SelectItem>
                         ))}
                       </SelectContent>
@@ -173,7 +179,7 @@ export default function SchedulePage() {
                         <SelectValue placeholder="Choose timing" />
                       </SelectTrigger>
                       <SelectContent>
-                        {ACADEMY_SLOTS?.map(slot => (
+                        {(ACADEMY_SLOTS || []).map(slot => (
                           <SelectItem key={slot.id} value={slot.id}>
                             {slot.id} ({slot.time})
                           </SelectItem>
@@ -216,7 +222,7 @@ export default function SchedulePage() {
       <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
         {ACADEMY_SLOTS.map((slot) => {
           // Filter classes that belong to THIS specific slot AND match search query
-          const slotClasses = filteredSchedules?.filter(s => s.slotId === slot.id) || []
+          const slotClasses = (filteredSchedules || []).filter(s => s.slotId === slot.id) || []
           
           // Conflict Detection Logic
           const roomMap = new Map()
@@ -332,7 +338,7 @@ export default function SchedulePage() {
                         <SelectValue placeholder="Designated Slot" />
                       </SelectTrigger>
                       <SelectContent>
-                        {ACADEMY_SLOTS?.map(slot => (
+                        {(ACADEMY_SLOTS || []).map(slot => (
                           <SelectItem key={slot.id} value={slot.id}>
                             {slot.id}: {slot.time}
                           </SelectItem>

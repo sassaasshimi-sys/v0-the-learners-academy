@@ -5,6 +5,9 @@ import { useSearchParams } from 'next/navigation'
 import { useData } from '@/contexts/data-context'
 import { ReceiptContent } from '@/components/receipt/receipt-content'
 import { DashboardSkeleton } from '@/components/dashboard-skeleton'
+import { useHasMounted } from '@/hooks/use-has-mounted'
+import { PageShell } from '@/components/shared/page-shell'
+import { PageHeader } from '@/components/shared/page-header'
 
 const ADDRESS = "Tanzeem School, Suzuki Stop, Sar-e-Khartar, Mominabad, Alamdar Road, Quetta, Pakistan"
 
@@ -24,8 +27,8 @@ function ReceiptPrintContent() {
   const term       = searchParams?.get('term') || 'Spring-2026'
   const teacherName = searchParams?.get('teacherName') || ''
 
-  const student = useMemo(() => students?.find(s => s.id === studentId), [students, studentId])
-  const course  = useMemo(() => courses?.find(c => c.id === courseId),   [courses,  courseId])
+  const student = useMemo(() => (students || []).find(s => s.id === studentId), [students, studentId])
+  const course  = useMemo(() => (courses || []).find(c => c.id === courseId),   [courses,  courseId])
 
   const receiptId = useMemo(() => `REC-${Math.floor(100000 + Math.random() * 900000)}`, [])
 
@@ -39,7 +42,7 @@ function ReceiptPrintContent() {
     }
   }, [isInitialized, student, course, hasPrinted])
 
-  if (!isInitialized) return <DashboardSkeleton />
+  
   if (!student || !course) return (
     <div className="flex items-center justify-center h-screen font-serif text-muted-foreground opacity-30 text-xs italic">
        Incomplete Archive Data. System halted.
@@ -107,6 +110,11 @@ function ReceiptPrintContent() {
 }
 
 export default function ReceiptPrintPage() {
+
+  const hasMounted = useHasMounted()
+  if (!hasMounted) return null
+  if (!isInitialized) return <DashboardSkeleton />
+
   return (
     <Suspense fallback={<DashboardSkeleton />}>
       <ReceiptPrintContent />

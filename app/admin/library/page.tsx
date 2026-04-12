@@ -18,6 +18,9 @@ import {
   Volume2, BookOpen, Clock, Filter
 } from 'lucide-react'
 import { Switch } from '@/components/ui/switch'
+import { useHasMounted } from '@/hooks/use-has-mounted'
+import { PageShell } from '@/components/shared/page-shell'
+import { PageHeader } from '@/components/shared/page-header'
 
 const CATEGORIES: QuestionCategory[] = ['Grammar', 'Vocab & Idioms', 'Listening', 'Reading', 'Speaking', 'Writing']
 
@@ -38,9 +41,14 @@ export default function AdminLibraryPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [filterMode, setFilterMode] = useState<'all' | 'pending' | 'approved'>('all')
 
+  const hasMounted = useHasMounted()
+  if (!hasMounted) return null
+  if (!isInitialized) return <DashboardSkeleton />
 
 
-  const filteredQuestions = questions?.filter((q: Question) => {
+
+
+  const filteredQuestions = (questions || []).filter((q: Question) => {
     const categoryMatch = activeTab === 'All' || q.category === activeTab
     const searchMatch = q.content.toLowerCase().includes(searchQuery.toLowerCase())
     const approvalMatch = 
@@ -50,7 +58,7 @@ export default function AdminLibraryPage() {
     return categoryMatch && searchMatch && approvalMatch
   })
 
-  const pendingCount = questions?.filter(q => !q.isApproved).length
+  const pendingCount = (questions || []).filter(q => !q.isApproved).length
 
   if (!isInitialized) {
     return <DashboardSkeleton />
@@ -101,7 +109,7 @@ export default function AdminLibraryPage() {
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
           <TabsList className="px-4 pb-4 bg-transparent w-full justify-start overflow-x-auto no-scrollbar h-auto border-none">
             <TabsTrigger value="All" className="h-9 px-6  text-xs   data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">All Categories</TabsTrigger>
-            {CATEGORIES?.map(cat => (
+            {(CATEGORIES || []).map(cat => (
               <TabsTrigger key={cat} value={cat} className="h-9 px-6  text-xs   data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">{cat}</TabsTrigger>
             ))}
           </TabsList>
@@ -117,7 +125,7 @@ export default function AdminLibraryPage() {
               <p className="text-muted-foreground font-serif text-lg">No questions found matching your filters.</p>
             </motion.div>
           ) : (
-            filteredQuestions?.map((q) => (
+            (filteredQuestions || []).map((q) => (
               <motion.div
                 key={q.id}
                 layout

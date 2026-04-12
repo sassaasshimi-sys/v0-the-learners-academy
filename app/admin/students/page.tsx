@@ -54,6 +54,7 @@ import { PageShell } from '@/components/shared/page-shell'
 import { PageHeader } from '@/components/shared/page-header'
 import { EntityCardGrid } from '@/components/shared/entity-card-grid'
 import { EntityDataGrid, Column } from '@/components/shared/entity-data-grid'
+import { useHasMounted } from '@/hooks/use-has-mounted'
 
 const studentSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -79,6 +80,10 @@ export default function StudentsPage() {
   const editForm = useForm<StudentFormValues>({
     resolver: zodResolver(studentSchema)
   })
+
+  const hasMounted = useHasMounted()
+  if (!hasMounted) return null
+  if (!isInitialized) return <DashboardSkeleton />
 
 
 
@@ -271,7 +276,7 @@ export default function StudentsPage() {
       <EntityCardGrid 
         data={[
           { label: 'Total Students', value: students.length, sub: 'Academy Roster' },
-          { label: 'Active Students', value: students?.filter(s => s.status === 'active').length, sub: 'Currently Enrolled', color: 'text-success' },
+          { label: 'Active Students', value: (students || []).filter(s => s.status === 'active').length, sub: 'Currently Enrolled', color: 'text-success' },
         ]}
         renderItem={(stat, i) => (
           <Card key={i} className="hover-lift transition-premium">
@@ -311,7 +316,7 @@ export default function StudentsPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Classes</SelectItem>
-                {mockCourses?.map((course: any) => (
+                {(mockCourses || []).map((course: any) => (
                   <SelectItem key={course.id} value={course.id}>{course.title}</SelectItem>
                 ))}
               </SelectContent>
@@ -323,7 +328,7 @@ export default function StudentsPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Timings</SelectItem>
-                {SESSION_TIMINGS?.map((time) => (
+                {(SESSION_TIMINGS || []).map((time) => (
                   <SelectItem key={time} value={time}>{time}</SelectItem>
                 ))}
               </SelectContent>
@@ -381,7 +386,7 @@ export default function StudentsPage() {
                       <SelectValue placeholder="Select class level" />
                     </SelectTrigger>
                     <SelectContent>
-                      {mockCourses?.map((course: any) => (
+                      {(mockCourses || []).map((course: any) => (
                         <SelectItem key={course.id} value={course.id}>{course.title}</SelectItem>
                       ))}
                     </SelectContent>
@@ -397,7 +402,7 @@ export default function StudentsPage() {
                       <SelectValue placeholder="Select session" />
                     </SelectTrigger>
                     <SelectContent>
-                      {SESSION_TIMINGS?.map((time) => (
+                      {(SESSION_TIMINGS || []).map((time) => (
                         <SelectItem key={time} value={time}>{time}</SelectItem>
                       ))}
                     </SelectContent>

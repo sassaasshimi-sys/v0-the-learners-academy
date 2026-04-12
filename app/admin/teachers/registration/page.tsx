@@ -19,6 +19,8 @@ import {
   ShieldCheck 
 } from 'lucide-react'
 import Link from 'next/link'
+import { PageShell } from '@/components/shared/page-shell'
+import { PageHeader } from '@/components/shared/page-header'
 import { useHasMounted } from '@/hooks/use-has-mounted'
 import type { Teacher } from '@/lib/types'
 
@@ -49,6 +51,9 @@ export default function TeacherRegistrationPage() {
       password: '',
     }
   })
+
+  if (!hasMounted) return null
+  if (!isInitialized) return <DashboardSkeleton />
 
 
   const onSubmit = async (data: TeacherRegistrationValues) => {
@@ -98,7 +103,8 @@ export default function TeacherRegistrationPage() {
   }
 
   return (
-    <div className="max-w-xl mx-auto space-y-8 py-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+    <PageShell>
+      <div className="max-w-xl mx-auto space-y-8 py-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
       {/* Premium Header */}
       <div className="text-center space-y-3">
         <h1 className="font-serif text-4xl font-medium tracking-tight bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-transparent">
@@ -206,6 +212,7 @@ export default function TeacherRegistrationPage() {
             </Button>
         </div>
       </form>
-    </div>
+      </div>
+    </PageShell>
   )
 }

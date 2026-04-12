@@ -85,8 +85,7 @@ type TimePeriod = 'all' | 'today' | 'week' | 'month' | 'spring' | 'summer' | 'au
 
 export default function EconomicsPage() {
   const { economics, addExpenditure, isInitialized } = useData()
-  const hasMounted = useHasMounted()
-  const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false)
+    const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false)
   const [newExpense, setNewExpense] = useState({ amount: '', category: '', description: '' })
   const [periodFilter, setPeriodFilter] = useState<TimePeriod>('all')
 
@@ -148,6 +147,11 @@ export default function EconomicsPage() {
     return { inflow, outflow, net, count }
   }, [filteredTransactions, hasMounted])
 
+  const hasMounted = useHasMounted()
+  if (!hasMounted) return null
+  if (!isInitialized) return <DashboardSkeleton />
+
+
 
 
   const categoryIcons: Record<string, any> = {
@@ -180,7 +184,7 @@ export default function EconomicsPage() {
   const handleExportCSV = () => {
     if (!filteredTransactions) return
     const headers = ["Date", "Log ID", "Entity", "Category", "Description", "Type", "Amount"]
-    const rows = filteredTransactions?.map((tx: any) => [
+    const rows = (filteredTransactions || []).map((tx: any) => [
       format(new Date(tx.date), 'yyyy-MM-dd'),
       tx.id,
       tx.person,
@@ -189,7 +193,7 @@ export default function EconomicsPage() {
       tx.type,
       tx.amount
     ])
-    const csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n" + rows?.map((e: any) => e.join(",")).join("\n")
+    const csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n" + (rows || []).map((e: any) => e.join(",")).join("\n")
     const encodedUri = encodeURI(csvContent)
     const link = document.createElement("a")
     link.setAttribute("href", encodedUri)
@@ -224,7 +228,7 @@ export default function EconomicsPage() {
     doc.text(`Net Institutional Margin: Rs. ${periodStats.net.toLocaleString()}`, 18, 70)
     
     const tableHeaders = [["DATE", "ENTITY", "CATEGORY", "TYPE", "AMOUNT"]]
-    const tableData = filteredTransactions?.map((tx: any) => [
+    const tableData = (filteredTransactions || []).map((tx: any) => [
       format(new Date(tx.date), 'MMM d, yyyy'),
       tx.person,
       tx.category,
@@ -285,9 +289,7 @@ export default function EconomicsPage() {
     { label: 'Protocol Volume', value: periodStats.count, sub: 'Transactions Logged', icon: Activity, color: 'text-indigo-400', isCount: true }
   ]
 
-  if (!isInitialized || !hasMounted) {
-    return <DashboardSkeleton />
-  }
+  
 
   return (
     <PageShell>
@@ -346,7 +348,7 @@ export default function EconomicsPage() {
                         <SelectValue placeholder="Select classification..." />
                       </SelectTrigger>
                       <SelectContent className="p-1.5">
-                        {EXPENDITURE_CATEGORIES?.map(cat => (
+                        {(EXPENDITURE_CATEGORIES || []).map(cat => (
                           <SelectItem key={cat} value={cat} className="py-3 cursor-pointer">{cat}</SelectItem>
                         ))}
                       </SelectContent>

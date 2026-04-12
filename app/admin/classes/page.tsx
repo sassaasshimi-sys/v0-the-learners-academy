@@ -62,15 +62,18 @@ import { ClientDate } from '@/components/shared/client-date'
 export default function ClassesPage() {
   const router = useRouter()
   const { courses, teachers, addCourse, removeCourse, updateCourseStatus, updateCourse, isInitialized } = useData()
-  const hasMounted = useHasMounted()
-
-
+  
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null)
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+
+  const hasMounted = useHasMounted()
+  if (!hasMounted) return null
+  if (!isInitialized) return <DashboardSkeleton />
+
 
   const filteredCourses = (Array.isArray(courses) ? courses : []).filter(course => {
     const matchesSearch = 
@@ -268,9 +271,7 @@ export default function ClassesPage() {
     }
   ]
 
-  if (!isInitialized || !hasMounted) {
-    return <DashboardSkeleton />
-  }
+  
 
   return (
     <PageShell>
@@ -312,7 +313,7 @@ export default function ClassesPage() {
                             <SelectValue placeholder="Select class level" />
                           </SelectTrigger>
                           <SelectContent>
-                            {ACADEMY_LEVELS?.map(level => (
+                            {(ACADEMY_LEVELS || []).map(level => (
                               <SelectItem key={level} value={level}>{level}</SelectItem>
                             ))}
                           </SelectContent>
@@ -325,7 +326,7 @@ export default function ClassesPage() {
                             <SelectValue placeholder="Assign teacher" />
                           </SelectTrigger>
                           <SelectContent>
-                            {teachers?.map(teacher => (
+                            {(teachers || []).map(teacher => (
                               <SelectItem key={teacher.id} value={teacher.id}>{teacher.name}</SelectItem>
                             ))}
                           </SelectContent>
@@ -341,7 +342,7 @@ export default function ClassesPage() {
                             <SelectValue placeholder="Starting time" />
                           </SelectTrigger>
                           <SelectContent>
-                            {SESSION_TIMINGS?.map(time => (
+                            {(SESSION_TIMINGS || []).map(time => (
                               <SelectItem key={time} value={time}>{time}</SelectItem>
                             ))}
                           </SelectContent>
@@ -377,7 +378,7 @@ export default function ClassesPage() {
       <EntityCardGrid 
         data={[
           { label: 'Total Batches', value: courses.length, sub: 'Academy Registry' },
-          { label: 'Active Batches', value: courses?.filter(c => c.status === 'active').length, sub: 'Currently Operational', color: 'text-success' },
+          { label: 'Active Batches', value: (courses || []).filter(c => c.status === 'active').length, sub: 'Currently Operational', color: 'text-success' },
         ]}
         renderItem={(stat, i) => (
           <Card key={i} className="hover-lift transition-premium">
@@ -524,7 +525,7 @@ export default function ClassesPage() {
                         <SelectValue placeholder="Select class level" />
                       </SelectTrigger>
                       <SelectContent>
-                        {ACADEMY_LEVELS?.map(level => (
+                        {(ACADEMY_LEVELS || []).map(level => (
                           <SelectItem key={level} value={level}>{level}</SelectItem>
                         ))}
                       </SelectContent>
@@ -537,7 +538,7 @@ export default function ClassesPage() {
                         <SelectValue placeholder="Assign teacher" />
                       </SelectTrigger>
                       <SelectContent>
-                        {teachers?.map(teacher => (
+                        {(teachers || []).map(teacher => (
                           <SelectItem key={teacher.id} value={teacher.id}>{teacher.name}</SelectItem>
                         ))}
                       </SelectContent>
@@ -553,7 +554,7 @@ export default function ClassesPage() {
                         <SelectValue placeholder="Starting time" />
                       </SelectTrigger>
                       <SelectContent>
-                        {SESSION_TIMINGS?.map(time => (
+                        {(SESSION_TIMINGS || []).map(time => (
                           <SelectItem key={time} value={time}>{time}</SelectItem>
                         ))}
                       </SelectContent>

@@ -42,8 +42,7 @@ import { StabilityBoundary } from '@/components/stability/stability-boundary'
 export default function AdminDashboard() {
   const { user } = useAuth()
   const { students, teachers, courses, stats, isInitialized } = useData()
-  const hasMounted = useHasMounted()
-
+  
   // Dynamic Chart Data Generation
   const enrollmentTrendData = useMemo(() => {
     if (!hasMounted || !students) return []
@@ -96,6 +95,11 @@ export default function AdminDashboard() {
         }
       })
   }, [courses, hasMounted])
+
+  const hasMounted = useHasMounted()
+  if (!hasMounted) return null
+  if (!isInitialized) return <DashboardSkeleton />
+
 
 
 

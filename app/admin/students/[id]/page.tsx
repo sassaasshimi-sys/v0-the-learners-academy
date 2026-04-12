@@ -1,5 +1,7 @@
 'use client'
 
+import { PageShell } from '@/components/shared/page-shell'
+import { PageHeader } from '@/components/shared/page-header'
 import { DashboardSkeleton } from '@/components/dashboard-skeleton'
 import { useParams, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
@@ -99,7 +101,8 @@ export default function StudentDossierPage() {
   const totalDue = studentFees.reduce((sum, f) => sum + (f.totalAmount || 0), 0) - totalPaid
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <PageShell>
+      <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header & Back Button */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-4">
@@ -418,6 +421,7 @@ export default function StudentDossierPage() {
           </Card>
         </div>
       </div>
-    </div>
+      </div>
+    </PageShell>
   )
 }

@@ -56,12 +56,18 @@ import { PageShell } from '@/components/shared/page-shell'
 import { PageHeader } from '@/components/shared/page-header'
 import { EntityCardGrid } from '@/components/shared/entity-card-grid'
 import { EntityDataGrid, Column } from '@/components/shared/entity-data-grid'
+import { useHasMounted } from '@/hooks/use-has-mounted'
 
 export default function TeachersPage() {
   const { teachers, updateTeacherStatus, removeTeacher, updateTeacher, updateTeacherReviewFlag, isInitialized } = useData()
   const [searchQuery, setSearchQuery] = useState('')
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null)
+
+  const hasMounted = useHasMounted()
+  if (!hasMounted) return null
+  if (!isInitialized) return <DashboardSkeleton />
+
   
 
 
@@ -260,8 +266,8 @@ export default function TeachersPage() {
       <EntityCardGrid 
         data={[
           { label: 'Total Teachers', value: teachers.length, sub: 'Faculty Roster' },
-          { label: 'Active Teachers', value: teachers?.filter(t => t.status === 'active').length, sub: 'Currently Engaged', color: 'text-success' },
-          { label: 'Inactive Teachers', value: teachers?.filter(t => t.status === 'inactive').length, sub: 'Off-Registry', color: 'text-muted-foreground' },
+          { label: 'Active Teachers', value: (teachers || []).filter(t => t.status === 'active').length, sub: 'Currently Engaged', color: 'text-success' },
+          { label: 'Inactive Teachers', value: (teachers || []).filter(t => t.status === 'inactive').length, sub: 'Off-Registry', color: 'text-muted-foreground' },
         ]}
         renderItem={(stat, i) => (
           <Card key={i} className="hover-lift transition-premium">
@@ -344,7 +350,7 @@ export default function TeachersPage() {
                         <SelectValue placeholder="No level assigned" />
                       </SelectTrigger>
                       <SelectContent>
-                        {ACADEMY_LEVELS?.map(level => (
+                        {(ACADEMY_LEVELS || []).map(level => (
                           <SelectItem key={level} value={level}>{level}</SelectItem>
                         ))}
                       </SelectContent>

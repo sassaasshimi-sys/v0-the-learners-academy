@@ -168,8 +168,8 @@ export default function EnrollmentTrendPage() {
   }, [students, periodFilter, classFilter, searchQuery, currentYear])
 
   const hasMounted = useHasMounted()
-
-
+  if (!hasMounted) return null
+  if (!isInitialized) return <DashboardSkeleton />
 
   const columns: Column<Student>[] = [
     {

@@ -42,15 +42,18 @@ import { useData } from '@/contexts/data-context'
 import { STAGGER_CONTAINER, STAGGER_ITEM } from '@/lib/premium-motion'
 import { useHasMounted } from '@/hooks/use-has-mounted'
 import { ClientDate } from '@/components/shared/client-date'
+import { PageShell } from '@/components/shared/page-shell'
 
 export default function TestReviewsPage() {
-  const { assessments, teachers, approveAssessment, rejectAssessment, isInitialized } = useData()
+  const { assessments, teachers, questions, approveAssessment, rejectAssessment, isInitialized } = useData()
   const hasMounted = useHasMounted()
-
 
   const [expandedRejectId, setExpandedRejectId] = useState<string | null>(null)
   const [inspectPoolId, setInspectPoolId] = useState<string | null>(null)
   const [feedbackMap, setFeedbackMap] = useState<Record<string, string>>({})
+
+  if (!hasMounted) return null
+  if (!isInitialized) return <DashboardSkeleton />
 
   const pendingAssessments = assessments?.filter(a => a.status === 'pending_review')
   const approvedCount = assessments?.filter(a => a.status === 'active' && a.submittedByTeacherId).length
@@ -100,8 +103,7 @@ export default function TestReviewsPage() {
   }
 
   const getPoolStrength = (assessment: any) => {
-    const { questions } = useData()
-    const pool = questions?.filter(q => {
+    const pool = (questions || []).filter(q => {
       const phaseMatch = q.phase === assessment.phase || q.phase === 'Both'
       const natureMatch = assessment.nature === 'Mixed' || q.type === assessment.nature
       return phaseMatch && natureMatch && q.isApproved
@@ -114,12 +116,9 @@ export default function TestReviewsPage() {
     ? getPoolStrength(selectedAssessmentForPool)
     : { count: 0, questions: [] }
 
-  if (!isInitialized || !hasMounted) {
-    return <DashboardSkeleton />
-  }
-
   return (
-    <div className="space-y-6">
+    <PageShell>
+      <div className="space-y-6">
       {/* Page Header */}
       <motion.div
         initial="hidden"
@@ -449,7 +448,8 @@ export default function TestReviewsPage() {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+      </div>
+    </PageShell>
   )
 }
 
